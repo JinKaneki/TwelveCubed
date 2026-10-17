@@ -149,9 +149,11 @@
       '<div class="sky-card" data-plate="' + plate + '">' +
       '<div class="sky-bar" role="toolbar" aria-label="Chart tools">' +
         '<div class="sky-group">' +
-          '<button type="button" class="sky-btn" data-act="zoom"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L21 21M10.5 7.5v6M7.5 10.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Zoom</span></button>' +
-          '<button type="button" class="sky-btn" data-act="png"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Save PNG</span></button>' +
-          '<button type="button" class="sky-btn" data-act="svg" title="Vector file with the wheel and the data tables"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Save SVG</span></button>' +
+          '<button type="button" class="sky-btn" data-act="zoom" title="Enlarge the wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L21 21M10.5 7.5v6M7.5 10.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="lb-l">Zoom</span><span class="lb-s">Zoom</span></button>' +
+          '<button type="button" class="sky-btn" data-act="png" title="Picture of the wheel alone"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lb-l">Save PNG</span><span class="lb-s">PNG</span></button>' +
+          '<button type="button" class="sky-btn" data-act="fullpng" title="Picture of the whole sheet: wheel, positions, houses, aspect grid and list"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lb-l">Save Full PNG</span><span class="lb-s">Full PNG</span></button>' +
+          '<button type="button" class="sky-btn" data-act="pdf" title="The whole sheet as a PDF; you can name the file before it is saved"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lb-l">Save PDF</span><span class="lb-s">PDF</span></button>' +
+          '<button type="button" class="sky-btn" data-act="svg" title="Vector file with the wheel and the data tables"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lb-l">Save SVG</span><span class="lb-s">SVG</span></button>' +
         '</div>' +
         '<div class="sky-group sky-opts">' +
           '<div class="sky-seg" role="group" aria-label="Plate"><button type="button" data-plate="paper" aria-pressed="' + (plate === "paper") + '">Paper</button><button type="button" data-plate="night" aria-pressed="' + (plate === "night") + '">Night</button></div>' +
@@ -447,6 +449,96 @@
       img.onerror = function () { URL.revokeObjectURL(url); };
       img.src = url;
     }
+    /* The whole sheet (wheel + data tables + aspect grid) drawn to a canvas: for Full PNG and PDF.
+       The size is capped (12 megapixels, 8000 px a side) so phones can do it too. */
+    function sheetCanvas(cb) {
+      var svg = sheetSvg(), m = svg.match(/<svg[^>]*?\swidth="([\d.]+)"\s+height="([\d.]+)"/);
+      if (!m) return;
+      var w0 = +m[1], h0 = +m[2];
+      var k = Math.min(2.2, Math.sqrt(12e6 / (w0 * h0)), 8000 / Math.max(w0, h0)), w = Math.round(w0 * k), h = Math.round(h0 * k);
+      svg = svg.replace(/(<svg[^>]*?)\swidth="[\d.]+"\s+height="[\d.]+"/, '$1 width="' + w + '" height="' + h + '"');
+      var img = new Image(), url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
+      img.onload = function () {
+        var cv = document.createElement("canvas");
+        cv.width = w; cv.height = h;
+        var cx = cv.getContext("2d");
+        cx.fillStyle = plate === "night" ? "#000" : "#fff"; cx.fillRect(0, 0, w, h);
+        cx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        cb(cv);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); fine.textContent = "This browser could not draw the sheet. Try Save SVG instead."; };
+      img.src = url;
+    }
+    function saveFullPng() {
+      sheetCanvas(function (cv) { cv.toBlob(function (b) { if (b) download(b, fileStem() + "-full.png"); }, "image/png"); });
+    }
+
+    /* A one-page PDF: the sheet as a high-resolution JPEG inside a hand-written PDF container (no library, nothing sent anywhere). */
+    function makePdf(jpeg, pw, ph, title) {
+      var enc = new TextEncoder(), chunks = [], offs = [], len = 0;
+      function put(x) { var b = typeof x === "string" ? enc.encode(x) : x; chunks.push(b); len += b.length; }
+      function obj(n, body) { offs[n] = len; put(n + " 0 obj\n" + body + "\nendobj\n"); }
+      var W = 595, H = Math.round(595 * ph / pw * 100) / 100;                 // one page, A4 wide, as tall as the sheet needs
+      put("%PDF-1.4\n%âãÏÓ\n");
+      obj(1, "<< /Type /Catalog /Pages 2 0 R >>");
+      obj(2, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+      obj(3, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + W + " " + H + "] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>");
+      offs[4] = len;
+      put("4 0 obj\n<< /Type /XObject /Subtype /Image /Width " + pw + " /Height " + ph + " /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + jpeg.length + " >>\nstream\n");
+      put(jpeg); put("\nendstream\nendobj\n");
+      var content = "q " + W + " 0 0 " + H + " 0 0 cm /Im0 Do Q";
+      obj(5, "<< /Length " + content.length + " >>\nstream\n" + content + "\nendstream");
+      var safe = String(title).replace(/[()\\]/g, "");
+      obj(6, "<< /Title (" + safe + ") /Creator (Twelve Cubed) /Producer (Twelve Cubed) >>");
+      var xref = len, x = "xref\n0 7\n0000000000 65535 f \n";
+      for (var i = 1; i <= 6; i++) x += ("0000000000" + offs[i]).slice(-10) + " 00000 n \n";
+      put(x + "trailer\n<< /Size 7 /Root 1 0 R /Info 6 0 R >>\nstartxref\n" + xref + "\n%%EOF\n");
+      return new Blob(chunks, { type: "application/pdf" });
+    }
+    function buildPdf(done) {
+      sheetCanvas(function (cv) {
+        cv.toBlob(function (jb) {
+          if (!jb) return;
+          jb.arrayBuffer().then(function (buf) { done(makePdf(new Uint8Array(buf), cv.width, cv.height, "Twelve Cubed chart " + longDate(st.input.ms, st.input.tz))); });
+        }, "image/jpeg", 0.94);
+      });
+    }
+    /* Ask for the file name first, so the PDF can be named before it is saved. A real "Save as" window where the browser has one,
+       otherwise a small dialog of our own. */
+    function askName(def, ext, go) {
+      var dlg = document.createElement("dialog");
+      dlg.className = "sky-modal sky-ask"; dlg.setAttribute("data-plate", plate); dlg.setAttribute("aria-label", "Name the file");
+      dlg.innerHTML = '<form method="dialog" class="sky-askform"><label>Name the file<input type="text" name="n" autocomplete="off" spellcheck="false"></label>' +
+        '<p class="sky-askhint">It is saved to your usual downloads folder as <b data-ext></b>.</p>' +
+        '<div class="sky-askbtns"><button type="button" data-no>Cancel</button><button type="submit" class="go">Save</button></div></form>';
+      document.body.appendChild(dlg);
+      var inp = dlg.querySelector("input"), form = dlg.querySelector("form");
+      inp.value = def; dlg.querySelector("[data-ext]").textContent = "name" + ext;
+      function close() { try { dlg.close(); } catch (e) { /* already closed */ } dlg.remove(); }
+      dlg.querySelector("[data-no]").addEventListener("click", close);
+      dlg.addEventListener("cancel", function () { dlg.remove(); });
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var n = inp.value.replace(/[\\\/:*?"<>|\u0000-\u001f]/g, "").replace(/\s+/g, " ").trim().replace(/\.+$/, "");
+        if (!n) n = def;
+        if (n.toLowerCase().slice(-ext.length) !== ext) n += ext;
+        close(); go(n);
+      });
+      if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+      inp.focus(); inp.select();
+    }
+    function savePdf() {
+      var name = fileStem() + ".pdf";
+      function viaDialog() { askName(fileStem(), ".pdf", function (n) { buildPdf(function (blob) { download(blob, n); }); }); }
+      if (window.showSaveFilePicker) {
+        window.showSaveFilePicker({ suggestedName: name, types: [{ description: "PDF file", accept: { "application/pdf": [".pdf"] } }] })
+          .then(function (fh) {
+            buildPdf(function (blob) { fh.createWritable().then(function (w) { return w.write(blob).then(function () { return w.close(); }); }); });
+          })
+          .catch(function (e) { if (!e || e.name !== "AbortError") viaDialog(); });
+      } else viaDialog();
+    }
     function saveSvg() {
       download(new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n' + sheetSvg()], { type: "image/svg+xml" }), fileStem() + ".svg");
     }
@@ -458,6 +550,8 @@
       var act = b.getAttribute("data-act");
       if (act === "zoom") openZoom();
       else if (act === "png") savePng();
+      else if (act === "fullpng") saveFullPng();
+      else if (act === "pdf") savePdf();
       else if (act === "svg") saveSvg();
       else if (act === "where") {
         if (!navigator.geolocation) { fine.textContent = "This browser cannot share a location."; return; }
