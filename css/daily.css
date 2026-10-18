@@ -16,6 +16,9 @@
 }
 .daily-page section { margin-top: clamp(3.5rem, 9vw, 6rem); }
 .daily-page .tao { margin-top: 0; text-align: center; }
+.rota-emblem { display: block; width: 7rem; height: 7rem; margin: 0 auto 1rem; border-radius: 50%; object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(255, 141, 20, 0.35), 0 12px 50px rgba(255, 141, 20, 0.22); animation: tc-spin 120s linear infinite; }
+.rota-mini { width: 6rem; height: 6rem; border-radius: 50%; flex: none; box-shadow: 0 0 0 1px rgba(255, 141, 20, 0.3); }
 .daily-page .kicker { margin: 0; font: 400 0.82rem/1.4 var(--text); letter-spacing: 0.3em; text-transform: uppercase; color: var(--earth); }
 .daily-page h1 { margin: 0.35rem 0 0; font: 400 clamp(2.4rem, 7vw, 4.2rem)/1.05 var(--display); letter-spacing: 0.01em; }
 .daily-page h2 { margin: 0; font: 400 clamp(1.7rem, 4.6vw, 2.5rem)/1.15 var(--display); text-align: center; }
@@ -141,9 +144,102 @@
 .cosmos { text-align: center; }
 .astro-app { margin-top: 1.8rem; }
 .astro-wait { color: var(--paper-faint); font-style: italic; }
+/* ---------------------------------------------------------------- the celestial clock (the instrument keeps its own midnight and brass on both plates) */
+.astro-app { max-width: 70rem; margin: 1.8rem auto 0; text-align: left; }
+.astro-grid { display: grid; gap: 1.4rem; align-items: start; }
+.astro-grid > * { min-width: 0; }
+@media (min-width: 64rem) {
+  .astro-grid { grid-template-columns: minmax(0, 1fr) 21rem; grid-template-rows: auto auto 1fr; column-gap: 1.8rem; }
+  .astro-grid .astro-stage { grid-column: 1; grid-row: 1; }
+  .astro-grid .astro-panel { grid-column: 2; grid-row: 1 / span 3; }
+  .astro-grid .astro-read { grid-column: 1; grid-row: 2; margin-top: 0; }
+  .astro-grid .astro-chips { grid-column: 1; grid-row: 3; margin-top: 0; }
+}
+.astro-stage {
+  position: relative; width: 100%; max-width: 46rem; aspect-ratio: 1; margin: 0 auto; border-radius: 50%; cursor: crosshair;
+  background: radial-gradient(circle at 50% 50%, #0d2a4a 0%, #08203a 55%, #061424 100%);
+  box-shadow: 0 0 0 1px rgba(201, 165, 90, 0.6), 0 12px 30px rgba(0, 0, 0, 0.3); touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.astro-stage canvas { position: absolute; left: 17%; top: 17%; width: 66%; height: 66%; border-radius: 50%; display: block; }
+.astro-stage svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+.astro-stage text { font-family: var(--text); }
+.a-rim { fill: none; stroke: #c9a55a; stroke-width: 3; }
+.a-bezel { fill: none; stroke: #091d33; }
+.a-zband { fill: none; stroke: #07182b; }
+.a-hband { fill: none; stroke: #0a2340; }
+.a-line { fill: none; stroke: rgba(201, 165, 90, 0.85); stroke-width: 1.6; }
+.a-hr { fill: #efe4c6; font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.a-hr-minor { font-size: 15px; font-weight: 400; fill: #b2a481; }
+.a-t5, .a-t15, .a-t60 { fill: none; }
+.a-t5 { stroke: rgba(239, 228, 198, 0.34); stroke-width: 1; } .a-t15 { stroke: rgba(239, 228, 198, 0.62); stroke-width: 1.3; } .a-t60 { stroke: #efe4c6; stroke-width: 2.2; }
+.a-d1, .a-d5, .a-d10, .a-bnd { fill: none; }
+.a-d1 { stroke: rgba(240, 226, 190, 0.5); stroke-width: 0.9; } .a-d5 { stroke: rgba(240, 226, 190, 0.8); stroke-width: 1.2; } .a-d10 { stroke: #f0e2be; stroke-width: 1.5; }
+.a-bnd { stroke: #c9a55a; stroke-width: 1.7; }
+.a-hnum { fill: #cfd8dc; font-size: 16px; font-weight: 600; }
+.a-cusp { fill: none; stroke: rgba(201, 165, 90, 0.65); stroke-width: 1.3; } .a-cusp-4 { stroke: #f0d089; stroke-width: 2.6; }
+.a-ang rect { fill: #f0d089; } .a-ang text { fill: #0a1a2c; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }
+.a-mc { stroke: #f0d089; stroke-width: 2; stroke-dasharray: 9 7; opacity: 0.9; } .a-ic { stroke: #f0d089; stroke-width: 1.6; stroke-dasharray: 5 9; opacity: 0.4; }
+.a-rays { fill: none; stroke: #ffd25a; stroke-width: 2.2; stroke-linecap: round; } .a-sunc { fill: #ffd25a; stroke: #fff4c4; stroke-width: 2; }
+.a-moond { fill: #2a3040; } .a-moonl { fill: #f4ecc8; } .a-moonr { fill: none; stroke: #cfd6e8; stroke-width: 1.4; }
+.a-pin-ring { fill: rgba(255, 90, 79, 0.25); stroke: #ff6b5b; stroke-width: 2.2; } .a-pin-dot { fill: #ff6b5b; }
+.a-pin-t { fill: #fff; font-size: 17px; font-weight: 600; paint-order: stroke; stroke: rgba(4, 12, 24, 0.9); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+.a-bead { fill: #07182b; stroke: rgba(201, 165, 90, 0.75); stroke-width: 1.5; } .a-lead { fill: none; stroke-width: 1.6; } .a-retro { fill: #ff6a7c; font-size: 14px; font-weight: 700; }
+.a-hand { fill: rgba(240, 208, 137, 0.9); stroke: rgba(8, 20, 36, 0.85); stroke-width: 1; stroke-linejoin: round; } .a-hand-m { fill: rgba(250, 234, 190, 0.92); }
+.a-hand-s line { stroke: #ff5a4f; stroke-width: 2.2; stroke-linecap: round; }
+.a-cap { fill: #c9a55a; stroke: #0a1a2c; stroke-width: 1.5; } .a-cap-i { fill: #0a1a2c; }
+@media (max-width: 36rem) { .a-hr-minor { display: none; } .a-hr { font-size: 25px; } .a-pin-t { font-size: 22px; } .a-hnum { font-size: 19px; } .a-ang text { font-size: 16px; } }
+
+.astro-panel { border: 1px solid var(--rule); border-radius: 1rem; background: var(--ground-deep); padding: 1.1rem 1.1rem 1.2rem; display: grid; gap: 1rem; box-shadow: var(--shadow); }
+.ap-time { text-align: center; }
+.ap-clock { margin: 0; font: 400 clamp(2.3rem, 7vw, 3rem)/1 var(--text); font-variant-numeric: tabular-nums; color: var(--paper); letter-spacing: 0.02em; }
+.ap-date { margin: 0.3rem 0 0; color: var(--paper-dim); font-size: 1.02rem; }
+.ap-status { display: inline-block; margin: 0.6rem 0 0; padding: 0.2rem 0.8rem; border: 1px solid var(--rule-strong); border-radius: 999px; font-size: 0.84rem; color: var(--paper-dim); }
+.ap-status.is-sim { color: var(--gold-hi); border-color: rgba(240, 208, 137, 0.5); }
+:root[data-theme="light"] .ap-status.is-sim { color: #7a5a14; border-color: rgba(122, 90, 20, 0.5); }
+.ap-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ap-transport .ap-btn { flex: 1; }
+.ap-block { display: grid; gap: 0.5rem; margin: 0; padding: 0; border: 0; min-width: 0; }
+.ap-lab { font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--paper-faint); padding: 0; }
+.ap-btn, .ap-sel, .astro-panel input[type="datetime-local"] {
+  font: 400 0.95rem/1.2 var(--text); color: var(--paper); background: var(--wash-faint); border: 1px solid var(--rule-strong); border-radius: 999px;
+  padding: 0.55rem 0.95rem; min-height: 2.5rem; cursor: pointer;
+}
+.ap-btn:hover, .ap-sel:hover { background: var(--wash); }
+.ap-btn:focus-visible, .ap-sel:focus-visible, .astro-panel input:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+.ap-main { background: var(--earth); color: var(--ground-deep); border-color: transparent; font-weight: 600; } .ap-main:hover { background: var(--earth); filter: brightness(1.08); }
+.ap-steps .ap-btn { flex: 1 1 4.2rem; padding-left: 0.4rem; padding-right: 0.4rem; text-align: center; }
+.ap-speed { display: flex; align-items: center; gap: 0.5rem; }
+.ap-speed-t { flex: 1; text-align: center; font-size: 0.95rem; color: var(--paper); }
+.ap-sq { width: 2.5rem; padding: 0; font-size: 1.2rem; }
+.ap-wide { justify-self: stretch; }
+.ap-btn[aria-pressed="true"] { background: var(--earth); color: var(--ground-deep); border-color: transparent; }
+.ap-sel { border-radius: 0.6rem; width: 100%; }
+.astro-panel input[type="datetime-local"] { flex: 1 1 11rem; border-radius: 0.6rem; cursor: text; min-width: 0; color-scheme: dark; }
+:root[data-theme="light"] .astro-panel input[type="datetime-local"] { color-scheme: light; }
+.ap-hint { margin: 0; font-size: 0.84rem; color: var(--paper-faint); }
+.ap-show label { display: flex; align-items: center; gap: 0.6rem; color: var(--paper-dim); font-size: 0.95rem; min-height: 1.9rem; cursor: pointer; }
+.ap-show input { width: 1.1rem; height: 1.1rem; accent-color: var(--earth); }
+.ap-show legend { margin-bottom: 0.3rem; }
+
+.astro-read { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0.7rem; margin-top: 0.4rem; }
+.astro-read .rd:nth-child(4), .astro-read .rd:nth-child(5) { grid-column: 1 / -1; }
+.rd { border: 1px solid var(--rule); border-radius: 0.8rem; padding: 0.8rem 1rem; background: var(--wash-faint); min-width: 0; }
+.rd p { margin: 0; }
+.rd-h { font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--paper-faint); overflow-wrap: anywhere; }
+.rd-v { margin-top: 0.25rem !important; font: 400 1.2rem/1.25 var(--text); color: var(--paper); font-variant-numeric: tabular-nums; }
+.rd-s { margin-top: 0.25rem !important; font-size: 0.9rem; color: var(--paper-dim); }
+.astro-chips { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: 0.5rem 0.8rem; }
+.astro-chips li { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.8rem; border: 1px solid var(--rule); border-radius: 999px; font-size: 0.92rem; }
+.chip-g { display: inline-flex; flex: none; color: var(--cn); } :root[data-theme="light"] .chip-g { color: var(--cp); } .chip-n { color: var(--paper-dim); } .chip-v { margin-left: auto; color: var(--paper); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chip-r { font-style: normal; font-weight: 700; color: #ff6a7c; }
+.astro-how { max-width: 46rem; margin: 1.4rem auto 0; border: 1px solid var(--rule); border-radius: 0.8rem; }
+.astro-how summary { cursor: pointer; padding: 0.9rem 1.2rem; font: 400 1.1rem/1.3 var(--display); list-style: none; display: flex; justify-content: space-between; align-items: center; }
+.astro-how summary::-webkit-details-marker { display: none; }
+.astro-how summary::after { content: "+"; font-size: 1.4rem; color: var(--paper-dim); } .astro-how[open] summary::after { content: "\2212"; }
+
 .daily-credits { max-width: 46rem; margin: 4rem auto 0; font-size: 0.85rem; color: var(--paper-faint); text-align: center; }
 
 @media (prefers-reduced-motion: reduce) {
   .yy svg, .sheet, .chapter, .scroll.is-open .chapter { transition: none !important; }
-  .yy { animation: none !important; }
+  .yy, .rota-emblem { animation: none !important; }
 }
