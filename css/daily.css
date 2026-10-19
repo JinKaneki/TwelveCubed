@@ -10,16 +10,22 @@
   --ink: #2a2017;
   --seal: #9c2f1f;
   --night: #07182b;
+  --rota: #ff8d14;                       /* the glowing orange of the Rota logo: the accent of this page */
+  --rota-hi: #ffb04a;
+  --rota-ink: #ff8d14;                   /* the orange as lettering; the light plate uses a deeper shade (below) */
+  --rota-glow: rgba(255, 141, 20, 0.55);
+  --on-rota: #1b1004;                    /* text on an orange fill */
   max-width: 72rem;
   margin: 0 auto;
   padding: clamp(1.5rem, 5vw, 3.5rem) var(--gutter) 4rem;
 }
+:root[data-theme="light"] .daily-page { --rota-ink: #b85300; --rota-hi: #d96a00; --rota-glow: rgba(255, 141, 20, 0.45); }
 .daily-page section { margin-top: clamp(3.5rem, 9vw, 6rem); }
 .daily-page .tao { margin-top: 0; text-align: center; }
 .rota-emblem { display: block; width: 7rem; height: 7rem; margin: 0 auto 1rem; border-radius: 50%; object-fit: cover;
   box-shadow: 0 0 0 1px rgba(255, 141, 20, 0.35), 0 12px 50px rgba(255, 141, 20, 0.22); animation: tc-spin 120s linear infinite; }
 .rota-mini { width: 6rem; height: 6rem; border-radius: 50%; flex: none; box-shadow: 0 0 0 1px rgba(255, 141, 20, 0.3); }
-.daily-page .kicker { margin: 0; font: 400 0.82rem/1.4 var(--text); letter-spacing: 0.3em; text-transform: uppercase; color: var(--earth); }
+.daily-page .kicker { margin: 0; font: 400 0.82rem/1.4 var(--text); letter-spacing: 0.3em; text-transform: uppercase; color: var(--rota-ink); }
 .daily-page h1 { margin: 0.35rem 0 0; font: 400 clamp(2.4rem, 7vw, 4.2rem)/1.05 var(--display); letter-spacing: 0.01em; }
 .daily-page h2 { margin: 0; font: 400 clamp(1.7rem, 4.6vw, 2.5rem)/1.15 var(--display); text-align: center; }
 .daily-page .lede { max-width: 38rem; margin: 0.9rem auto 0; color: var(--paper-dim); font-size: 1.08rem; text-align: center; }
@@ -88,19 +94,28 @@
 .chap-nav button:hover, .chap-pick select:hover { background: #fff7de; }
 .chap-nav button:focus-visible, .chap-pick select:focus-visible { outline: 2px solid var(--seal); outline-offset: 2px; }
 .chap-pick { font-size: 0.9rem; color: rgba(42, 32, 23, 0.78); display: inline-flex; align-items: center; gap: 0.5rem; }
-.chap-pick select { padding: 0.5rem 0.6rem; border-radius: 0.6rem; }
+.chap-pick select { padding: 0.5rem 0.6rem; border-radius: 0.6rem; color-scheme: light; }
+.chap-pick select option { background-color: #fff7de; color: #2a2017; }
+.ver-row { display: flex; justify-content: center; padding: 0 1rem 1.5rem; margin-top: -0.6rem; }
+.ver-seg { display: inline-flex; border: 1px solid rgba(42, 32, 23, 0.4); border-radius: 999px; overflow: hidden; }
+.ver-seg button { font: 400 0.85rem/1 var(--text); color: var(--ink); background: rgba(255, 250, 232, 0.55); border: 0; padding: 0.55rem 0.95rem; cursor: pointer; min-height: 2.3rem; }
+.ver-seg button:hover { background: #fff7de; }
+.ver-seg button[aria-pressed="true"] { background: var(--seal); color: #fff7de; }
+.ver-seg button:focus-visible { outline: 2px solid var(--seal); outline-offset: -3px; }
+.ch-body .stanza { margin: 0 0 1.2rem; font: 400 clamp(1.05rem, 2.6vw, 1.2rem)/1.65 var(--text); hyphens: manual; }
+.ch-body .stanza span { display: block; padding-left: 1.4em; text-indent: -1.4em; }
 .how-chosen { max-width: 38rem; margin: 1.6rem auto 0; font-size: 0.92rem; color: var(--paper-faint); }
 
 /* ---------------------------------------------------------------- the Cistercian clock */
 .hours { text-align: center; }
 .cist-clock {
   max-width: 46rem; margin: 1.6rem auto 0; padding: clamp(1.4rem, 4vw, 2.2rem) clamp(0.6rem, 3vw, 2rem) 1.3rem;
-  background: var(--ground-deep); border: 1px solid var(--rule); border-radius: 1.1rem; color: var(--earth);
+  background: var(--ground-deep); border: 1px solid var(--rule); border-radius: 1.1rem; color: var(--rota-ink);
   box-shadow: var(--shadow);
 }
 .cist-row { display: flex; justify-content: center; align-items: flex-end; gap: clamp(0.3rem, 2.2vw, 1.3rem); }
 .cc-slot { margin: 0; width: clamp(3.3rem, 15vw, 6.2rem); }
-.cc-sign svg { display: block; width: 100%; height: auto; overflow: visible; }
+.cc-sign svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 0 7px var(--rota-glow)); }
 .cc-slot figcaption { display: flex; flex-direction: column; align-items: center; margin-top: 0.35rem; line-height: 1.25; }
 .cc-num { font: 400 clamp(1rem, 3.2vw, 1.35rem)/1.2 var(--text); font-variant-numeric: tabular-nums; color: var(--paper); }
 .cc-lab { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-faint); }
@@ -115,11 +130,11 @@
 .cist-tools { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.7rem 1rem; margin-top: 1.1rem; }
 .seg { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: 999px; overflow: hidden; }
 .seg button { font: 400 0.85rem/1 var(--text); letter-spacing: 0.04em; color: var(--paper-dim); background: none; border: 0; padding: 0.55rem 0.95rem; cursor: pointer; min-height: 2.3rem; }
-.seg button[aria-pressed="true"] { background: var(--earth); color: var(--ground-deep); }
+.seg button[aria-pressed="true"] { background: var(--rota); color: var(--on-rota); font-weight: 600; }
 .seg button:not([aria-pressed="true"]):hover { background: var(--wash); }
-.sim-tag { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.84rem; color: var(--gold-hi); padding: 0.25rem 0.3rem 0.25rem 0.8rem; border: 1px solid rgba(240, 208, 137, 0.45); border-radius: 999px; }
-:root[data-theme="light"] .sim-tag { color: #7a5a14; border-color: rgba(122, 90, 20, 0.5); }
-.sim-tag button { font: inherit; color: var(--ground-deep); background: var(--earth); border: 0; border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; }
+.sim-tag { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.84rem; color: var(--rota-hi); padding: 0.25rem 0.3rem 0.25rem 0.8rem; border: 1px solid rgba(255, 141, 20, 0.5); border-radius: 999px; }
+:root[data-theme="light"] .sim-tag { color: #b85300; border-color: rgba(184, 83, 0, 0.55); }
+.sim-tag button { font: inherit; font-weight: 600; color: var(--on-rota); background: var(--rota); border: 0; border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; }
 .sim-tag[hidden] { display: none; }
 
 .cist-how { max-width: 46rem; margin: 1.2rem auto 0; text-align: left; border: 1px solid var(--rule); border-radius: 0.8rem; }
@@ -130,15 +145,24 @@
 .how-body { padding: 0 1.2rem 1.3rem; color: var(--paper-dim); font-size: 1.02rem; }
 .how-body p { margin: 0 0 1rem; }
 .how-body b { color: var(--paper); font-weight: 600; }
-.cist-key { list-style: none; margin: 1rem 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(3.6rem, 1fr)); gap: 0.6rem; color: var(--earth); }
+.cist-key { list-style: none; margin: 1rem 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(3.6rem, 1fr)); gap: 0.6rem; color: var(--rota-ink); }
 .cist-key li { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.5rem 0.2rem; border: 1px solid var(--rule); border-radius: 0.6rem; }
 .ck-g { width: 2.6rem; } .ck-g svg { display: block; width: 100%; height: auto; }
 .ck-n { font-size: 0.95rem; color: var(--paper); }
 .conv { margin-top: 1.1rem; display: flex; flex-wrap: wrap; gap: 1rem 1.6rem; align-items: center; }
 .conv label { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; color: var(--paper); }
 .conv input { width: 5.6rem; font: 400 1.2rem/1 var(--text); font-variant-numeric: tabular-nums; text-align: center; color: var(--paper); background: var(--wash-faint); border: 1px solid var(--rule-strong); border-radius: 0.5rem; padding: 0.55rem 0.5rem; }
-.conv-out { color: var(--earth); width: 3.6rem; min-height: 5rem; } .conv-out svg { display: block; width: 100%; height: auto; }
+.conv-out { color: var(--rota-ink); width: 3.6rem; min-height: 5rem; } .conv-out svg { display: block; width: 100%; height: auto; }
 .conv-note { color: var(--paper-faint); font-size: 0.9rem; display: block; width: 14rem; }
+
+/* ---------------------------------------------------------------- the saying between the two clocks */
+.wayquote figure { margin: 0 auto; max-width: 40rem; text-align: center; }
+.wayquote figure::before { content: ""; display: block; width: 4.5rem; height: 2px; margin: 0 auto 1.6rem; background: var(--rota); box-shadow: 0 0 14px var(--rota-glow); border-radius: 2px; }
+.wayquote blockquote { margin: 0; }
+.wayquote p { margin: 0; font: italic 400 clamp(1.45rem, 4.4vw, 2.2rem)/1.45 var(--display); color: var(--paper); }
+.wayquote p span { display: block; }
+.wayquote em { font-style: normal; color: var(--rota-ink); }
+.wayquote figcaption { margin-top: 1.1rem; font-size: 0.78rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--paper-faint); }
 
 /* ---------------------------------------------------------------- the celestial clock (layout; the instrument itself is styled below) */
 .cosmos { text-align: center; }
@@ -194,8 +218,8 @@
 .ap-clock { margin: 0; font: 400 clamp(2.3rem, 7vw, 3rem)/1 var(--text); font-variant-numeric: tabular-nums; color: var(--paper); letter-spacing: 0.02em; }
 .ap-date { margin: 0.3rem 0 0; color: var(--paper-dim); font-size: 1.02rem; }
 .ap-status { display: inline-block; margin: 0.6rem 0 0; padding: 0.2rem 0.8rem; border: 1px solid var(--rule-strong); border-radius: 999px; font-size: 0.84rem; color: var(--paper-dim); }
-.ap-status.is-sim { color: var(--gold-hi); border-color: rgba(240, 208, 137, 0.5); }
-:root[data-theme="light"] .ap-status.is-sim { color: #7a5a14; border-color: rgba(122, 90, 20, 0.5); }
+.ap-status.is-sim { color: var(--rota-hi); border-color: rgba(255, 141, 20, 0.55); }
+:root[data-theme="light"] .ap-status.is-sim { color: #b85300; border-color: rgba(184, 83, 0, 0.55); }
 .ap-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .ap-transport .ap-btn { flex: 1; }
 .ap-block { display: grid; gap: 0.5rem; margin: 0; padding: 0; border: 0; min-width: 0; }
@@ -205,24 +229,39 @@
   padding: 0.55rem 0.95rem; min-height: 2.5rem; cursor: pointer;
 }
 .ap-btn:hover, .ap-sel:hover { background: var(--wash); }
-.ap-btn:focus-visible, .ap-sel:focus-visible, .astro-panel input:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
-.ap-main { background: var(--earth); color: var(--ground-deep); border-color: transparent; font-weight: 600; } .ap-main:hover { background: var(--earth); filter: brightness(1.08); }
+.ap-btn:focus-visible, .ap-sel:focus-visible, .astro-panel input:focus-visible { outline: 2px solid var(--rota-hi); outline-offset: 2px; }
+.ap-main { background: var(--rota); color: var(--on-rota); border-color: transparent; font-weight: 600; box-shadow: 0 0 16px var(--rota-glow); } .ap-main:hover { background: var(--rota); filter: brightness(1.08); }
 .ap-steps .ap-btn { flex: 1 1 4.2rem; padding-left: 0.4rem; padding-right: 0.4rem; text-align: center; }
 .ap-speed { display: flex; align-items: center; gap: 0.5rem; }
 .ap-speed-t { flex: 1; text-align: center; font-size: 0.95rem; color: var(--paper); }
 .ap-sq { width: 2.5rem; padding: 0; font-size: 1.2rem; }
 .ap-wide { justify-self: stretch; }
-.ap-btn[aria-pressed="true"] { background: var(--earth); color: var(--ground-deep); border-color: transparent; }
-.ap-sel { border-radius: 0.6rem; width: 100%; }
+.ap-btn[aria-pressed="true"] { background: var(--rota); color: var(--on-rota); border-color: transparent; font-weight: 600; }
+.ap-sel { border-radius: 0.6rem; width: 100%; color-scheme: dark; }
+:root[data-theme="light"] .ap-sel { color-scheme: light; }
+/* the opened list is drawn by the browser: give every choice a solid plate and ink of its own, so it reads on both plates */
+.ap-sel option, .astro-panel select option { background-color: var(--ground-deep); color: var(--paper); }
 .astro-panel input[type="datetime-local"] { flex: 1 1 11rem; border-radius: 0.6rem; cursor: text; min-width: 0; color-scheme: dark; }
 :root[data-theme="light"] .astro-panel input[type="datetime-local"] { color-scheme: light; }
 .ap-hint { margin: 0; font-size: 0.84rem; color: var(--paper-faint); }
 .ap-show label { display: flex; align-items: center; gap: 0.6rem; color: var(--paper-dim); font-size: 0.95rem; min-height: 1.9rem; cursor: pointer; }
-.ap-show input { width: 1.1rem; height: 1.1rem; accent-color: var(--earth); }
+.ap-show input { width: 1.1rem; height: 1.1rem; accent-color: var(--rota); }
 .ap-show legend { margin-bottom: 0.3rem; }
 
 .astro-read { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0.7rem; margin-top: 0.4rem; }
-.astro-read .rd:nth-child(4), .astro-read .rd:nth-child(5) { grid-column: 1 / -1; }
+.rd-set { display: contents; }
+.astro-read .rd-wide { grid-column: 1 / -1; }
+.rd-save {
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.15rem; text-align: left; cursor: pointer; font: inherit; color: var(--paper);
+  border-color: rgba(255, 141, 20, 0.55); background: linear-gradient(160deg, rgba(255, 141, 20, 0.16), rgba(255, 141, 20, 0.04));
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.rd-save:hover { border-color: var(--rota); box-shadow: 0 0 18px var(--rota-glow); }
+.rd-save:active { transform: translateY(1px); }
+.rd-save:focus-visible { outline: 2px solid var(--rota-hi); outline-offset: 2px; }
+.rd-save svg { color: var(--rota-ink); flex: none; }
+.rd-save-t { font: 600 1.02rem/1.25 var(--text); color: var(--rota-ink); }
+.rd-save .rd-s { margin: 0 !important; font-size: 0.8rem; line-height: 1.35; }
 .rd { border: 1px solid var(--rule); border-radius: 0.8rem; padding: 0.8rem 1rem; background: var(--wash-faint); min-width: 0; }
 .rd p { margin: 0; }
 .rd-h { font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--paper-faint); overflow-wrap: anywhere; }
@@ -236,6 +275,16 @@
 .astro-how summary { cursor: pointer; padding: 0.9rem 1.2rem; font: 400 1.1rem/1.3 var(--display); list-style: none; display: flex; justify-content: space-between; align-items: center; }
 .astro-how summary::-webkit-details-marker { display: none; }
 .astro-how summary::after { content: "+"; font-size: 1.4rem; color: var(--paper-dim); } .astro-how[open] summary::after { content: "\2212"; }
+
+/* ---------------------------------------------------------------- the Tree of Life: transparent, so it sits on whichever plate is showing */
+.tree { text-align: center; }
+.tree-fig { position: relative; margin: 2rem auto 0; max-width: 26rem; }
+.tree-fig::before { content: ""; position: absolute; inset: -6% -30%; background: radial-gradient(closest-side, rgba(255, 141, 20, 0.14), rgba(255, 141, 20, 0) 100%); pointer-events: none; }
+:root[data-theme="light"] .tree-fig::before { display: none; }
+.tree-fig img { position: relative; display: block; width: 100%; height: auto; }
+.tree-light { display: none !important; }
+:root[data-theme="light"] .tree-dark { display: none !important; }
+:root[data-theme="light"] .tree-light { display: block !important; }
 
 .daily-credits { max-width: 46rem; margin: 4rem auto 0; font-size: 0.85rem; color: var(--paper-faint); text-align: center; }
 

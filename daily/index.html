@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Turning Wheel | Rotao | Twelve Cubed</title>
-<meta name="description" content="Rotao, the daily Tao: a chapter of the Tao Te Ching for each day, a clock in Cistercian numerals, and a celestial clock showing the Sun, the Moon and the planets over a map of the Earth.">
+<title>The Turning Rota | RoTao | TwelveCubed</title>
+<meta name="description" content="RoTao, the daily Tao: a chapter of the Tao Te Ching for each day, a clock in Cistercian numerals, and a celestial clock showing the Sun, the Moon and the planets over a map of the Earth.">
 <meta name="theme-color" content="#0b2a47">
 <script>(function(){try{var k=localStorage.getItem("tc_theme");var t=(k==="light"||k==="dark")?k:(window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t)}catch(e){}})();</script>
 <link rel="icon" href="../daily/img/favicon.svg" type="image/svg+xml">
@@ -45,7 +45,7 @@
 <img class="rota-emblem" src="img/rota.png" width="112" height="112" decoding="async" alt="The Rota wheel: the letters T, A, R, O and the four Hebrew letters of the Name round a wheel of eight spokes">
 <p class="kicker">Rota O daily Tao</p>
 <h1 id="daily-h1">The Turning Rota</h1>
-<p class="lede">One chapter of the <i>Tao Te Ching</i> for each day, time written in Cistercian numerals, and the sky as one slowly turning wheel. <i>Rota</i> is the Latin word for wheel; Rotao is the wheel and the Way.</p>
+<p class="lede">One chapter of the <i>Tao Te Ching</i> for each day, time written in Cistercian numerals, and the sky as one slowly turning wheel. <i>Rota</i> is the Latin word for wheel; RoTao is the wheel and the Way.</p>
 
 <button class="yy" type="button" data-yy aria-expanded="false" aria-controls="scroll-sheet" aria-label="Open today&rsquo;s chapter"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
 <circle class="yy-rim" cx="50" cy="50" r="48.4"/>
@@ -55,7 +55,7 @@
 <circle class="yy-light" cx="50" cy="72.75" r="6.4"/>
 <circle class="yy-line" cx="50" cy="50" r="45.5"/>
 </svg></button>
-<p class="yy-hint" data-yy-hint>Touch the yin-yang to unfold today's chapter.</p>
+<p class="yy-hint" data-yy-hint>Touch the yin-yang to unfold today&rsquo;s chapter.</p>
 
 <div class="scroll" data-scroll>
 <div class="rod" aria-hidden="true"><i></i></div>
@@ -68,6 +68,9 @@
 <label class="chap-pick">Go to chapter <select data-pick></select></label>
 <button type="button" data-next>&rsaquo;</button>
 </nav>
+<div class="ver-row" role="group" aria-label="Which version of the text">
+<span class="ver-seg"><button type="button" data-ver="own" aria-pressed="true">Our rendering</button><button type="button" data-ver="legge" aria-pressed="false">Legge, 1891</button></span>
+</div>
 </div>
 </div>
 <div class="rod" aria-hidden="true"><i></i></div>
@@ -111,6 +114,13 @@
 </details>
 </section>
 
+<section class="wayquote" aria-label="A saying from the Tao Te Ching">
+<figure>
+<blockquote><p><span>Man follows the earth,</span> <span>the earth follows the heavens,</span> <span>the heavens follow the <em>Tao</em></span> <span>and the <em>Tao</em> follows nature.</span></p></blockquote>
+<figcaption>Tao Te Ching, 25</figcaption>
+</figure>
+</section>
+
 <section class="cosmos" aria-labelledby="cosmos-h" data-cosmos>
 <h2 id="cosmos-h">The celestial clock</h2>
 <p class="lede">A chart wheel with the Earth in its middle. The map is seen from above the North Pole, with the night side in shadow and the Sun and the Moon over the places where they stand at zenith. Around it turn the zodiac and the planets. Press play, speed it up, or jump to any date.</p>
@@ -118,7 +128,16 @@
 <noscript><p class="notice">The celestial clock needs JavaScript.</p></noscript>
 </section>
 
-<p class="daily-credits">Tao Te Ching: James Legge&rsquo;s 1891 translation, public domain, from the Standard Ebooks edition. Coastlines: Natural Earth, public domain. Sun, Moon and planet positions: astronomy-engine by Don Cross, MIT licence. Cistercian numerals: the medieval system, drawn here by hand-written code. The Rota wheel: picture supplied for this site.</p>
+<section class="tree" aria-labelledby="tree-h">
+<h2 id="tree-h">The Tree of Life</h2>
+<p class="lede">Ten spheres and the twenty-two paths between them, from Kether, the Crown, down to Malkuth, the Kingdom. It stays here, whatever the hour.</p>
+<figure class="tree-fig">
+<img class="tree-dark" src="img/tree-of-life.png" width="900" height="1951" loading="lazy" decoding="async" alt="The Kabbalistic Tree of Life: ten coloured spheres, from Kether, the Crown, at the top to Malkuth, the Kingdom, at the bottom, joined by twenty-two paths that each carry a Hebrew letter, under three white veils">
+<img class="tree-light" src="img/tree-of-life-light.png" width="900" height="1951" loading="lazy" decoding="async" alt="The Kabbalistic Tree of Life: ten coloured spheres, from Kether, the Crown, at the top to Malkuth, the Kingdom, at the bottom, joined by twenty-two paths that each carry a Hebrew letter, under three dark veils">
+</figure>
+</section>
+
+<p class="daily-credits">Tao Te Ching: a plain-English rendering made for this site, guided by James Legge&rsquo;s 1891 translation (public domain, from the Standard Ebooks edition), which can be switched on. Coastlines: Natural Earth, public domain. Sun, Moon and planet positions: astronomy-engine by Don Cross, MIT licence. Cistercian numerals: the medieval system, drawn here by hand-written code. The Rota wheel and the Tree of Life: pictures supplied for this site.</p>
 </main>
 
 <footer class="colophon rota-foot">
@@ -127,7 +146,7 @@
 <p class="motto">Twelve signs, three lights, one of you.</p>
 </div>
 <p class="disclaimer">Astrology is read here as a symbolic language for reflection, not as prediction, and not as medical or psychological advice.</p>
-<p class="colophon-links"><a href="../index.html">Back to Twelve Cubed</a> <span aria-hidden="true">&middot;</span> <a href="../about.html">About, sources and credits</a></p>
+<p class="colophon-links"><a href="../index.html">Back to TwelveCubed</a> <span aria-hidden="true">&middot;</span> <a href="../about.html">About, sources and credits</a></p>
 <p class="copy">&copy; <span data-years>2026</span> TwelveCubed - Jin Kaneki</p>
 </footer>
 <script src="../data/tao.js"></script><script src="../js/cistercian.js"></script><script src="../js/daily.js"></script><script src="../js/theme.js"></script><script src="../js/chrome.js"></script>

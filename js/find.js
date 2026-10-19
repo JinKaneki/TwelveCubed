@@ -297,7 +297,7 @@
     });
   }
 
-  /* ---------- the natal chart wheel, under the Twelve Cubed wheel ---------- */
+  /* ---------- the natal chart wheel, under the TwelveCubed wheel ---------- */
   var skyApi = null;
   function showSky(inp) {
     var sec = document.getElementById("sky-find");

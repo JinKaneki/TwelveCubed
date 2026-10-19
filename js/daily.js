@@ -64,7 +64,10 @@
     if (!btn || !scroll) return;
     var spin = btn.querySelector("svg"), hint = $("[data-yy-hint]"), sheet = $("[data-sheet]");
     var body = $("[data-chapter]"), prev = $("[data-prev]"), next = $("[data-next]"), today = $("[data-today]"), pick = $("[data-pick]");
-    var TAO = window.TC_TAO || [], todayCh = chapterOfDay(Date.now()), shown = todayCh, angle = 0, busy = false;
+    var DATA = window.TC_TAO || {}, todayCh = chapterOfDay(Date.now()), shown = todayCh, angle = 0, busy = false;
+    var CREDIT = { own: "A plain-English rendering made for this site, guided by James Legge&rsquo;s 1891 translation.", legge: "Tao Te Ching, translated by James Legge (1891; public domain)." };
+    var ver = store("tc_tao_ver") === "legge" && DATA.legge ? "legge" : (DATA.own ? "own" : "legge");
+    var vbtns = $$("[data-ver]");
 
     function dateLine() {
       var d = new Date(Date.now());
@@ -72,12 +75,13 @@
     }
     function blocks(ch) {
       return ch.b.map(function (b) {
+        if (b[0] === "s") return '<p class="stanza">' + b[1].map(function (l) { return "<span>" + esc(l) + "</span>"; }).join("") + "</p>";
         if (b[0] === "v") return '<p class="verse">' + b[1].map(function (l) { return "<span>" + esc(l) + "</span>"; }).join("<br>") + "</p>";
         return "<p>" + esc(b[1]) + "</p>";
       }).join("");
     }
     function show(n) {
-      var ch = TAO[n - 1];
+      var ch = (DATA[ver] || [])[n - 1];
       if (!ch) { body.innerHTML = "<p>The text could not be loaded.</p>"; return; }
       shown = n;
       body.innerHTML =
@@ -85,13 +89,23 @@
         '<h2 class="ch-roman" aria-label="Chapter ' + n + '">' + roman(n) + "</h2>" +
         (n === todayCh ? '<p class="ch-date">' + dateLine() + "</p>" : "") +
         '<div class="ch-body">' + blocks(ch) + "</div>" +
-        '<p class="ch-credit">Tao Te Ching, translated by James Legge (1891; public domain).</p>';
+        '<p class="ch-credit">' + CREDIT[ver] + "</p>";
       var p = n === 1 ? 81 : n - 1, q = n === 81 ? 1 : n + 1;
       prev.textContent = "‹ " + p; prev.setAttribute("aria-label", "Chapter " + p);
       next.textContent = q + " ›"; next.setAttribute("aria-label", "Chapter " + q);
       today.hidden = n === todayCh;
       if (pick) pick.value = String(n);
     }
+    vbtns.forEach(function (b) {
+      var v = b.getAttribute("data-ver");
+      if (!DATA[v]) { b.hidden = true; return; }
+      b.setAttribute("aria-pressed", String(v === ver));
+      b.addEventListener("click", function () {
+        ver = v; store("tc_tao_ver", v);
+        vbtns.forEach(function (x) { x.setAttribute("aria-pressed", String(x.getAttribute("data-ver") === ver)); });
+        show(shown);
+      });
+    });
     if (pick) {
       var o = ""; for (var i = 1; i <= 81; i++) o += '<option value="' + i + '">' + i + "</option>";
       pick.innerHTML = o;
@@ -106,7 +120,7 @@
       btn.setAttribute("aria-expanded", open ? "true" : "false");
       btn.setAttribute("aria-label", open ? "Roll the scroll up" : "Open today’s chapter");
       sheet.inert = !open; sheet.setAttribute("aria-hidden", open ? "false" : "true");
-      if (hint) hint.textContent = open ? "Touch the symbol again to roll the scroll up." : "Touch the yin-yang. Today’s chapter will unfold.";
+      if (hint) hint.textContent = open ? "Touch the symbol again to roll the scroll up." : "Touch the yin-yang to unfold today’s chapter.";
     }
     setOpen(false);
     show(todayCh);

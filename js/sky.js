@@ -279,7 +279,7 @@
         kx += 28 + ASPECT_NAME[t].length * 9 + 26;
       });
       yA += 34;
-      o.push(txt(0, yA, "Twelve Cubed. Tropical zodiac, geocentric apparent positions" + (hasH ? ", " + (st.houses === "placidus" ? (c.system || "Placidus") : st.houses === "equal" ? "Equal" : "Whole-sign") + " houses" : "") + ". For reflection, not prediction.", 16, dim, null, "middle"));
+      o.push(txt(0, yA, "\u00a9TwelveCubed. Tropical zodiac, geocentric apparent positions" + (hasH ? ", " + (st.houses === "placidus" ? (c.system || "Placidus") : st.houses === "equal" ? "Equal" : "Whole-sign") + " houses" : "") + ". For reflection, not prediction.", 16, dim, null, "middle"));
       var H = Math.ceil(yA + 30 - VB.y);
 
       var wheel = currentSvg({}).replace('<svg xmlns="http://www.w3.org/2000/svg" ', '<svg x="' + VB.x + '" y="' + VB.y + '" width="' + VB.w + '" height="' + VB.h + '" ');
@@ -490,7 +490,7 @@
       var content = "q " + W + " 0 0 " + H + " 0 0 cm /Im0 Do Q";
       obj(5, "<< /Length " + content.length + " >>\nstream\n" + content + "\nendstream");
       var safe = String(title).replace(/[()\\]/g, "");
-      obj(6, "<< /Title (" + safe + ") /Creator (Twelve Cubed) /Producer (Twelve Cubed) >>");
+      obj(6, "<< /Title (" + safe + ") /Creator (TwelveCubed) /Producer (TwelveCubed) >>");
       var xref = len, x = "xref\n0 7\n0000000000 65535 f \n";
       for (var i = 1; i <= 6; i++) x += ("0000000000" + offs[i]).slice(-10) + " 00000 n \n";
       put(x + "trailer\n<< /Size 7 /Root 1 0 R /Info 6 0 R >>\nstartxref\n" + xref + "\n%%EOF\n");
@@ -500,7 +500,7 @@
       sheetCanvas(function (cv) {
         cv.toBlob(function (jb) {
           if (!jb) return;
-          jb.arrayBuffer().then(function (buf) { done(makePdf(new Uint8Array(buf), cv.width, cv.height, "Twelve Cubed chart " + longDate(st.input.ms, st.input.tz))); });
+          jb.arrayBuffer().then(function (buf) { done(makePdf(new Uint8Array(buf), cv.width, cv.height, "\u00a9TwelveCubed chart " + longDate(st.input.ms, st.input.tz))); });
         }, "image/jpeg", 0.94);
       });
     }

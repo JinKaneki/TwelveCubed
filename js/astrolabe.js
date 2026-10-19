@@ -3,13 +3,13 @@
    window.TCAstrolabe.mount(element, clock)      clock = window.TCDaily.clock (js/daily.js)
 
    What is drawn, from the centre outwards (one 1000-unit square, centre 0,0, outer radius 500):
-     0 - 330   the Earth, seen from above the North Pole (azimuthal equidistant projection), Greenwich straight up, east to the left.
+     0 - 330   the Earth, seen from above the North Pole (azimuthal equidistant projection), Greenwich straight down, east to the right.
                The map is fixed. The night side is shaded from the real height of the Sun above each point. The Sun and the Moon stand
                over the places where they are at the zenith. A pin marks the place whose houses are drawn.
-     336-370   a 24-hour clock in UTC, noon at the top, with an hour, a minute and a second hand
+     336-370   a 24-hour clock in UTC, 00 at the top and 12 at the bottom, the hours running clockwise, with an hour, a minute and a second hand
      374-420   the zodiac, a thin ring in the element colours, with degree ticks at 1, 5 and 10 degrees
      420-448   the houses of the pinned place (Placidus), numbered, with the Ascendant, Descendant, Midheaven and Imum Coeli
-     452-500   the Sun, the Moon and the planets, on short leaders to their true degree
+     452-500   the Sun, the Moon, the planets, Chiron and the True Node, on short leaders to their true degree
    The zodiac turns with the sky: the sign that is on the meridian of the pin (the Midheaven) points along the pin's meridian on the map.
    The Sun on the ring and the Sun over the map can differ by a few degrees. The ring is measured along the ecliptic and the map along
    the equator, and the two are tilted 23.4 degrees to each other.
@@ -32,8 +32,12 @@
   var SIGNS = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
   var TINT = ["rgba(255,77,98,0.16)", "rgba(217,177,74,0.15)", "rgba(76,203,208,0.14)", "rgba(100,117,255,0.18)"];   // fire earth air water
   var ELCOL = ["#ff6a7c", "#e0bb55", "#58d2d6", "#8a97ff"];
-  var BODIES = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
-  var NAMES = { sun: "Sun", moon: "Moon", mercury: "Mercury", venus: "Venus", mars: "Mars", jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto" };
+  var BODIES = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "chiron", "node"];
+  var NAMES = { sun: "Sun", moon: "Moon", mercury: "Mercury", venus: "Venus", mars: "Mars", jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto", chiron: "Chiron", node: "True Node" };
+  var QUOTE = ["Man follows the earth,", "the earth follows the heavens,", "the heavens follow the Tao", "and the Tao follows nature."];
+  var DAYS_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  var MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function tint(k, paper) { var P = W.PAL[paper ? "paper" : "night"]; return P[k] || (paper ? P.grayDeg : P.grayDeg); }   // Chiron and the Node have no colour of their own: the chart's grey
   var SPEEDS = [[1, "Real time"], [60, "1 hour per minute"], [600, "10 hours per minute"], [3600, "1 hour per second"], [21600, "6 hours per second"], [86400, "1 day per second"]];
   var DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -45,7 +49,7 @@
   function f2(n) { return (Math.round(n * 100) / 100).toString(); }
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { /* private mode */ } return null; }
-  function pol(r, a) { return [-r * Math.sin(a * RAD), -r * Math.cos(a * RAD)]; }        // a: degrees counterclockwise from straight up
+  function pol(r, a) { return [r * Math.sin(a * RAD), r * Math.cos(a * RAD)]; }          // a: degrees counterclockwise from straight DOWN (Greenwich is down, east is to the right)
   function P(r, a) { var p = pol(r, a); return f2(p[0]) + " " + f2(p[1]); }
   function el(name, attrs, parent) {
     var n = document.createElementNS(NS, name);
@@ -103,7 +107,7 @@
     ctx.clearRect(0, 0, size, size);
     ctx.save();
     ctx.beginPath(); ctx.arc(c, c, R + 0.5, 0, 6.2832); ctx.clip();
-    function xy(lat, lon, r) { var rr = r * (90 - lat) / 180; return [c - rr * Math.sin(lon * RAD), c - rr * Math.cos(lon * RAD)]; }
+    function xy(lat, lon, r) { var rr = r * (90 - lat) / 180; return [c + rr * Math.sin(lon * RAD), c + rr * Math.cos(lon * RAD)]; }
     var g = ctx.createRadialGradient(c, c, 0, c, c, R);
     g.addColorStop(0, "#1a5a86"); g.addColorStop(0.6, "#124775"); g.addColorStop(1, "#0b3158");
     ctx.fillStyle = g; ctx.fillRect(0, 0, size, size);
@@ -133,7 +137,7 @@
       ctx.strokeStyle = "rgba(255,255,255,0.17)";
       var k, lat;
       ctx.beginPath();
-      for (k = 0; k < 24; k++) { var a = k * 15 * RAD; ctx.moveTo(c, c); ctx.lineTo(c - R * Math.sin(a), c - R * Math.cos(a)); }
+      for (k = 0; k < 24; k++) { var a = k * 15 * RAD; ctx.moveTo(c, c); ctx.lineTo(c + R * Math.sin(a), c + R * Math.cos(a)); }
       for (lat = -75; lat <= 75; lat += 15) { if (lat === 0) continue; var rr = R * (90 - lat) / 180; ctx.moveTo(c + rr, c); ctx.arc(c, c, rr, 0, 6.2832); }
       ctx.stroke();
       ctx.strokeStyle = "rgba(255,226,150,0.6)"; ctx.lineWidth = Math.max(0.9, 1.4 * u);
@@ -165,7 +169,7 @@
     for (var j = 0; j < NB; j++) for (var i = 0; i < NB; i++) {
       var u = (i + 0.5) / NB * 2 - 1, v = (j + 0.5) / NB * 2 - 1, r = Math.sqrt(u * u + v * v), k = j * NB + i;
       if (r > 1) continue;
-      var lat = (90 - 180 * r) * RAD, lon = Math.atan2(-u, -v);
+      var lat = (90 - 180 * r) * RAD, lon = Math.atan2(u, v);
       inside[k] = 1; sphi[k] = Math.sin(lat); cphi[k] = Math.cos(lat); slam[k] = Math.sin(lon); clam[k] = Math.cos(lon);
     }
     var lut = new Uint8Array(1024);                                    // night alpha from sin(altitude) in [-1, 0]
@@ -226,14 +230,19 @@
       '<div class="ap-row"><button type="button" class="ap-btn" data-here>Use my location</button></div><p class="ap-hint">Or tap the map to drop the pin anywhere.</p></div>' +
       '<fieldset class="ap-block ap-show"><legend class="ap-lab">Show</legend><label><input type="checkbox" data-show="houses"> Houses and angles</label><label><input type="checkbox" data-show="planets"> Planets</label><label><input type="checkbox" data-show="grid"> Map grid</label></fieldset>' +
       '</div>' +
-      '<div class="astro-read" data-read></div>' +
+      '<div class="astro-read"><div class="rd-set" data-read-a></div>' +
+      '<button type="button" class="rd rd-save" data-save><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M12 3v11M7.5 9.5L12 14l4.5-4.5M4.5 16.5v3h15v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '<span class="rd-save-t" data-save-lab>Save as PNG</span><span class="rd-s">The date, a saying from the Tao and the clock as it stands</span></button>' +
+      '<div class="rd-set" data-read-b></div></div>' +
       '<ul class="astro-chips" data-chips aria-label="Positions in the zodiac"></ul></div>' +
       '<details class="astro-how"><summary>How to read the celestial clock</summary><div class="how-body">' +
-      '<p><b>The map</b> is the Earth seen from above the North Pole, with Greenwich straight up and east to the left. The equator is the gold circle halfway out; the South Pole is the whole outer rim. The shaded part is the night, darker the further the Sun is below the horizon.</p>' +
+      '<p><b>The map</b> is the Earth seen from above the North Pole, turned so that Greenwich points straight down and east lies to the right, as on an ordinary map. The equator is the gold circle halfway out; the South Pole is the whole outer rim, so southern lands such as Johannesburg sit in the lower half. The shaded part is the night, darker the further the Sun is below the horizon.</p>' +
       '<p><b>The Sun and the Moon</b> stand over the points of the Earth where they are directly overhead. The Moon&rsquo;s lit side faces the Sun.</p>' +
-      '<p><b>The 24-hour clock</b> shows UTC with noon at the top. The thick hand is the hour hand, the long one the minutes, the red one the seconds. The hour hand points at where the mean Sun would be; the real Sun can stand a little to one side of it (the equation of time, up to 4 degrees).</p>' +
+      '<p><b>The 24-hour clock</b> shows UTC like any 24-hour dial: 00 at the top, 06 on the right, 12 at the bottom and 18 on the left, the hours running clockwise. The thick hand is the hour hand, the long one the minutes, the red one the seconds. At 12:00 UTC the hour hand points straight down the Greenwich line, because the mean Sun is then overhead there; the real Sun can stand a little to one side of it (the equation of time, up to 4 degrees).</p>' +
       '<p><b>The zodiac</b> turns once a day with the sky. The sign on the dashed line from the pole through the pin is the Midheaven of the pin. The ring is measured along the ecliptic and the map along the equator, so the Sun on the ring and the Sun over the map can differ by a few degrees.</p>' +
-      '<p><b>The houses</b> are Placidus (Porphyry inside the polar circles) for the pinned place, with AC the Ascendant, DC the Descendant, MC the Midheaven and IC the Imum Coeli. <b>The planets</b> sit outside on short leaders to their true degree.</p>' +
+      '<p><b>The houses</b> are Placidus (Porphyry inside the polar circles) for the pinned place, with AC the Ascendant, DC the Descendant, MC the Midheaven and IC the Imum Coeli.</p>' +
+      '<p><b>The planets</b> sit outside on short leaders to their true degree: the Sun, the Moon, the eight planets, <b>Chiron</b> and the <b>True Node</b>. The True Node is not a body but the point where the Moon&rsquo;s path crosses the ecliptic going north; it runs backwards through the zodiac, so it is not marked with an R. Chiron and the Node are drawn in the chart&rsquo;s grey. An <b>R</b> beside a planet means it is moving backwards (retrograde). Chiron is tabled only for the years 1900 to 2100 and is left out beyond them.</p>' +
+      '<p><b>Save as PNG</b>, in the empty tile after the Moon phase, makes a picture of the clock exactly as it stands: the date first, then a saying from the Tao Te Ching, then the clock. It is built in your browser and saved to your downloads folder; nothing is sent anywhere.</p>' +
       '</div></details>';
 
     var stage = host.querySelector("[data-stage]"), cvMap = host.querySelector("[data-map]"), cvShade = host.querySelector("[data-shade]");
@@ -259,7 +268,7 @@
     /* the bezel: hours */
     var gBez = el("g", { "class": "a-bez" }, svg), tk = "", tk15 = "", tk5 = "", h, m;
     for (m = 0; m < 288; m++) {                                         // every 5 minutes round the 24 hours (1.25 degrees)
-      var ang = m * 1.25 + 180;                                         // 0:00 at the bottom, 12:00 at the top (counterclockwise from up)
+      var ang = 180 - m * 1.25;                                         // 00:00 at the top, 12:00 at the bottom, the hours running clockwise
       var hourTick = m % 12 === 0, quarter = m % 3 === 0;
       var len = hourTick ? 13 : quarter ? 8 : 4;
       var seg = "M" + P(RB1, ang) + "L" + P(RB1 - len, ang);
@@ -267,7 +276,7 @@
     }
     el("path", { d: tk5, "class": "a-t5" }, gBez); el("path", { d: tk15, "class": "a-t15" }, gBez); el("path", { d: tk, "class": "a-t60" }, gBez);
     for (h = 0; h < 24; h++) {
-      var tp = pol(RB0 + 13, h * 15 + 180);
+      var tp = pol(RB0 + 13, 180 - h * 15);
       var tx = el("text", { x: f2(tp[0]), y: f2(tp[1]), "class": "a-hr" + (h % 3 === 0 ? "" : " a-hr-minor"), "text-anchor": "middle", "dominant-baseline": "central" }, gBez);
       tx.textContent = two(h);
     }
@@ -325,10 +334,10 @@
     var gPl = el("g", { "class": "a-planets" }, svg), plEls = {};
     BODIES.forEach(function (k) {
       var g = el("g", { "class": "a-pl" }, gPl), ti = el("title", null, g);
-      var lead = el("path", { "class": "a-lead", stroke: W.PAL.night[k] }, g);
+      var lead = el("path", { "class": "a-lead", stroke: tint(k) }, g);
       var bead = el("g", null, g);
       el("circle", { r: RPB, "class": "a-bead" }, bead);
-      var gl = el("g", { transform: "scale(0.3) translate(-50 -50)" }, bead); gl.innerHTML = W.GLYPH[k](W.PAL.night[k]);
+      var gl = el("g", { transform: "scale(0.3) translate(-50 -50)" }, bead); gl.innerHTML = W.GLYPH[k](tint(k));
       var rt = el("text", { x: 14, y: 17, "class": "a-retro", "text-anchor": "middle" }, bead); rt.textContent = "R"; rt.setAttribute("display", "none");
       plEls[k] = { g: g, lead: lead, bead: bead, retro: rt, title: ti };
     });
@@ -361,7 +370,7 @@
         var o = { ms: ms };
         BODIES.forEach(function (k) {
           o[k] = k === "sun" ? sk.sunLon : k === "moon" ? sk.moonLon : E.lonOf(k, ms);
-          if (k !== "sun" && k !== "moon") last.retro[k] = E.speedOf(k, ms) < 0;
+          if (k !== "sun" && k !== "moon" && k !== "node") last.retro[k] = isFinite(o[k]) && E.speedOf(k, ms) < 0;   // the Node is not marked: it runs backwards almost all the time
         });
         last.pl = o; last.planetsAt = now;
       } else { last.pl.sun = sk.sunLon; last.pl.moon = sk.moonLon; }
@@ -382,6 +391,7 @@
 
     function render(ms, force) {
       var sk = sky(ms), H = E.houses(ms, place.lat, place.lon);
+      last.ms = ms;
       var mc = H.mc, rho = place.lon - mc;                              // ring turn: L is drawn at the angle rho + L
       function at(L) { return norm(rho + L); }
 
@@ -422,7 +432,12 @@
       var lons = lonsAt(ms, sk);
       gPl.setAttribute("display", show.planets ? "" : "none");
       if (show.planets) {
-        var items = BODIES.map(function (k) { return { key: k, lon: lons[k], ang: at(lons[k]), w: 33 }; });
+        var items = [];
+        BODIES.forEach(function (k) {
+          var ok = isFinite(lons[k]);
+          plEls[k].g.setAttribute("display", ok ? "" : "none");                      // Chiron is only tabled for 1900 to 2100
+          if (ok) items.push({ key: k, lon: lons[k], ang: at(lons[k]), w: 33 });
+        });
         W.spread(items);
         items.forEach(function (it) {
           var e = plEls[it.key], b = pol(RP, it.ang), tr = at(it.lon);
@@ -434,7 +449,7 @@
 
       /* hands: UTC */
       var p = utcParts(ms), frac = ((ms % 1000) + 1000) % 1000 / 1000, sec = p.s + (clock.speed === 1 && clock.playing ? 0 : frac);
-      hHour.setAttribute("transform", "rotate(" + f2(((p.h + p.mi / 60 + sec / 3600) - 12) * 15) + ")");
+      hHour.setAttribute("transform", "rotate(" + f2((p.h + p.mi / 60 + sec / 3600) * 15) + ")");
       hMin.setAttribute("transform", "rotate(" + f2((p.mi + sec / 60) * 6) + ")");
       hSec.setAttribute("transform", "rotate(" + f2(sec * 6) + ")");
       hSec.setAttribute("display", Math.abs(clock.speed) > 600 ? "none" : "");
@@ -461,17 +476,21 @@
         var phase = E.PHASES[(psi < 1.5 || psi > 358.5) ? 0 : Math.floor(((psi + 22.5) % 360) / 45)];
         var sunState = sunAlt > 0.83 ? "Day: the Sun is " + Math.round(sunAlt) + "° above the horizon" : sunAlt > -6 ? "Twilight: the Sun is at " + sunAlt.toFixed(1) + "°" : sunAlt > -18 ? "Dusk or dawn dark: the Sun is " + Math.abs(Math.round(sunAlt)) + "° below the horizon" : "Night: the Sun is " + Math.abs(Math.round(sunAlt)) + "° below the horizon";
         var asc = H.asc;
-        readNodes.read.innerHTML =
+        var htmlA =
           card("Sun over", latText(sk.sun.lat) + " " + lonText(sk.sun.lon), signText(sk.sunLon)) +
           card("Moon over", latText(sk.moon.lat) + " " + lonText(sk.moon.lon), signText(sk.moonLon)) +
-          card("Moon phase", phase, Math.round(illum * 100) + "% lit") +
-          card("The pin: " + place.name, latText(place.lat) + " " + lonText(place.lon), sunState + ". " + (local ? "Clock time " + local + ". " : "") + "Mean local time " + two(sh) + ":" + two(smin) + ".") +
-          card("Angles (" + H.system + ")", "AC " + signText(asc), "MC " + signText(mc));
+          card("Moon phase", phase, Math.round(illum * 100) + "% lit");
+        var htmlB =
+          card("The pin: " + place.name, latText(place.lat) + " " + lonText(place.lon), sunState + ". " + (local ? "Clock time " + local + ". " : "") + "Mean local time " + two(sh) + ":" + two(smin) + ".", "rd-wide") +
+          card("Angles (" + H.system + ")", "AC " + signText(asc), "MC " + signText(mc), "rd-wide");
+        if (readCache.ra !== htmlA) { readCache.ra = htmlA; readNodes.readA.innerHTML = htmlA; }
+        if (readCache.rb !== htmlB) { readCache.rb = htmlB; readNodes.readB.innerHTML = htmlB; }
         /* positions in the zodiac */
         var chips = "";
         BODIES.forEach(function (k) {
+          if (!isFinite(lons[k])) return;
           var sp3 = E.split(lons[k]);
-          chips += '<li><span class="chip-g" style="--cn:' + W.PAL.night[k] + ';--cp:' + W.PAL.paper[k] + '">' + W.glyphSvg(k, 22, "currentColor") + '</span><span class="chip-n">' + NAMES[k] + '</span><span class="chip-v">' + sp3.deg + "°" + two(sp3.min) + "′ " + sp3.sign + (last.retro[k] ? ' <i class="chip-r" title="retrograde">R</i>' : "") + "</span></li>";
+          chips += '<li><span class="chip-g" style="--cn:' + tint(k) + ';--cp:' + tint(k, true) + '">' + W.glyphSvg(k, 22, "currentColor") + '</span><span class="chip-n" title="' + NAMES[k] + '">' + (k === "node" ? "Node" : NAMES[k]) + '</span><span class="chip-v">' + sp3.deg + "°" + two(sp3.min) + "′ " + sp3.sign + (last.retro[k] ? ' <i class="chip-r" title="retrograde">R</i>' : "") + "</span></li>";
         });
         if (readCache.chips !== chips) { readCache.chips = chips; readNodes.chips.innerHTML = chips; }
         plTitles(lons);
@@ -483,10 +502,10 @@
         stage.setAttribute("aria-label", "Celestial clock. " + fmtDate(ms) + " " + fmtTime(ms).slice(0, 5) + " UTC. The Sun is over " + latText(sk.sun.lat) + " " + lonText(sk.sun.lon) + ", the Moon over " + latText(sk.moon.lat) + " " + lonText(sk.moon.lon) + ". The pin is at " + place.name + ".");
       }
     }
-    function card(h, big, small) { return '<div class="rd"><p class="rd-h">' + esc(h) + '</p><p class="rd-v">' + esc(big) + '</p><p class="rd-s">' + esc(small) + "</p></div>"; }
-    function plTitles(lons) { BODIES.forEach(function (k) { plEls[k].title.textContent = NAMES[k] + " " + signText(lons[k]) + (last.retro[k] ? ", retrograde" : ""); }); }
+    function card(h, big, small, cls) { return '<div class="rd' + (cls ? " " + cls : "") + '"><p class="rd-h">' + esc(h) + '</p><p class="rd-v">' + esc(big) + '</p><p class="rd-s">' + esc(small) + "</p></div>"; }
+    function plTitles(lons) { BODIES.forEach(function (k) { if (isFinite(lons[k])) plEls[k].title.textContent = NAMES[k] + " " + signText(lons[k]) + (last.retro[k] ? ", retrograde" : ""); }); }
 
-    var readNodes = { clock: q("[data-clock]"), date: q("[data-date]"), status: q("[data-status]"), play: q("[data-play]"), speed: q("[data-speed]"), rev: q("[data-rev]"), when: q("[data-when]"), read: q("[data-read]"), chips: q("[data-chips]") };
+    var readNodes = { clock: q("[data-clock]"), date: q("[data-date]"), status: q("[data-status]"), play: q("[data-play]"), speed: q("[data-speed]"), rev: q("[data-rev]"), when: q("[data-when]"), readA: q("[data-read-a]"), readB: q("[data-read-b]"), chips: q("[data-chips]"), save: q("[data-save]"), saveLab: q("[data-save-lab]") };
 
     /* ----- controls ----- */
     function speedIndex() { for (var i = 0; i < SPEEDS.length; i++) if (SPEEDS[i][0] === Math.abs(clock.speed)) return i; return 0; }
@@ -523,6 +542,97 @@
       if (t) clock.set(t);
     });
 
+
+    /* ----- Save as PNG: the date, the saying, then the clock exactly as it stands (built in the browser, nothing is sent) ----- */
+    var saveBusy = false;
+    function setSave(t) { readNodes.saveLab.textContent = t; }
+    function inlineSvg(size) {                                           // the SVG with its styles written into it, so that an <img> can draw it
+      var clone = svg.cloneNode(true), src = svg.querySelectorAll("*"), dst = clone.querySelectorAll("*"), i;
+      var props = ["fill", "fill-opacity", "stroke", "stroke-width", "stroke-opacity", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "opacity", "font-size", "font-weight", "letter-spacing", "text-anchor", "dominant-baseline", "paint-order", "display"];
+      var FS = { "a-hr": 21, "a-hr-minor": 15, "a-pin-t": 17, "a-hnum": 16 };            // the desktop sizes, whatever the screen the button was pressed on
+      for (i = 0; i < src.length; i++) {
+        var cs = getComputedStyle(src[i]), st = "", cls = dst[i].getAttribute("class") || "", par = dst[i].parentNode && dst[i].parentNode.getAttribute && (dst[i].parentNode.getAttribute("class") || "");
+        props.forEach(function (pn) { var v = cs.getPropertyValue(pn); if (v) st += pn + ":" + v + ";"; });
+        if (FS[cls]) st += "font-size:" + FS[cls] + "px;";
+        if (cls === "a-hr-minor") st += "display:inline;";
+        if (par === "a-ang" && dst[i].tagName === "text") st += "font-size:13px;";
+        dst[i].setAttribute("style", st);
+      }
+      clone.setAttribute("xmlns", NS); clone.setAttribute("width", size); clone.setAttribute("height", size);
+      clone.setAttribute("style", "overflow:visible;font-family:Arial,Helvetica,'Liberation Sans',sans-serif");
+      clone.removeAttribute("aria-hidden"); clone.removeAttribute("focusable");
+      return new XMLSerializer().serializeToString(clone);
+    }
+    function buildPng(ms, done) {
+      var S = 1440, PX = 80, Wd = S + 2 * PX, TOP = 120;
+      var serif = "Literata, Georgia, 'Times New Roman', serif", sans = "Arial, Helvetica, 'Liberation Sans', sans-serif";
+      var u = utcParts(ms), dateTxt = DAYS_LONG[u.w] + " " + u.D + " " + MONTHS_LONG[u.M] + " " + u.Y, timeTxt = fmtTime(ms) + " UTC";
+      var quoteY = TOP + 190, stageY = quoteY + QUOTE.length * 60 + 130, footY = stageY + S + 78, Ht = footY + 60;
+      var cv = document.createElement("canvas"); cv.width = Wd; cv.height = Ht;
+      var ctx = cv.getContext("2d");
+      ctx.fillStyle = "#061424"; ctx.fillRect(0, 0, Wd, Ht);
+      var glow = ctx.createRadialGradient(Wd / 2, 0, 20, Wd / 2, 0, 1000);
+      glow.addColorStop(0, "rgba(255,143,16,0.13)"); glow.addColorStop(1, "rgba(255,143,16,0)");
+      ctx.fillStyle = glow; ctx.fillRect(0, 0, Wd, Ht);
+      ctx.strokeStyle = "rgba(201,165,90,0.55)"; ctx.lineWidth = 2; ctx.strokeRect(24, 24, Wd - 48, Ht - 48);
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.fillStyle = "#efe4c6"; ctx.font = "600 66px " + serif; ctx.fillText(dateTxt, Wd / 2, TOP);
+      ctx.fillStyle = "#ff8f10"; ctx.font = "400 38px " + sans; ctx.fillText(timeTxt, Wd / 2, TOP + 58);
+      ctx.strokeStyle = "rgba(255,143,16,0.8)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(Wd / 2 - 70, TOP + 100); ctx.lineTo(Wd / 2 + 70, TOP + 100); ctx.stroke();
+      ctx.fillStyle = "#f3ecd8"; ctx.font = "italic 400 43px " + serif;
+      QUOTE.forEach(function (ln, i) { ctx.fillText(ln, Wd / 2, quoteY + i * 60); });
+      ctx.fillStyle = "#b9a878"; ctx.font = "400 22px " + sans;
+      if (ctx.letterSpacing !== undefined) ctx.letterSpacing = "4px";
+      ctx.fillText("TAO TE CHING, 25", Wd / 2, quoteY + QUOTE.length * 60 + 18);
+      if (ctx.letterSpacing !== undefined) ctx.letterSpacing = "0px";
+
+      /* the clock: plate, map, night, then the instrument */
+      var cx = PX + S / 2, cy = stageY + S / 2;
+      var plate = ctx.createRadialGradient(cx, cy, 0, cx, cy, S / 2);
+      plate.addColorStop(0, "#0d2a4a"); plate.addColorStop(0.55, "#08203a"); plate.addColorStop(1, "#061424");
+      ctx.fillStyle = plate; ctx.beginPath(); ctx.arc(cx, cy, S / 2, 0, 6.2832); ctx.fill();
+      ctx.strokeStyle = "rgba(201,165,90,0.6)"; ctx.lineWidth = 2; ctx.stroke();
+      var mapPx = Math.round(S * 0.66), off = document.createElement("canvas"); off.width = mapPx; off.height = mapPx;
+      drawMap(off, { grid: show.grid });
+      var mx = PX + S * 0.17, my = stageY + S * 0.17;
+      ctx.drawImage(off, mx, my, mapPx, mapPx);
+      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, S * 0.33, 0, 6.2832); ctx.clip();
+      ctx.imageSmoothingEnabled = true; if ("imageSmoothingQuality" in ctx) ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(cvShade, mx, my, mapPx, mapPx);
+      ctx.restore();
+      var img = new Image();
+      img.onload = function () {
+        ctx.drawImage(img, PX, stageY, S, S);
+        ctx.fillStyle = "#9aa9ba"; ctx.font = "400 26px " + sans; ctx.textAlign = "center";
+        ctx.fillText("©TwelveCubed · the celestial clock · pin: " + place.name, Wd / 2, footY);
+        done(cv, ms);
+      };
+      img.onerror = function () { done(null, ms); };
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(inlineSvg(S));
+    }
+    function savePng() {
+      if (saveBusy) return;
+      saveBusy = true; setSave("Preparing…");
+      var ms = last.ms >= 0 ? last.ms : clock.now(), fl = [];
+      try { fl = [document.fonts.load("600 66px Literata"), document.fonts.load("italic 400 43px Literata")]; } catch (e) { fl = []; }
+      Promise.all(fl).catch(function () { /* the fallback serif is fine */ }).then(function () {
+        buildPng(ms, function (cv) {
+          if (!cv) { saveBusy = false; setSave("Could not save"); setTimeout(function () { setSave("Save as PNG"); }, 2500); return; }
+          var u = utcParts(ms), name = "twelvecubed-celestial-clock-" + u.Y + "-" + two(u.M + 1) + "-" + two(u.D) + "-" + two(u.h) + two(u.mi) + "utc.png";
+          cv.toBlob(function (b) {
+            if (b) {
+              var a = document.createElement("a"), url = URL.createObjectURL(b);
+              a.href = url; a.download = name; a.style.display = "none"; document.body.appendChild(a); a.click();
+              setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 4000);
+              setSave("Saved");
+            } else setSave("Could not save");
+            saveBusy = false; setTimeout(function () { setSave("Save as PNG"); }, 2200);
+          }, "image/png");
+        });
+      });
+    }
+    readNodes.save.addEventListener("click", savePng);
+
     /* the pin */
     var placeSel = q("[data-place]");
     function syncPlaceSelect() { placeSel.value = place.tz && TZP[place.tz] && TZP[place.tz][0] + ", " + TZP[place.tz][1] === place.name ? place.tz : "__pin"; }
@@ -541,7 +651,7 @@
     stage.addEventListener("click", function (ev) {
       var r = stage.getBoundingClientRect(), k = 1000 / r.width, x = (ev.clientX - r.left - r.width / 2) * k, y = (ev.clientY - r.top - r.height / 2) * k, d = Math.sqrt(x * x + y * y);
       if (d > RM) return;
-      var lat = 90 - 180 * d / RM, lon = wrap180(Math.atan2(-x, -y) * DEG);
+      var lat = 90 - 180 * d / RM, lon = wrap180(Math.atan2(x, y) * DEG);
       setPlace({ name: latText(lat) + " " + lonText(lon), lat: Math.max(-89.5, Math.min(89.5, lat)), lon: lon });
     });
     host.querySelectorAll("[data-show]").forEach(function (cb) {
