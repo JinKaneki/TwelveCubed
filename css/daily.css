@@ -292,3 +292,97 @@
   .yy svg, .sheet, .chapter, .scroll.is-open .chapter { transition: none !important; }
   .yy, .rota-emblem { animation: none !important; }
 }
+
+/* ---------------------------------------------------------------- Torah and Zohar: the bilingual readers */
+@font-face {
+  font-family: "Noto Serif Hebrew"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("../fonts/noto-serif-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;   /* all vowel points and cantillation marks are in it */
+}
+.zohar, .torah { text-align: center; }
+.zohar .lede em, .torah .lede em { font-style: normal; color: var(--rota-ink); }
+
+/* the gate: the title-page gate of the Zohar, "This is the gate" (Psalm 118:20). Touch it and today's passage opens below. */
+.gate {
+  display: block; position: relative; margin: 2rem auto 0; padding: 0; border: 0; background: none; color: inherit; cursor: pointer;
+  width: min(21rem, 80vw); transition: width 0.6s ease, filter 0.4s ease;
+  filter: drop-shadow(0 0 22px rgba(201, 165, 90, 0.22));
+}
+.gate:hover { filter: drop-shadow(0 0 26px var(--rota-glow)); }
+.gate:focus-visible { outline: 2px solid var(--rota-hi); outline-offset: 8px; border-radius: 6px; }
+.gate img { display: block; width: 100%; height: auto; }
+.gate-light { display: none !important; }
+:root[data-theme="light"] .gate-dark { display: none !important; }
+:root[data-theme="light"] .gate-light { display: block !important; }
+.gate-hint { display: block; margin-top: 1rem; font: italic 400 0.95rem/1.4 var(--text); color: var(--paper-faint); }
+.zohar.is-open .gate { width: min(11rem, 52vw); }
+.zpanel { max-width: 66rem; margin: 2rem auto 0; text-align: left; }
+.zpanel[hidden] { display: none; }
+.zpanel:not([hidden]) { animation: bi-in 0.6s ease both; }
+@keyframes bi-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.bi-app { margin-top: 1.8rem; text-align: left; }
+.bi-panel { text-align: left; }
+.bi-head { text-align: center; }
+.bi-kicker { margin: 0; font-size: 0.78rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--rota-ink); }
+.bi-title { margin: 0.4rem 0 0; font: 400 clamp(1.6rem, 4.5vw, 2.4rem)/1.15 var(--display); }
+.bi-he-title { margin-inline-start: 0.5rem; font: 400 0.85em/1.2 "Noto Serif Hebrew", var(--display), serif; color: var(--paper-dim); }
+.bi-sub { margin: 0.55rem 0 0; color: var(--paper-dim); font-size: 0.98rem; }
+.bi-note { max-width: 40rem; margin: 0.8rem auto 0; padding: 0.5rem 0.9rem; border: 1px solid rgba(255, 141, 20, 0.5); border-radius: 0.7rem; color: var(--paper); font-size: 0.92rem; }
+.bi-note[hidden] { display: none; }
+.bi-ctl { display: grid; grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); gap: 1rem; align-items: end; }
+.bi-seg { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.bi-seg button {
+  font: 400 0.9rem/1.2 var(--text); color: var(--paper); background: var(--wash-faint); border: 1px solid var(--rule-strong); border-radius: 999px;
+  padding: 0.5rem 0.8rem; min-height: 2.4rem; cursor: pointer; position: relative;
+}
+.bi-seg button:hover { background: var(--wash); }
+.bi-seg button:focus-visible { outline: 2px solid var(--rota-hi); outline-offset: 2px; }
+.bi-seg button[aria-pressed="true"] { background: var(--rota); color: var(--on-rota); border-color: transparent; font-weight: 600; }
+.bi-days button[data-today]::after { content: ""; position: absolute; top: 0.28rem; right: 0.4rem; width: 0.38rem; height: 0.38rem; border-radius: 50%; background: var(--rota); box-shadow: 0 0 6px var(--rota-glow); }
+.bi-days button[data-today][aria-pressed="true"]::after { background: var(--on-rota); box-shadow: none; }
+.bi-text { margin-top: 0.4rem; padding-top: 0.6rem; border-top: 1px solid var(--rule); }
+.bi-wait { color: var(--paper-faint); font-style: italic; text-align: center; }
+.bi-chap { display: flex; justify-content: space-between; align-items: baseline; margin: 1.5rem 0 0.1rem; padding: 0 0 0.4rem; border-bottom: 1px solid var(--rule-strong);
+  font: 600 0.78rem/1.2 var(--text); letter-spacing: 0.2em; text-transform: uppercase; color: var(--rota-ink); }
+.bi-chap-he { font: 400 1.05rem/1.2 "Noto Serif Hebrew", serif; letter-spacing: 0; }
+.bi-maftir { margin-top: 2.2rem; }
+.bi-row { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) minmax(0, 1fr); column-gap: 1.6rem; align-items: start; padding: 0.85rem 0; border-bottom: 1px solid var(--rule); }
+.bi-zrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.bi-num { grid-column: 1; grid-row: 1; padding-top: 0.5rem; font: 400 0.8rem/1 var(--text); color: var(--rota-ink); font-variant-numeric: tabular-nums; }
+.bi-en { grid-column: 2; grid-row: 1; margin: 0; font: 400 calc(1.02rem * var(--bi-size, 1))/1.7 var(--text); color: var(--paper); }
+.bi-he { grid-column: 3; grid-row: 1; margin: 0; direction: rtl; text-align: right; color: var(--paper);
+  font: 400 calc(1.5rem * var(--bi-size, 1))/2.05 "Noto Serif Hebrew", "Times New Roman", serif; }
+.bi-zrow .bi-en { grid-column: 1; }
+.bi-zrow .bi-he { grid-column: 2; }
+.bi-miss { color: var(--paper-faint); font-style: italic; font-size: calc(0.9rem * var(--bi-size, 1)); }
+.bi-mark { color: var(--paper-faint); font-size: 0.7em; letter-spacing: 0.05em; }
+.bi-en b { font-weight: 600; }
+.smc { font-variant-caps: small-caps; letter-spacing: 0.04em; }
+.bi-he big { font-size: 1.15em; } .bi-he small { font-size: 0.82em; }
+.bi-he b { font-weight: 700; }
+/* the Vilna page numbers inside the Hebrew */
+.pg { display: inline-block; margin: 0 0.3em; padding: 0 0.35em; border: 1px solid rgba(255, 141, 20, 0.55); border-radius: 0.3em; color: var(--rota-ink);
+  font: 400 0.62em/1.5 var(--text); letter-spacing: 0.04em; vertical-align: 0.5em; direction: ltr; unicode-bidi: isolate; }
+.bi-credit { margin: 0.4rem 0 0; font-size: 0.8rem; line-height: 1.55; color: var(--paper-faint); }
+.bi-credit a { color: var(--paper-dim); }
+.bi-missing { padding: 1rem 1.2rem; border: 1px dashed var(--rule-strong); border-radius: 0.9rem; color: var(--paper-dim); text-align: center; }
+.bi-missing code { font-size: 0.85em; color: var(--paper); }
+/* a Zohar passage with no English at all: the Aramaic alone, full width, whatever view is chosen */
+.bi-solo .bi-en { display: none !important; }
+.bi-solo .bi-he { display: block !important; grid-column: 1 / -1 !important; grid-row: 1 !important; }
+.bi-solo-note { margin: 0.2rem 0 0; padding: 0.5rem 0.9rem; border: 1px dashed var(--rule-strong); border-radius: 0.7rem; color: var(--paper-dim); font-size: 0.92rem; text-align: center; }
+/* the reader's choice of view */
+[data-view="he"] .bi-en { display: none; } [data-view="en"] .bi-he { display: none; }
+[data-view="he"] .bi-he { grid-column: 2 / -1; } [data-view="en"] .bi-en { grid-column: 2 / -1; }
+[data-view="he"] .bi-zrow .bi-he, [data-view="en"] .bi-zrow .bi-en { grid-column: 1 / -1; }
+@media (max-width: 52rem) {
+  .bi-row { grid-template-columns: 2rem minmax(0, 1fr); column-gap: 0.6rem; }
+  .bi-zrow { grid-template-columns: minmax(0, 1fr); }
+  .bi-he, [data-view="he"] .bi-he { grid-column: 2; grid-row: 1; }
+  .bi-en, [data-view="en"] .bi-en { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
+  .bi-zrow .bi-he, [data-view="he"] .bi-zrow .bi-he { grid-column: 1; grid-row: 1; }
+  .bi-zrow .bi-en, [data-view="en"] .bi-zrow .bi-en { grid-column: 1; grid-row: 2; }
+  .bi-he { font-size: calc(1.4rem * var(--bi-size, 1)); }
+}
+@media (prefers-reduced-motion: reduce) { .gate, .zpanel { transition: none !important; animation: none !important; } }

@@ -56,3 +56,7 @@ SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
 -----------------------------------------------------------
 
 PREAMBLE
+
+Noto Serif Hebrew (variable weight, Hebrew subset): Copyright 2022 The Noto Project Authors (https://github.com/notofonts/hebrew),
+SIL Open Font License 1.1 (http://scripts.sil.org/OFL). Packaged by Fontsource (@fontsource-variable/noto-serif-hebrew 5.3.0).
+It carries all Hebrew vowel points and cantillation marks, which the Torah and Zohar sections need.

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Turning Rota | RoTao | TwelveCubed</title>
-<meta name="description" content="RoTao, the daily Tao: a chapter of the Tao Te Ching for each day, a clock in Cistercian numerals, and a celestial clock showing the Sun, the Moon and the planets over a map of the Earth.">
+<meta name="description" content="RoTao, the daily Tao: a chapter of the Tao Te Ching for each day, a clock in Cistercian numerals, a celestial clock showing the Sun, the Moon and the planets over a map of the Earth, the Tree of Life, a passage of the Zohar behind a gate, and the Torah reading of the day in Hebrew and English.">
 <meta name="theme-color" content="#0b2a47">
 <script>(function(){try{var k=localStorage.getItem("tc_theme");var t=(k==="light"||k==="dark")?k:(window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t)}catch(e){}})();</script>
 <link rel="icon" href="../daily/img/favicon.svg" type="image/svg+xml">
@@ -137,7 +137,26 @@
 </figure>
 </section>
 
-<p class="daily-credits">Tao Te Ching: a plain-English rendering made for this site, guided by James Legge&rsquo;s 1891 translation (public domain, from the Standard Ebooks edition), which can be switched on. Coastlines: Natural Earth, public domain. Sun, Moon and planet positions: astronomy-engine by Don Cross, MIT licence. Cistercian numerals: the medieval system, drawn here by hand-written code. The Rota wheel and the Tree of Life: pictures supplied for this site.</p>
+<section class="zohar" aria-labelledby="zohar-h" data-zohar>
+<h2 id="zohar-h">The Gate of the Zohar</h2>
+<p class="lede">The title page of the Zohar is a gate, and over it is written <em>zeh ha-sha&rsquo;ar</em>, &ldquo;this is the gate&rdquo; (Psalm 118:20). Touch it and a passage of the Zohar opens, in its own Aramaic and in English, a new one each day.</p>
+<button type="button" class="gate" data-gate aria-expanded="false" aria-controls="zohar-panel" aria-label="The gate of the Zohar: touch it to open today&rsquo;s passage">
+<img class="gate-dark" src="img/zohar-gate.png" width="760" height="1217" loading="lazy" decoding="async" alt="The title-page gate of the Zohar: an arch between two twisted columns, under an inscription that reads zeh ha-sha&rsquo;ar, &ldquo;this is the gate&rdquo;, with the words Sefer ha-Zohar inside the arch">
+<img class="gate-light" src="img/zohar-gate-light.png" width="760" height="1217" loading="lazy" decoding="async" alt="The title-page gate of the Zohar: an arch between two twisted columns, under an inscription that reads zeh ha-sha&rsquo;ar, &ldquo;this is the gate&rdquo;, with the words Sefer ha-Zohar inside the arch">
+<span class="gate-hint" data-gate-hint>Touch the gate to open today&rsquo;s passage.</span>
+</button>
+<div class="zpanel" id="zohar-panel" data-zpanel hidden></div>
+<noscript><p class="notice">The Zohar reader needs JavaScript.</p></noscript>
+</section>
+
+<section class="torah" aria-labelledby="torah-h" data-torah>
+<h2 id="torah-h">The Torah, a reading a day</h2>
+<p class="lede">The portion of the week, divided as it is read in the synagogue: the 1st reading on Sunday, the 2nd on Monday, and so on to the 7th and the maftir on Shabbat. The Hebrew is the Leningrad Codex with its vowels and chant marks, the English is the Jewish Publication Society&rsquo;s translation of 1917.</p>
+<div class="tor-app" data-tor-app><p class="astro-wait">The Torah reading loads as you scroll to it.</p></div>
+<noscript><p class="notice">The Torah reader needs JavaScript.</p></noscript>
+</section>
+
+<p class="daily-credits">Tao Te Ching: a plain-English rendering made for this site, guided by James Legge&rsquo;s 1891 translation (public domain, from the Standard Ebooks edition), which can be switched on. Coastlines: Natural Earth, public domain. Sun, Moon and planet positions: astronomy-engine by Don Cross, MIT licence. Cistercian numerals: the medieval system, drawn here by hand-written code. Torah: Hebrew text of the Westminster Leningrad Codex (public domain) from the Open Scriptures Hebrew Bible, whose word analysis is licensed CC BY 4.0; English from the Jewish Publication Society&rsquo;s 1917 translation (public domain), digital text from eBible.org; the division into readings follows the data of @hebcal/leyning (BSD 2-Clause, &copy; 2020 hebcal) and the portion calendar was computed with pyluach (MIT). Hebrew type: Noto Serif Hebrew (SIL Open Font License). The Rota wheel, the Tree of Life and the gate of the Zohar: pictures supplied for this site.</p>
 </main>
 
 <footer class="colophon rota-foot">
@@ -149,6 +168,6 @@
 <p class="colophon-links"><a href="../index.html">Back to TwelveCubed</a> <span aria-hidden="true">&middot;</span> <a href="../about.html">About, sources and credits</a></p>
 <p class="copy">&copy; <span data-years>2026</span> TwelveCubed - Jin Kaneki</p>
 </footer>
-<script src="../data/tao.js"></script><script src="../js/cistercian.js"></script><script src="../js/daily.js"></script><script src="../js/theme.js"></script><script src="../js/chrome.js"></script>
+<script src="../data/tao.js"></script><script src="../js/cistercian.js"></script><script src="../js/daily.js"></script><script src="../js/scripture.js"></script><script src="../js/theme.js"></script><script src="../js/chrome.js"></script>
 </body>
 </html>
