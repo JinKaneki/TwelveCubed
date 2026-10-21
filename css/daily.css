@@ -296,11 +296,6 @@
 }
 
 /* ---------------------------------------------------------------- Torah and Zohar: the bilingual readers */
-@font-face {
-  font-family: "Noto Serif Hebrew"; font-style: normal; font-weight: 100 900; font-display: swap;
-  src: url("../fonts/noto-serif-hebrew-hebrew-wght-normal.woff2") format("woff2");
-  unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;   /* all vowel points and cantillation marks are in it */
-}
 .zohar, .torah { text-align: center; }
 .zohar .lede em, .torah .lede em { font-style: normal; color: var(--rota-ink); }
 
@@ -350,13 +345,19 @@
 .bi-chap-he { font: 400 1.05rem/1.2 "Noto Serif Hebrew", serif; letter-spacing: 0; }
 .bi-maftir { margin-top: 2.2rem; }
 .bi-row { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) minmax(0, 1fr); column-gap: 1.6rem; align-items: start; padding: 0.85rem 0; border-bottom: 1px solid var(--rule); }
-.bi-zrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.bi-num { grid-column: 1; grid-row: 1; padding-top: 0.5rem; font: 400 0.8rem/1 var(--text); color: var(--rota-ink); font-variant-numeric: tabular-nums; }
+.bi-num { grid-column: 1; grid-row: 1; padding-top: 0.5rem; display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; font: 400 0.8rem/1 var(--text); color: var(--rota-ink); font-variant-numeric: tabular-nums; }
+/* the save icon: a verse (Torah) or a paragraph (Zohar) as a picture, Hebrew then English */
+.bi-save { display: inline-grid; place-items: center; width: 1.9rem; height: 1.9rem; padding: 0; border-radius: 50%; border: 1px solid var(--rule-strong); background: var(--wash-faint);
+  color: var(--paper-dim); cursor: pointer; opacity: 0.8; transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease; }
+.bi-row:hover .bi-save, .bi-save:hover, .bi-save:focus-visible { opacity: 1; }
+.bi-save:hover { background: var(--rota); color: var(--on-rota); border-color: transparent; }
+.bi-save:focus-visible { outline: 2px solid var(--rota-hi); outline-offset: 2px; }
+.bi-save.is-busy { opacity: 0.5; cursor: progress; }
+.bi-save.is-done { color: var(--rota-ink); border-color: var(--rota); box-shadow: 0 0 10px var(--rota-glow); opacity: 1; }
+@media (hover: none) { .bi-save { opacity: 1; } }
 .bi-en { grid-column: 2; grid-row: 1; margin: 0; font: 400 calc(1.02rem * var(--bi-size, 1))/1.7 var(--text); color: var(--paper); }
 .bi-he { grid-column: 3; grid-row: 1; margin: 0; direction: rtl; text-align: right; color: var(--paper);
   font: 400 calc(1.5rem * var(--bi-size, 1))/2.05 "Noto Serif Hebrew", "Times New Roman", serif; }
-.bi-zrow .bi-en { grid-column: 1; }
-.bi-zrow .bi-he { grid-column: 2; }
 .bi-miss { color: var(--paper-faint); font-style: italic; font-size: calc(0.9rem * var(--bi-size, 1)); }
 .bi-mark { color: var(--paper-faint); font-size: 0.7em; letter-spacing: 0.05em; }
 .bi-en b { font-weight: 600; }
@@ -372,19 +373,15 @@
 .bi-missing code { font-size: 0.85em; color: var(--paper); }
 /* a Zohar passage with no English at all: the Aramaic alone, full width, whatever view is chosen */
 .bi-solo .bi-en { display: none !important; }
-.bi-solo .bi-he { display: block !important; grid-column: 1 / -1 !important; grid-row: 1 !important; }
+.bi-solo .bi-he { display: block !important; grid-column: 2 / -1 !important; grid-row: 1 !important; }
 .bi-solo-note { margin: 0.2rem 0 0; padding: 0.5rem 0.9rem; border: 1px dashed var(--rule-strong); border-radius: 0.7rem; color: var(--paper-dim); font-size: 0.92rem; text-align: center; }
 /* the reader's choice of view */
 [data-view="he"] .bi-en { display: none; } [data-view="en"] .bi-he { display: none; }
 [data-view="he"] .bi-he { grid-column: 2 / -1; } [data-view="en"] .bi-en { grid-column: 2 / -1; }
-[data-view="he"] .bi-zrow .bi-he, [data-view="en"] .bi-zrow .bi-en { grid-column: 1 / -1; }
 @media (max-width: 52rem) {
   .bi-row { grid-template-columns: 2rem minmax(0, 1fr); column-gap: 0.6rem; }
-  .bi-zrow { grid-template-columns: minmax(0, 1fr); }
   .bi-he, [data-view="he"] .bi-he { grid-column: 2; grid-row: 1; }
   .bi-en, [data-view="en"] .bi-en { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
-  .bi-zrow .bi-he, [data-view="he"] .bi-zrow .bi-he { grid-column: 1; grid-row: 1; }
-  .bi-zrow .bi-en, [data-view="en"] .bi-zrow .bi-en { grid-column: 1; grid-row: 2; }
   .bi-he { font-size: calc(1.4rem * var(--bi-size, 1)); }
 }
 @media (prefers-reduced-motion: reduce) { .gate, .zpanel { transition: none !important; animation: none !important; } }

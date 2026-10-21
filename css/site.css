@@ -27,6 +27,9 @@
   --wash-faint: rgba(234, 241, 238, 0.045);
   --fire: #f2764d;
   --earth: #d9b65c;
+  --rota: #ff8d14;                  /* the glowing orange of the Rota logo, the accent of the RoTao page, the saying and the 3 of 12³ */
+  --rota-ink: #ff8d14;
+  --rota-glow: rgba(255, 141, 20, 0.55);
   --air: #94cdf0;
   --water: #62c8a8;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 34px rgba(0, 0, 0, 0.28);
@@ -51,9 +54,18 @@
   --wash-faint: rgba(11, 42, 71, 0.035);
   --fire: #c2502c;
   --earth: #8a6a12;
+  --rota-ink: #c25a00;
+  --rota-glow: rgba(255, 141, 20, 0.45);
   --air: #1f6f9f;
   --water: #1f7d61;
   --shadow: 0 1px 2px rgba(11, 42, 71, 0.06), 0 14px 34px rgba(11, 42, 71, 0.1);
+}
+
+/* Hebrew for the home page saying and the RoTao readers (loads only when Hebrew is on the page) */
+@font-face {
+  font-family: "Noto Serif Hebrew"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("../fonts/noto-serif-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;   /* all vowel points and cantillation marks are in it */
 }
 
 /* short-lived class added by js/theme.js so every painted surface cross-fades */
@@ -550,7 +562,7 @@ input::placeholder { color: var(--paper-faint); }
          align-items: center; }
 .cubed-eq { font: 300 clamp(5rem, 14vw, 10rem)/0.9 var(--text); font-variant-numeric: lining-nums; letter-spacing: -0.04em;
             margin: 0 0 1rem; color: var(--paper); }
-.cubed-eq sup { font-size: 0.46em; line-height: 0; vertical-align: 1.05em; letter-spacing: 0; margin-left: 0.04em; color: var(--earth); }
+.cubed-eq sup { font-size: 0.46em; line-height: 0; vertical-align: 1.05em; letter-spacing: 0; margin-left: 0.04em; color: var(--rota-ink); text-shadow: 0 0 18px var(--rota-glow); }
 .cubed-sum { font: 400 clamp(1.4rem, 3vw, 2.1rem)/1.3 var(--text); margin-bottom: 0.9rem; }
 .cubed-note { color: var(--paper-dim); max-width: 32rem; }
 
@@ -643,11 +655,12 @@ html { scroll-padding-top: 5rem; }
 /* the saying above "The sky, now" on the home page */
 .saying { max-width: 44rem; margin: 3.5rem auto 0; padding: 2.5rem var(--gutter) 0; }
 .saying figure { margin: 0; text-align: center; }
-.saying figure::before { content: ""; display: block; width: 4.5rem; height: 2px; margin: 0 auto 1.6rem; background: var(--earth); border-radius: 2px; opacity: 0.8; }
+.saying figure::before { content: ""; display: block; width: 4.5rem; height: 2px; margin: 0 auto 1.6rem; background: var(--rota); box-shadow: 0 0 14px var(--rota-glow); border-radius: 2px; }
 .saying blockquote { margin: 0; }
 .saying blockquote p { margin: 0; font: italic 400 clamp(1.6rem, 5vw, 2.5rem)/1.35 var(--display); color: var(--paper); text-wrap: balance; }
 .saying blockquote p span { display: inline-block; }
-.saying-latin { margin: 0.9rem 0 0; font: 400 1rem/1.4 var(--text); font-style: italic; letter-spacing: 0.04em; color: var(--paper-dim); }
+.saying-alt { margin: 1.1rem 0 0; font: 400 1rem/1.4 var(--text); font-style: italic; letter-spacing: 0.04em; color: var(--paper-dim); }
+.saying-alt[lang="he"] { font: 400 clamp(1.35rem, 3.6vw, 1.9rem)/1.7 "Noto Serif Hebrew", "SBL Hebrew", "Ezra SIL", "Times New Roman", serif; font-style: normal; letter-spacing: 0; color: var(--paper); }
 .saying figcaption { text-wrap: balance; margin-top: 1rem; font-size: 0.78rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--paper-faint); }
 .sky { max-width: 76rem; margin: 3.5rem auto 0; padding: 2.5rem var(--gutter) 0; border-top: 1px solid var(--rule); }
 .sky[hidden] { display: none; }
@@ -759,6 +772,10 @@ html { scroll-padding-top: 5rem; }
   .sky-btn[data-act="zoom"] { padding-left: 0.6rem; padding-right: 0.6rem; }
   .sky-table { font-size: 0.88rem; }
   .sky-table th, .sky-table td { padding: 0.3rem 0.3rem; }
+}
+@media (max-width: 30rem) {   /* the planet table (nowrap cells) was 358 px in a 316 px column and widened the whole home page on a phone */
+  .sky-table { font-size: 0.78rem; display: block; max-width: 100%; overflow-x: auto; }
+  .sky-table th, .sky-table td { padding: 0.28rem 0.2rem; }
 }
 @media print { .sky-bar, .sky-links { display: none; } .sky { break-inside: avoid; } }
 
