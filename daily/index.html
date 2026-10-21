@@ -80,6 +80,11 @@
 </section>
 
 <section class="hours" aria-labelledby="hours-h" data-cist>
+<div class="time-icons" aria-hidden="true">
+<img class="time-icon ti-flower" src="img/time-flower.png" width="360" height="360" loading="lazy" decoding="async" alt="">
+<img class="time-icon ti-ornament" src="img/time-ornament.png" width="360" height="360" loading="lazy" decoding="async" alt="">
+<img class="time-icon ti-sun" src="img/time-sun.png" width="360" height="360" loading="lazy" decoding="async" alt="">
+</div>
 <h2 id="hours-h">Time, in Cistercian numerals</h2>
 <p class="lede">In the thirteenth century Cistercian monks wrote any number from 1 to 9999 as a single sign: a vertical stem with a digit hung on each of its four corners. Here the hours, minutes and seconds each get a sign, and so does the date.</p>
 
@@ -138,9 +143,9 @@
 </section>
 
 <section class="zohar" aria-labelledby="zohar-h" data-zohar>
-<h2 id="zohar-h">The Gate of the Zohar</h2>
-<p class="lede">The title page of the Zohar is a gate, and over it is written <em>zeh ha-sha&rsquo;ar</em>, &ldquo;this is the gate&rdquo; (Psalm 118:20). Touch it and a passage of the Zohar opens, in its own Aramaic and in English, a new one each day.</p>
-<button type="button" class="gate" data-gate aria-expanded="false" aria-controls="zohar-panel" aria-label="The gate of the Zohar: touch it to open today&rsquo;s passage">
+<h2 id="zohar-h">The Gate of Splendor</h2>
+<p class="lede"><em>Zohar</em> means &ldquo;splendor&rdquo;. The title page of the book is a gate, and over it is written <em>zeh ha-sha&rsquo;ar</em>, &ldquo;this is the gate&rdquo; (Psalm 118:20). Touch it and a passage of the Zohar opens, in its own Aramaic and in English, a new one each day.</p>
+<button type="button" class="gate" data-gate data-open-text="Touch the gate to open today&rsquo;s passage." data-close-text="Touch the gate to close it." aria-expanded="false" aria-controls="zohar-panel" aria-label="The Gate of Splendor: touch it to open today&rsquo;s passage of the Zohar">
 <img class="gate-dark" src="img/zohar-gate.png" width="760" height="1217" loading="lazy" decoding="async" alt="The title-page gate of the Zohar: an arch between two twisted columns, under an inscription that reads zeh ha-sha&rsquo;ar, &ldquo;this is the gate&rdquo;, with the words Sefer ha-Zohar inside the arch">
 <img class="gate-light" src="img/zohar-gate-light.png" width="760" height="1217" loading="lazy" decoding="async" alt="The title-page gate of the Zohar: an arch between two twisted columns, under an inscription that reads zeh ha-sha&rsquo;ar, &ldquo;this is the gate&rdquo;, with the words Sefer ha-Zohar inside the arch">
 <span class="gate-hint" data-gate-hint>Touch the gate to open today&rsquo;s passage.</span>
@@ -151,12 +156,17 @@
 
 <section class="torah" aria-labelledby="torah-h" data-torah>
 <h2 id="torah-h">The Torah, a reading a day</h2>
-<p class="lede">The portion of the week, divided as it is read in the synagogue: the 1st reading on Sunday, the 2nd on Monday, and so on to the 7th and the maftir on Shabbat. The Hebrew is the Leningrad Codex with its vowels and chant marks, the English is the Jewish Publication Society&rsquo;s translation of 1917.</p>
-<div class="tor-app" data-tor-app><p class="astro-wait">The Torah reading loads as you scroll to it.</p></div>
+<p class="lede">The Torah is sung of as a tree of life to those who hold fast to it (Proverbs 3:18). Touch the tree and the portion of the week opens, divided as it is read in the synagogue: the 1st reading on Sunday, the 2nd on Monday, and so on to the 7th and the maftir on Shabbat. The Hebrew is the Leningrad Codex with its vowels and chant marks, the English is the Jewish Publication Society&rsquo;s translation of 1917.</p>
+<button type="button" class="gate gate-tree" data-gate data-open-text="Touch the tree to open today&rsquo;s reading." data-close-text="Touch the tree to close it." aria-expanded="false" aria-controls="torah-panel" aria-label="The Tree of Life: touch it to open today&rsquo;s Torah reading">
+<img class="gate-dark" src="img/torah-tree.png" width="840" height="1445" loading="lazy" decoding="async" alt="The Tree of Life after Robert Fludd: a tree whose crown is Kether and whose ten spheres, the Sephiroth, hang along its trunk, rooted in Malkuth, each root and branch labelled in Hebrew and Latin">
+<img class="gate-light" src="img/torah-tree-light.png" width="840" height="1445" loading="lazy" decoding="async" alt="The Tree of Life after Robert Fludd: a tree whose crown is Kether and whose ten spheres, the Sephiroth, hang along its trunk, rooted in Malkuth, each root and branch labelled in Hebrew and Latin">
+<span class="gate-hint" data-gate-hint>Touch the tree to open today&rsquo;s reading.</span>
+</button>
+<div class="zpanel" id="torah-panel" data-zpanel hidden><div class="tor-app" data-tor-app></div></div>
 <noscript><p class="notice">The Torah reader needs JavaScript.</p></noscript>
 </section>
 
-<p class="daily-credits">Tao Te Ching: a plain-English rendering made for this site, guided by James Legge&rsquo;s 1891 translation (public domain, from the Standard Ebooks edition), which can be switched on. Coastlines: Natural Earth, public domain. Sun, Moon and planet positions: astronomy-engine by Don Cross, MIT licence. Cistercian numerals: the medieval system, drawn here by hand-written code. Torah: Hebrew text of the Westminster Leningrad Codex (public domain) from the Open Scriptures Hebrew Bible, whose word analysis is licensed CC BY 4.0; English from the Jewish Publication Society&rsquo;s 1917 translation (public domain), digital text from eBible.org; the division into readings follows the data of @hebcal/leyning (BSD 2-Clause, &copy; 2020 hebcal) and the portion calendar was computed with pyluach (MIT). Hebrew type: Noto Serif Hebrew (SIL Open Font License). The Rota wheel, the Tree of Life and the gate of the Zohar: pictures supplied for this site.</p>
+<p class="daily-credits">Tao Te Ching: a plain-English rendering made for this site, guided by James Legge&rsquo;s 1891 translation (public domain, from the Standard Ebooks edition), which can be switched on. Coastlines: Natural Earth, public domain. Sun, Moon and planet positions: astronomy-engine by Don Cross, MIT licence. Cistercian numerals: the medieval system, drawn here by hand-written code. Torah: Hebrew text of the Westminster Leningrad Codex (public domain) from the Open Scriptures Hebrew Bible, whose word analysis is licensed CC BY 4.0; English from the Jewish Publication Society&rsquo;s 1917 translation (public domain), digital text from eBible.org; the division into readings follows the data of @hebcal/leyning (BSD 2-Clause, &copy; 2020 hebcal) and the portion calendar was computed with pyluach (MIT). Zohar: the vowelled Aramaic of the &ldquo;Vocalized Zohar, Israel 2013&rdquo; (National Library of Israel) and the English of the Soncino Press edition of 1933 (public domain), both from Sefaria&rsquo;s open library. Hebrew type: Noto Serif Hebrew (SIL Open Font License). The Rota wheel, the Tree of Life, the Gate of Splendor (the title page of the Zohar), the tree that opens the Torah (after Robert Fludd) and the three small icons above the clock: pictures supplied for this site.</p>
 </main>
 
 <footer class="colophon rota-foot">

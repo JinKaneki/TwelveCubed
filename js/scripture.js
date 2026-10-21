@@ -1,5 +1,5 @@
 /* RoTao page: the daily Zohar (behind the gate) and the daily Torah.
-     Zohar  window.TC_ZOHAR_IDX + TC_ZOHAR_P[n]  (data/zohar/, a private pack built by tools/make_zohar.py from files the site owner supplies)
+     Zohar  window.TC_ZOHAR_IDX + TC_ZOHAR_P[n]  (data/zohar/, built by tools/make_zohar.py from the Sefaria files in content/daily/zohar/src/)
      Torah  window.TC_TORAH_IDX + TC_TORAH_P[n]  (data/torah/, public domain: Westminster Leningrad Codex + JPS 1917, by tools/make_torah.py)
    Both show the original Hebrew/Aramaic beside the English, paragraph by paragraph or verse by verse. Everything is loaded from the
    site's own files, lazily; nothing is sent anywhere. The only things stored in the browser are the reader's own choices
@@ -83,18 +83,37 @@
     return esc(run.charAt(0)) + '<span class="smc">' + esc(run.slice(1).toLowerCase()) + "</span>" + (rest ? " " + esc(rest) : "");
   }
 
+  /* a door: a picture that is a button. The first touch opens the panel under it (and runs onFirst once), the next closes it. */
+  function mountGate(sec, onFirst) {
+    var gate = $("[data-gate]", sec), panel = $("[data-zpanel]", sec), hint = $("[data-gate-hint]", sec);
+    if (!gate || !panel) return null;
+    var openT = gate.getAttribute("data-open-text") || "", closeT = gate.getAttribute("data-close-text") || "";
+    var api = { opened: false, first: true, panel: panel, again: function () { api.first = true; } };
+    gate.addEventListener("click", function () {
+      api.opened = !api.opened;
+      gate.setAttribute("aria-expanded", String(api.opened));
+      sec.classList.toggle("is-open", api.opened);
+      panel.hidden = !api.opened;
+      if (hint) hint.textContent = api.opened ? closeT : openT;
+      if (api.opened && api.first) { api.first = false; onFirst(); }
+      if (api.opened && !reduce) { try { panel.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) { /* old browsers */ } }
+    });
+    return api;
+  }
+
   /* ================================================================ the Torah ======================== */
   function mountTorah(sec) {
     var app = $("[data-tor-app]", sec);
     if (!app) return;
-    var started = false;
+    var door = mountGate(sec, function () { go(); });
+    if (!door) return;
     function go() {
-      if (started) return; started = true;
-      loadScript("data/torah/index.js").then(function () { build(); }).catch(function (e) {
-        started = false; app.innerHTML = '<p class="notice">The Torah reading could not load. Reload the page to try again.</p>'; if (window.console) console.error(e);
+      app.innerHTML = '<p class="bi-wait">Opening\u2026</p>';
+      var f = window.TC_TORAH_IDX ? Promise.resolve() : loadScript("data/torah/index.js");
+      f.then(function () { build(); }).catch(function (e) {
+        door.again(); app.innerHTML = '<p class="notice">The Torah reading could not load. Close the tree and touch it again.</p>'; if (window.console) console.error(e);
       });
     }
-    onNear(sec, go);
 
     var IDX, israel, today, state;
     function utcDay(d) { return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()); }
@@ -214,29 +233,19 @@
 
   /* ================================================================ the Zohar, behind the gate ======== */
   function mountZohar(sec) {
-    var gate = $("[data-gate]", sec), panel = $("[data-zpanel]", sec), hint = $("[data-gate-hint]", sec);
-    if (!gate || !panel) return;
-    var loaded = false, opened = false;
-    gate.addEventListener("click", function () {
-      opened = !opened;
-      gate.setAttribute("aria-expanded", String(opened));
-      sec.classList.toggle("is-open", opened);
-      panel.hidden = !opened;
-      if (hint) hint.textContent = opened ? "Touch the gate to close it." : "Touch the gate to open today’s passage.";
-      if (opened && !loaded) { loaded = true; start(); }
-      if (opened && !reduce) { try { panel.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) { /* old browsers */ } }
-    });
-
+    var door = mountGate(sec, function () { start(); });
+    if (!door) return;
+    var panel = door.panel;
     var IDX, mode, list, pos, cur, token = 0;
     function dayNumber(d) { return Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(2026, 0, 1)) / 86400000); }
 
     function start() {
       panel.innerHTML = '<p class="bi-wait">Opening…</p>';
       loadScript("data/zohar/index.js").then(function () { IDX = window.TC_ZOHAR_IDX; build(); }).catch(function () {
-        loaded = false;
+        door.again();
         panel.innerHTML = '<div class="bi-missing"><p><strong>The Zohar texts are not part of this copy of the site.</strong></p>' +
-          '<p>They come from files that the site’s owner adds on their own computer (Sefaria’s Hebrew and English Zohar, which carry mixed licences), and they are kept out of the public site on purpose. ' +
-          'To add them: put <code>zohar-he.json</code> and <code>zohar-en.json</code> in <code>content/daily/zohar/src/</code>, then run <code>python3 tools/make_zohar.py</code>.</p></div>';
+          '<p>The folder <code>data/zohar/</code> did not load. If you are opening a copy of the site, keep that folder beside the other pages. ' +
+          'To rebuild it from the source files: run <code>python3 tools/make_zohar.py</code> in the project.</p></div>';
       });
     }
 
@@ -284,9 +293,12 @@
         showAt(list[i][0] === p ? i : posOf(p, 0));
       });
       $("[data-z-sec]", root).addEventListener("change", function (e) { var v = e.target.value.split(":"); showAt(posOf(parseInt(v[0], 10), parseInt(v[1], 10))); });
-      var cr = IDX.credit || {};
+      var cr = IDX.credit || {}, enList = cr.en || [];
+      var enTxt = enList.length === 1
+        ? "English: <em>" + esc(enList[0]) + "</em>" + (cr.en_license ? " (" + esc(String(cr.en_license).toLowerCase()) + ", as marked on Sefaria)" : "") + ". "
+        : "English: from Sefaria, paragraph by paragraph the best available of " + esc(enList.join("; ")) + ". ";
       $("[data-z-credit]", root).innerHTML = "Hebrew and Aramaic: <em>" + esc((cr.he || []).join("; ") || "Vocalized Zohar") + "</em>, vowelled; the small boxed marks are the page numbers of the Vilna edition. " +
-        "English: from Sefaria, paragraph by paragraph the best available of " + esc((cr.en || []).join("; ")) + ". These translations are not all complete, so a passage may show only some paragraphs in English. Texts from <a href=\"https://www.sefaria.org\" rel=\"noopener\">sefaria.org</a>; each translation is under its own terms.";
+        enTxt + "The English does not reach every passage, and a passage may show only some paragraphs in English. Texts from <a href=\"https://www.sefaria.org\" rel=\"noopener\">sefaria.org</a>.";
       buildList(); fillParts(); goToday();
     }
     function fillParts() {
