@@ -60,3 +60,10 @@ PREAMBLE
 Noto Serif Hebrew (variable weight, Hebrew subset): Copyright 2022 The Noto Project Authors (https://github.com/notofonts/hebrew),
 SIL Open Font License 1.1 (http://scripts.sil.org/OFL). Packaged by Fontsource (@fontsource-variable/noto-serif-hebrew 5.3.0).
 It carries all Hebrew vowel points and cantillation marks, which the Torah and Zohar sections need.
+
+Subsets for the manifesto on the RoTao page (only the characters of one line each), all SIL Open Font License 1.1 (http://scripts.sil.org/OFL):
+  tc-syriac.woff2    Noto Sans Syriac, Copyright The Noto Project Authors (https://github.com/notofonts/syriac); via @fontsource/noto-sans-syriac 5.3.0
+  tc-arabic.woff2    Noto Naskh Arabic, Copyright The Noto Project Authors (https://github.com/notofonts/arabic); via @fontsource/noto-naskh-arabic 5.3.0
+  tc-greek.woff2     Noto Serif (Greek), Copyright The Noto Project Authors (https://github.com/notofonts/latin-greek-cyrillic); via @fontsource/noto-serif 5.3.0
+  tc-japanese.woff2  Noto Serif CJK JP, Copyright 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'; Noto Serif CJK is a trademark of Google Inc.
+Made by tools/make_manifesto_fonts.py.
