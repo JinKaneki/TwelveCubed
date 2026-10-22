@@ -652,6 +652,21 @@ html { scroll-padding-top: 5rem; }
    THE SKY: chart wheel, positions table, Moon phase
    The card keeps its own plate (white like a printed chart, or black); it does not follow the site theme.
    ============================================================ */
+/* the peaceful band: the blossom picture behind the logo section and the saying. CSS backgrounds (not <img>): no 'Save image' menu. The files are darkened,
+   smaller copies (tools/make_peaceful.py). The band keeps the night plate's colours on both themes so the text stays readable on the picture. */
+.peace { position: relative; isolation: isolate; margin-top: 3.5rem; border-block: 1px solid var(--rule);
+  --paper: #eaf1ee; --paper-dim: #c4d3da; --paper-faint: #aabdc9; --rule: rgba(234, 241, 238, 0.26);
+  --rota-ink: #ff8d14; --rota-glow: rgba(255, 141, 20, 0.55); color: var(--paper);
+  background: #0a1250; text-shadow: 0 1px 10px rgba(0, 6, 40, 0.6); -webkit-touch-callout: none; }
+/* the picture is on a pseudo-element that ignores the pointer: nothing to right-click, long-press or "view background image" */
+.peace::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(90deg, rgba(3, 8, 44, 0.5), rgba(3, 8, 44, 0.22) 55%, rgba(3, 8, 44, 0.12)), url("../img/peaceful-wide.jpg") 50% 50% / cover no-repeat; }
+.peace .cubed { margin-top: 0; border-top: 0; padding-top: 3.2rem; }
+.peace .saying { margin-top: 0; padding: 3.2rem var(--gutter) 3.6rem; }
+@media (max-width: 52rem) {
+  .peace::before { background: linear-gradient(rgba(3, 8, 44, 0.42), rgba(3, 8, 44, 0.3)), url("../img/peaceful-narrow.jpg") 72% 30% / cover no-repeat; }
+}
+
 /* the saying above "The sky, now" on the home page */
 .saying { max-width: 44rem; margin: 3.5rem auto 0; padding: 2.5rem var(--gutter) 0; }
 .saying figure { margin: 0; text-align: center; }

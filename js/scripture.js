@@ -3,7 +3,7 @@
      Torah  window.TC_TORAH_IDX + TC_TORAH_P[n]  (data/torah/, public domain: Westminster Leningrad Codex + JPS 1917, by tools/make_torah.py)
    Both show the original Hebrew/Aramaic beside the English, paragraph by paragraph or verse by verse. Everything is loaded from the
    site's own files, lazily; nothing is sent anywhere. The only things stored in the browser are the reader's own choices
-   (view, text size, Diaspora/Israel, which Zohar list). */
+   (view, text size, which Zohar list). */
 (function () {
   "use strict";
 
@@ -302,7 +302,7 @@
 
     function build() {
       IDX = window.TC_TORAH_IDX;
-      israel = store("tc_tor_israel") === "1";
+      israel = false;                       // the calendar outside Israel (the Israel variant was taken out of the page)
       today = new Date();
       state = { key: null, day: today.getDay(), browse: false };
       var opts = IDX.names.map(function (p) { return '<option value="' + p.n + '">' + esc(p.en.replace("-", "–")) + "  " + esc(p.he) + "</option>"; }).join("");
@@ -314,7 +314,6 @@
         '<div class="bi-ctl">' +
         '<label class="ap-block"><span class="ap-lab">Choose a portion</span><select class="ap-sel" data-t-pick aria-label="Choose a Torah portion">' + opts + "</select></label>" +
         '<div class="ap-block"><span class="ap-lab">This week</span><button type="button" class="ap-btn ap-main" data-t-now>Back to this week</button></div>' +
-        seg("Where you are", "where", [["dia", "Outside Israel"], ["isr", "Israel"]], israel ? "isr" : "dia") +
         seg("Show", "view-set", VIEWS, prefs.view) + sizeBlock() +
         "</div>" +
         '<div class="bi-text" data-t-text aria-live="polite"></div></div>';
@@ -326,13 +325,6 @@
       });
       $("[data-t-pick]", root).addEventListener("change", function (e) { state.key = e.target.value; state.browse = true; show(); });
       $("[data-t-now]", root).addEventListener("click", function () { state.browse = false; state.day = new Date().getDay(); show(); });
-      $$("[data-where]", root).forEach(function (b) {
-        b.addEventListener("click", function () {
-          israel = b.getAttribute("data-where") === "isr"; store("tc_tor_israel", israel ? "1" : "0");
-          $$("[data-where]", root).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
-          state.browse = false; show();
-        });
-      });
       show();
     }
 

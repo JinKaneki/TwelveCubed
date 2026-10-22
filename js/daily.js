@@ -1,6 +1,6 @@
 /* The Daily Tao page.
      1. the yin-yang button: one turn, then the scroll unfolds with the chapter of the day (James Legge, 1891, public domain)
-     2. the Cistercian clock: hours, minutes and seconds, and the date, in Cistercian numerals
+     2. the Cistercian clock: hours, minutes and seconds, and the date, in Cistercian numerals (and the Buddha analog face)
      3. the shared clock (window.TCDaily.clock) that drives the clock and the celestial astrolabe (js/astrolabe.js)
    One chapter per UTC day, counting from 1 January 2026 and repeating every 81 days. No network, nothing stored except the
    time-zone choice for the clock. */
@@ -146,7 +146,13 @@
     if (!root || !C) return;
     var slots = {};
     $$("[data-g]", root).forEach(function (el) { slots[el.getAttribute("data-g")] = { el: el, last: null }; });
-    var zone = store("tc_daily_zone") === "local" ? "local" : "utc";
+    /* three choices: UTC and My clock show the Cistercian signs; Analog shows the Buddha face on the visitor's own clock */
+    var saved = store("tc_daily_zone"), mode = saved === "local" || saved === "analog" ? saved : "utc";
+    var zone = mode === "utc" ? "utc" : "local";
+    var face = $("[data-analog]", root), box = root.querySelector(".cist-clock");
+    var hands = {}; $$("[data-an]", root).forEach(function (g) { hands[g.getAttribute("data-an")] = g; });
+    function setMode(m) { mode = m; zone = m === "utc" ? "utc" : "local"; if (box) box.classList.toggle("is-analog", m === "analog" && !!face); }
+    setMode(mode);
     var tzBtns = $$("[data-zone]", root), tag = $("[data-sim]", root), dline = $("[data-dateline]", root), zline = $("[data-zoneline]", root);
     var live = $("[data-live]", root), readout = $("[data-cist-read]", root);
 
@@ -177,6 +183,12 @@
       var z = zoneName(); if (zline.textContent !== z) zline.textContent = z;
       var spoken = two(p.h) + ":" + two(p.mi) + ":" + two(p.s) + " " + line + (zone === "utc" ? " UTC" : "");
       if (readout && Math.floor(ms / 60000) !== render.m) { render.m = Math.floor(ms / 60000); readout.textContent = spoken; }
+      if (mode === "analog" && face) {
+        var fr = (((ms % 1000) + 1000) % 1000) / 1000, sf = p.s + fr;
+        hands.h.setAttribute("transform", "rotate(" + (((p.h % 12) + (p.mi + sf / 60) / 60) * 30).toFixed(2) + ")");
+        hands.m.setAttribute("transform", "rotate(" + ((p.mi + sf / 60) * 6).toFixed(2) + ")");
+        hands.s.setAttribute("transform", "rotate(" + (sf * 6).toFixed(2) + ")");
+      }
       var isLive = clock.isLive();
       if (tag) tag.hidden = isLive;
       if (live && !isLive) live.textContent = clock.playing ? "Simulated time, " + speedText(clock.speed) : "Simulated time, paused";
@@ -188,9 +200,9 @@
       return sign + "×" + a.toLocaleString("en-US");
     }
     tzBtns.forEach(function (b) {
-      b.setAttribute("aria-pressed", String(b.getAttribute("data-zone") === zone));
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-zone") === mode));
       b.addEventListener("click", function () {
-        zone = b.getAttribute("data-zone"); store("tc_daily_zone", zone);
+        setMode(b.getAttribute("data-zone")); store("tc_daily_zone", mode);
         tzBtns.forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
         Object.keys(slots).forEach(function (k) { slots[k].last = null; });
         render(clock.now());

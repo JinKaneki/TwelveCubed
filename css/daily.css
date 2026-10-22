@@ -97,6 +97,12 @@
 .chap-pick { font-size: 0.9rem; color: rgba(42, 32, 23, 0.78); display: inline-flex; align-items: center; gap: 0.5rem; }
 .chap-pick select { padding: 0.5rem 0.6rem; border-radius: 0.6rem; color-scheme: light; }
 .chap-pick select option { background-color: #fff7de; color: #2a2017; }
+@media (max-width: 30rem) {   /* phones: the chapter controls (previous, Today, the chapter list, next) stay in one row */
+  .chap-nav { flex-wrap: nowrap; gap: 0.35rem; padding: 0.4rem 0.5rem 1.4rem; }
+  .chap-nav button, .chap-pick select { font-size: 0.86rem; padding: 0.45rem 0.7rem; min-height: 2.25rem; }
+  .chap-pick { font-size: 0.78rem; gap: 0.3rem; }
+  .chap-pick select { padding: 0.4rem 0.3rem; }
+}
 .ver-row { display: flex; justify-content: center; padding: 0 1rem 1.5rem; margin-top: -0.6rem; }
 .ver-seg { display: inline-flex; border: 1px solid rgba(42, 32, 23, 0.4); border-radius: 999px; overflow: hidden; }
 .ver-seg button { font: 400 0.85rem/1 var(--text); color: var(--ink); background: rgba(255, 250, 232, 0.55); border: 0; padding: 0.55rem 0.95rem; cursor: pointer; min-height: 2.3rem; }
@@ -111,9 +117,33 @@
 .hours { text-align: center; }
 .cist-clock {
   max-width: 46rem; margin: 1.6rem auto 0; padding: clamp(1.4rem, 4vw, 2.2rem) clamp(0.6rem, 3vw, 2rem) 1.3rem;
-  background: var(--ground-deep); border: 1px solid var(--rule); border-radius: 1.1rem; color: var(--rota-ink);
+  border: 1px solid var(--rule); border-radius: 1.1rem; color: var(--rota-ink);
   box-shadow: var(--shadow);
+  /* the serenity picture is the background. The box keeps the night plate's colours on both themes, so the numerals stay readable on the blue. */
+  --paper: #eaf1ee; --paper-dim: #c4d3da; --paper-faint: #aabdc9; --rule: rgba(234, 241, 238, 0.26); --rule-strong: rgba(234, 241, 238, 0.45); --wash: rgba(234, 241, 238, 0.14);
+  --rota-ink: #ff8d14; --rota-hi: #ffb04a; --rota-glow: rgba(255, 141, 20, 0.55);
+  background: #06134a; position: relative; isolation: isolate;
+  text-shadow: 0 1px 8px rgba(0, 8, 50, 0.6);
 }
+/* the picture sits on a pseudo-element that ignores the pointer: no 'View background image', and nothing under a long press */
+.cist-clock::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(rgba(2, 8, 38, 0.3), rgba(2, 8, 38, 0.3)), url("../daily/img/time-serenity.jpg") 0% 50% / cover no-repeat; }
+:root[data-theme="light"] .cist-clock .sim-tag { color: var(--rota-hi); border-color: rgba(255, 141, 20, 0.5); }
+/* the analog face: the Buddha picture with numerals and hands on top. Shown instead of the Cistercian rows when "Analog" is pressed. */
+.analog { display: none; }
+.cist-clock.is-analog .cist-row { display: none; }
+.cist-clock.is-analog .analog { display: block; width: min(100%, 25rem); margin: 0 auto; }
+.cist-clock.is-analog .dateline { margin-top: 1.2rem; }
+.an-face { position: relative; isolation: isolate; aspect-ratio: 1; border-radius: 1rem; overflow: hidden; background: #050505;
+  box-shadow: 0 12px 34px rgba(0, 0, 20, 0.55), 0 0 0 1px rgba(234, 241, 238, 0.28); -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+.an-face::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: url("../daily/img/time-buddha.jpg") 50% 50% / cover no-repeat; }
+.an-face svg { position: absolute; inset: 0; width: 100%; height: 100%; text-shadow: none; overflow: visible; }
+.an-num { font: 700 8.4px/1 "Helvetica Neue", Arial, "Liberation Sans", sans-serif; fill: #0b0b14; stroke: #f4f1e6; stroke-width: 1.5px; stroke-linejoin: round; paint-order: stroke fill; }
+.an-hand { fill: #0c0c14; stroke: rgba(244, 241, 230, 0.9); stroke-width: 0.7px; }
+.an-sec-under { stroke: rgba(0, 0, 0, 0.55); stroke-width: 2px; stroke-linecap: round; }
+.an-sec { stroke: #ff8d14; stroke-width: 0.95px; stroke-linecap: round; }
+.an-hub { fill: #1a1208; stroke: #ff8d14; stroke-width: 1px; }
+.an-cap { fill: #ff8d14; }
 .cist-row { display: flex; justify-content: center; align-items: flex-end; gap: clamp(0.3rem, 2.2vw, 1.3rem); }
 .cc-slot { margin: 0; width: clamp(3.3rem, 15vw, 6.2rem); }
 .cc-sign svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 0 7px var(--rota-glow)); }
@@ -398,3 +428,48 @@
 .zohar.is-open .gate-tree, .torah.is-open .gate-tree { width: min(11.5rem, 54vw); }
 @media (prefers-reduced-motion: reduce) { .ti-flower, .ti-sun { animation: none !important; } }
 :root[data-theme="light"] .ti-ornament { filter: drop-shadow(0 0 1px rgba(150, 100, 0, 0.7)) drop-shadow(0 0 12px rgba(255, 212, 42, 0.3)); }   /* the pale yellow needs an edge on the light page */
+
+/* ---------------------------------------------------------------- the manifesto: the author's motto as a sacred plate after the Torah */
+@font-face { font-family: "TC Syriac"; font-display: swap; src: url("../fonts/tc-syriac.woff2") format("woff2"); }
+@font-face { font-family: "TC Arabic"; font-display: swap; src: url("../fonts/tc-arabic.woff2") format("woff2"); }
+@font-face { font-family: "TC Greek"; font-display: swap; src: url("../fonts/tc-greek.woff2") format("woff2"); }
+@font-face { font-family: "TC Japanese"; font-display: swap; src: url("../fonts/tc-japanese.woff2") format("woff2"); }
+.manifesto { text-align: center; }
+.mf-frame { position: relative; isolation: isolate; overflow: hidden; max-width: 56rem; margin: 0 auto;
+  padding: clamp(2.4rem, 7vw, 4.4rem) clamp(1.1rem, 5vw, 3.2rem) clamp(2.2rem, 6vw, 3.4rem);
+  border: 1px solid rgba(255, 141, 20, 0.42); border-radius: 1.4rem;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 141, 20, 0.14), rgba(255, 141, 20, 0) 62%), var(--wash-faint);
+  box-shadow: inset 0 0 0 8px var(--ground), inset 0 0 0 9px rgba(255, 141, 20, 0.24), 0 18px 60px rgba(255, 141, 20, 0.08); }
+.mf-corner { position: absolute; width: 0.5rem; height: 0.5rem; background: var(--rota); transform: rotate(45deg); box-shadow: 0 0 10px var(--rota-glow); }
+.mf-c1 { top: 0.58rem; left: 0.58rem; } .mf-c2 { top: 0.58rem; right: 0.58rem; } .mf-c3 { bottom: 0.58rem; left: 0.58rem; } .mf-c4 { bottom: 0.58rem; right: 0.58rem; }
+.mf-halo { position: absolute; z-index: -1; left: 50%; top: 24%; width: min(34rem, 96%); height: auto; margin-left: calc(min(34rem, 96%) / -2); margin-top: calc(min(34rem, 96%) / -2);
+  opacity: 0.12; pointer-events: none; animation: tc-spin 300s linear infinite; }
+.mf-orn { display: flex; align-items: center; justify-content: center; gap: 0.7rem; width: min(18rem, 72%); margin: 1.4rem auto; }
+.mf-orn i { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255, 141, 20, 0), rgba(255, 141, 20, 0.8)); }
+.mf-orn i:last-child { transform: scaleX(-1); }
+.mf-orn b { width: 0.55rem; height: 0.55rem; background: var(--rota); transform: rotate(45deg); box-shadow: 0 0 12px var(--rota-glow); }
+.mf-kicker { margin: 0; font: 400 0.82rem/1.4 var(--text); letter-spacing: 0.34em; text-transform: uppercase; color: var(--rota-ink); }
+.daily-page .mf-main { margin: 0.9rem 0 0; font: italic 400 clamp(2.5rem, 8.4vw, 5rem)/1.12 var(--display); letter-spacing: 0.01em; text-shadow: 0 0 30px rgba(255, 141, 20, 0.34); text-wrap: balance; }
+.mf-main span { display: block; }
+.mf-main em { font-style: normal; color: var(--rota-ink); }
+.mf-name { margin: 1.9rem 0 0; font: 400 clamp(1.5rem, 4.6vw, 2.3rem)/1.2 var(--display); letter-spacing: 0.06em; }
+.mf-title { margin: 0.3rem 0 0; font: italic 400 1.05rem/1.4 var(--text); letter-spacing: 0.24em; color: var(--rota-ink); }
+.mf-tongues { display: grid; grid-template-columns: 1fr 1fr; column-gap: clamp(1rem, 5vw, 3.5rem); margin-top: 2.2rem; text-align: center; }
+.mf-t { grid-row: var(--r); padding: 0.4rem 0.2rem; }
+.mf-t:nth-child(odd) { grid-column: 1; } .mf-t:nth-child(even) { grid-column: 2; }
+.mf-t + .mf-t { margin-top: -1.7rem; }
+.mf-lang { margin: 0; font: 600 0.66rem/1.2 var(--text); letter-spacing: 0.28em; text-transform: uppercase; color: var(--rota-ink); }
+.mf-script { margin: 0.35rem 0 0; font: 400 1.3rem/1.65 var(--text); color: var(--paper); text-wrap: balance; }
+.mf-script[lang="he"] { font-family: "Noto Serif Hebrew", "SBL Hebrew", serif; font-size: 1.5rem; line-height: 1.9; }
+.mf-script[lang="syr"] { font-family: "TC Syriac", "Noto Sans Syriac", "Estrangelo Edessa", serif; font-size: 1.3rem; line-height: 2; }
+.mf-script[lang="ar"] { font-family: "TC Arabic", "Noto Naskh Arabic", "Amiri", serif; font-size: 1.55rem; line-height: 2; }
+.mf-script[lang="el"] { font-family: "TC Greek", "Literata", Georgia, serif; }
+.mf-script[lang="ja"] { font-family: "TC Japanese", "Hiragino Mincho ProN", "Yu Mincho", serif; letter-spacing: 0.04em; line-height: 1.8; font-size: 1.2rem; }
+.mf-tr { text-wrap: balance; margin: 0.15rem 0 0; font: italic 400 0.86rem/1.5 var(--text); color: var(--paper-dim); }
+@media (max-width: 40rem) {
+  .mf-tongues { grid-template-columns: 1fr; }
+  .mf-t:nth-child(odd), .mf-t:nth-child(even) { grid-column: 1; width: 88%; }
+  .mf-t:nth-child(odd) { justify-self: start; } .mf-t:nth-child(even) { justify-self: end; }
+  .mf-t + .mf-t { margin-top: 0.4rem; }
+}
+@media (prefers-reduced-motion: reduce) { .mf-halo { animation: none !important; } }

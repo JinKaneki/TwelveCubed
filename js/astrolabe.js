@@ -212,7 +212,9 @@
     var maxSpeed = reduce ? 3 : SPEEDS.length - 1;
 
     /* ----- markup ----- */
-    var tzList = Object.keys(TZP).map(function (k) { return { k: k, n: TZP[k][0], c: TZP[k][1] }; }).sort(function (a, b) { return a.n < b.n ? -1 : a.n > b.n ? 1 : 0; });
+    /* more places for the pin: cities that share a time zone with a bigger one (the zone list holds one city per zone), [name, country, lat, lon, zone] */
+    var EXTRA = { "x:Cape Town": ["Cape Town", "ZA", -33.93, 18.42, "Africa/Johannesburg"] };
+    var tzList = Object.keys(TZP).map(function (k) { return { k: k, n: TZP[k][0], c: TZP[k][1] }; }).concat(Object.keys(EXTRA).map(function (k) { return { k: k, n: EXTRA[k][0], c: EXTRA[k][1] }; })).sort(function (a, b) { return a.n < b.n ? -1 : a.n > b.n ? 1 : 0; });
     var placeOpts = '<option value="__pin">Dropped pin</option>' + tzList.map(function (t) { return '<option value="' + esc(t.k) + '">' + esc(t.n + ", " + t.c) + "</option>"; }).join("");
     host.innerHTML =
       '<div class="astro-grid">' +
@@ -635,13 +637,20 @@
 
     /* the pin */
     var placeSel = q("[data-place]");
-    function syncPlaceSelect() { placeSel.value = place.tz && TZP[place.tz] && TZP[place.tz][0] + ", " + TZP[place.tz][1] === place.name ? place.tz : "__pin"; }
+    function syncPlaceSelect() {
+      var v = "__pin";
+      if (place.tz && TZP[place.tz] && TZP[place.tz][0] + ", " + TZP[place.tz][1] === place.name) v = place.tz;
+      Object.keys(EXTRA).forEach(function (k) { if (EXTRA[k][0] + ", " + EXTRA[k][1] === place.name) v = k; });
+      placeSel.value = v;
+    }
     function setPlace(p) {
       place = p; store("tc_astro_place", JSON.stringify(p)); syncPlaceSelect(); clock.kick();
     }
     syncPlaceSelect();
     placeSel.addEventListener("change", function () {
       var v = placeSel.value; if (v === "__pin") return;
+      var x = EXTRA[v];
+      if (x) { setPlace({ name: x[0] + ", " + x[1], lat: x[2], lon: x[3], tz: x[4] }); return; }
       var t = TZP[v]; if (t) setPlace({ name: t[0] + ", " + t[1], lat: t[3], lon: t[4], tz: v });
     });
     q("[data-here]").addEventListener("click", function () {
