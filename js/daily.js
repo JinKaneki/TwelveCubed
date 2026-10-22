@@ -65,8 +65,8 @@
     var spin = btn.querySelector("svg"), hint = $("[data-yy-hint]"), sheet = $("[data-sheet]");
     var body = $("[data-chapter]"), prev = $("[data-prev]"), next = $("[data-next]"), today = $("[data-today]"), pick = $("[data-pick]");
     var DATA = window.TC_TAO || {}, todayCh = chapterOfDay(Date.now()), shown = todayCh, angle = 0, busy = false;
-    var CREDIT = { own: "A plain-English rendering made for this site, guided by James Legge&rsquo;s 1891 translation.", legge: "Tao Te Ching, translated by James Legge (1891; public domain)." };
-    var ver = store("tc_tao_ver") === "legge" && DATA.legge ? "legge" : (DATA.own ? "own" : "legge");
+    var CREDIT = { mitchell: "Tao Te Ching, English version by Stephen Mitchell.", legge: "Tao Te Ching, translated by James Legge (1891; public domain)." };
+    var ver = store("tc_tao_ver") === "legge" && DATA.legge ? "legge" : (DATA.mitchell ? "mitchell" : "legge");
     var vbtns = $$("[data-ver]");
 
     function dateLine() {

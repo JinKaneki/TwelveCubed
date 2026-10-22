@@ -34,7 +34,7 @@
   var ELCOL = ["#ff6a7c", "#e0bb55", "#58d2d6", "#8a97ff"];
   var BODIES = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "chiron", "node"];
   var NAMES = { sun: "Sun", moon: "Moon", mercury: "Mercury", venus: "Venus", mars: "Mars", jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto", chiron: "Chiron", node: "True Node" };
-  var QUOTE = ["Man follows the earth,", "the earth follows the heavens,", "the heavens follow the Tao", "and the Tao follows nature."];
+  var QUOTE = ["Man follows the earth.", "Earth follows the universe.", "The universe follows the Tao.", "The Tao follows only itself."];
   var DAYS_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   function tint(k, paper) { var P = W.PAL[paper ? "paper" : "night"]; return P[k] || (paper ? P.grayDeg : P.grayDeg); }   // Chiron and the Node have no colour of their own: the chart's grey
@@ -574,18 +574,18 @@
       var ctx = cv.getContext("2d");
       ctx.fillStyle = "#061424"; ctx.fillRect(0, 0, Wd, Ht);
       var glow = ctx.createRadialGradient(Wd / 2, 0, 20, Wd / 2, 0, 1000);
-      glow.addColorStop(0, "rgba(255,143,16,0.13)"); glow.addColorStop(1, "rgba(255,143,16,0)");
+      glow.addColorStop(0, "rgba(255,166,38,0.22)"); glow.addColorStop(1, "rgba(255,166,38,0)");
       ctx.fillStyle = glow; ctx.fillRect(0, 0, Wd, Ht);
       ctx.strokeStyle = "rgba(201,165,90,0.55)"; ctx.lineWidth = 2; ctx.strokeRect(24, 24, Wd - 48, Ht - 48);
       ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
       ctx.fillStyle = "#efe4c6"; ctx.font = "600 66px " + serif; ctx.fillText(dateTxt, Wd / 2, TOP);
-      ctx.fillStyle = "#ff8f10"; ctx.font = "400 38px " + sans; ctx.fillText(timeTxt, Wd / 2, TOP + 58);
-      ctx.strokeStyle = "rgba(255,143,16,0.8)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(Wd / 2 - 70, TOP + 100); ctx.lineTo(Wd / 2 + 70, TOP + 100); ctx.stroke();
+      ctx.fillStyle = "#ffa31a"; ctx.font = "400 38px " + sans; ctx.fillText(timeTxt, Wd / 2, TOP + 58);
+      ctx.strokeStyle = "rgba(255,166,38,0.8)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(Wd / 2 - 70, TOP + 100); ctx.lineTo(Wd / 2 + 70, TOP + 100); ctx.stroke();
       ctx.fillStyle = "#f3ecd8"; ctx.font = "italic 400 43px " + serif;
       QUOTE.forEach(function (ln, i) { ctx.fillText(ln, Wd / 2, quoteY + i * 60); });
       ctx.fillStyle = "#b9a878"; ctx.font = "400 22px " + sans;
       if (ctx.letterSpacing !== undefined) ctx.letterSpacing = "4px";
-      ctx.fillText("TAO TE CHING, 25", Wd / 2, quoteY + QUOTE.length * 60 + 18);
+      ctx.fillText("TAO TE CHING, 25  \u00b7  STEPHEN MITCHELL", Wd / 2, quoteY + QUOTE.length * 60 + 18);
       if (ctx.letterSpacing !== undefined) ctx.letterSpacing = "0px";
 
       /* the clock: plate, map, night, then the instrument */

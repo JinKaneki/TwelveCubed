@@ -10,21 +10,21 @@
   --ink: #2a2017;
   --seal: #9c2f1f;
   --night: #050b33;
-  --rota: #ff8d14;                       /* the glowing orange of the Rota logo: the accent of this page */
-  --rota-hi: #ffb04a;
-  --rota-ink: #ff8d14;                   /* the orange as lettering; the light plate uses a deeper shade (below) */
-  --rota-glow: rgba(255, 141, 20, 0.55);
+  --rota: #ffa31a;                       /* the glowing orange of the Rota logo: the accent of this page */
+  --rota-hi: #ffc65a;
+  --rota-ink: #ffa31a;                   /* the orange as lettering; the light plate uses a deeper shade (below) */
+  --rota-glow: rgba(255, 170, 40, 0.8);
   --on-rota: #1b1004;                    /* text on an orange fill */
   max-width: 72rem;
   margin: 0 auto;
   padding: clamp(1.5rem, 5vw, 3.5rem) var(--gutter) 4rem;
 }
-:root[data-theme="light"] .daily-page { --rota-ink: #b85300; --rota-hi: #d96a00; --rota-glow: rgba(255, 141, 20, 0.45); }
+:root[data-theme="light"] .daily-page { --rota-ink: #ad6100; --rota-hi: #c47400; --rota-glow: rgba(255, 166, 38, 0.6); }
 .daily-page section { margin-top: clamp(3.5rem, 9vw, 6rem); }
 .daily-page .tao { margin-top: 0; text-align: center; }
 .rota-emblem { display: block; width: 7rem; height: 7rem; margin: 0 auto 1rem; border-radius: 50%; object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(255, 141, 20, 0.35), 0 12px 50px rgba(255, 141, 20, 0.22); animation: tc-spin 120s linear infinite; }
-.rota-mini { width: 6rem; height: 6rem; border-radius: 50%; flex: none; box-shadow: 0 0 0 1px rgba(255, 141, 20, 0.3); }
+  box-shadow: 0 0 0 1px rgba(255, 166, 38, 0.5), 0 0 34px rgba(255, 166, 38, 0.38), 0 12px 60px rgba(255, 166, 38, 0.3); animation: tc-spin 120s linear infinite; }
+.rota-mini { width: 6rem; height: 6rem; border-radius: 50%; flex: none; box-shadow: 0 0 0 1px rgba(255, 166, 38, 0.3); }
 .daily-page .kicker { margin: 0; font: 400 0.82rem/1.4 var(--text); letter-spacing: 0.3em; text-transform: uppercase; color: var(--rota-ink); }
 .daily-page h1 { margin: 0.35rem 0 0; font: 400 clamp(2.4rem, 7vw, 4.2rem)/1.05 var(--display); letter-spacing: 0.01em; }
 .daily-page h2 { margin: 0; font: 400 clamp(1.7rem, 4.6vw, 2.5rem)/1.15 var(--display); text-align: center; }
@@ -121,14 +121,14 @@
   box-shadow: var(--shadow);
   /* the serenity picture is the background. The box keeps the night plate's colours on both themes, so the numerals stay readable on the blue. */
   --paper: #eaf1ee; --paper-dim: #c4d3da; --paper-faint: #aabdc9; --rule: rgba(234, 241, 238, 0.26); --rule-strong: rgba(234, 241, 238, 0.45); --wash: rgba(234, 241, 238, 0.14);
-  --rota-ink: #ff8d14; --rota-hi: #ffb04a; --rota-glow: rgba(255, 141, 20, 0.55);
+  --rota-ink: #ffa31a; --rota-hi: #ffc65a; --rota-glow: rgba(255, 170, 40, 0.8);
   background: #08104a; position: relative; isolation: isolate;
   text-shadow: 0 1px 8px rgba(0, 8, 50, 0.6);
 }
 /* your serenity picture (the original, daily/img/time-serenity.jpg) behind the clock, under a blue overlay */
 .cist-clock::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
   background: linear-gradient(rgba(2, 8, 38, 0.3), rgba(2, 8, 38, 0.3)), url("../daily/img/time-serenity.jpg") 0% 50% / cover no-repeat; }
-:root[data-theme="light"] .cist-clock .sim-tag { color: var(--rota-hi); border-color: rgba(255, 141, 20, 0.5); }
+:root[data-theme="light"] .cist-clock .sim-tag { color: var(--rota-hi); border-color: rgba(255, 166, 38, 0.5); }
 /* the analog face: the Buddha picture with numerals and hands on top. Shown instead of the Cistercian rows when "Analog" is pressed. */
 .analog { display: none; }
 .cist-clock.is-analog .cist-row { display: none; }
@@ -141,12 +141,12 @@
 .an-num { font: 700 8.4px/1 "Helvetica Neue", Arial, "Liberation Sans", sans-serif; fill: #0b0b14; stroke: #f4f1e6; stroke-width: 1.5px; stroke-linejoin: round; paint-order: stroke fill; }
 .an-hand { fill: #0c0c14; stroke: rgba(244, 241, 230, 0.9); stroke-width: 0.7px; }
 .an-sec-under { stroke: rgba(0, 0, 0, 0.55); stroke-width: 2px; stroke-linecap: round; }
-.an-sec { stroke: #ff8d14; stroke-width: 0.95px; stroke-linecap: round; }
-.an-hub { fill: #1a1208; stroke: #ff8d14; stroke-width: 1px; }
-.an-cap { fill: #ff8d14; }
+.an-sec { stroke: #ffa31a; stroke-width: 0.95px; stroke-linecap: round; }
+.an-hub { fill: #1a1208; stroke: #ffa31a; stroke-width: 1px; }
+.an-cap { fill: #ffa31a; }
 .cist-row { display: flex; justify-content: center; align-items: flex-end; gap: clamp(0.3rem, 2.2vw, 1.3rem); }
 .cc-slot { margin: 0; width: clamp(3.3rem, 15vw, 6.2rem); }
-.cc-sign svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 0 7px var(--rota-glow)); }
+.cc-sign svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 0 4px var(--rota-glow)) drop-shadow(0 0 15px var(--rota-glow)); }
 .cc-slot figcaption { display: flex; flex-direction: column; align-items: center; margin-top: 0.35rem; line-height: 1.25; }
 .cc-num { font: 400 clamp(1rem, 3.2vw, 1.35rem)/1.2 var(--text); font-variant-numeric: tabular-nums; color: var(--paper); }
 .cc-lab { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-faint); }
@@ -163,8 +163,8 @@
 .seg button { font: 400 0.85rem/1 var(--text); letter-spacing: 0.04em; color: var(--paper-dim); background: none; border: 0; padding: 0.55rem 0.95rem; cursor: pointer; min-height: 2.3rem; }
 .seg button[aria-pressed="true"] { background: var(--rota); color: var(--on-rota); font-weight: 600; }
 .seg button:not([aria-pressed="true"]):hover { background: var(--wash); }
-.sim-tag { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.84rem; color: var(--rota-hi); padding: 0.25rem 0.3rem 0.25rem 0.8rem; border: 1px solid rgba(255, 141, 20, 0.5); border-radius: 999px; }
-:root[data-theme="light"] .sim-tag { color: #b85300; border-color: rgba(184, 83, 0, 0.55); }
+.sim-tag { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.84rem; color: var(--rota-hi); padding: 0.25rem 0.3rem 0.25rem 0.8rem; border: 1px solid rgba(255, 166, 38, 0.5); border-radius: 999px; }
+:root[data-theme="light"] .sim-tag { color: #ad6100; border-color: rgba(173, 97, 0, 0.55); }
 .sim-tag button { font: inherit; font-weight: 600; color: var(--on-rota); background: var(--rota); border: 0; border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; }
 .sim-tag[hidden] { display: none; }
 
@@ -188,7 +188,7 @@
 
 /* ---------------------------------------------------------------- the saying between the two clocks */
 .wayquote figure { margin: 0 auto; max-width: 40rem; text-align: center; }
-.wayquote figure::before { content: ""; display: block; width: 4.5rem; height: 2px; margin: 0 auto 1.6rem; background: var(--rota); box-shadow: 0 0 14px var(--rota-glow); border-radius: 2px; }
+.wayquote figure::before { content: ""; display: block; width: 4.5rem; height: 2px; margin: 0 auto 1.6rem; background: var(--rota); box-shadow: 0 0 8px var(--rota-glow), 0 0 22px var(--rota-glow); border-radius: 2px; }
 .wayquote blockquote { margin: 0; }
 .wayquote p { margin: 0; font: italic 400 clamp(1.45rem, 4.4vw, 2.2rem)/1.45 var(--display); color: var(--paper); }
 .wayquote p span { display: block; }
@@ -249,8 +249,8 @@
 .ap-clock { margin: 0; font: 400 clamp(2.3rem, 7vw, 3rem)/1 var(--text); font-variant-numeric: tabular-nums; color: var(--paper); letter-spacing: 0.02em; }
 .ap-date { margin: 0.3rem 0 0; color: var(--paper-dim); font-size: 1.02rem; }
 .ap-status { display: inline-block; margin: 0.6rem 0 0; padding: 0.2rem 0.8rem; border: 1px solid var(--rule-strong); border-radius: 999px; font-size: 0.84rem; color: var(--paper-dim); }
-.ap-status.is-sim { color: var(--rota-hi); border-color: rgba(255, 141, 20, 0.55); }
-:root[data-theme="light"] .ap-status.is-sim { color: #b85300; border-color: rgba(184, 83, 0, 0.55); }
+.ap-status.is-sim { color: var(--rota-hi); border-color: rgba(255, 166, 38, 0.55); }
+:root[data-theme="light"] .ap-status.is-sim { color: #ad6100; border-color: rgba(173, 97, 0, 0.55); }
 .ap-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .ap-transport .ap-btn { flex: 1; }
 .ap-block { display: grid; gap: 0.5rem; margin: 0; padding: 0; border: 0; min-width: 0; }
@@ -284,7 +284,7 @@
 .astro-read .rd-wide { grid-column: 1 / -1; }
 .rd-save {
   display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.15rem; text-align: left; cursor: pointer; font: inherit; color: var(--paper);
-  border-color: rgba(255, 141, 20, 0.55); background: linear-gradient(160deg, rgba(255, 141, 20, 0.16), rgba(255, 141, 20, 0.04));
+  border-color: rgba(255, 166, 38, 0.55); background: linear-gradient(160deg, rgba(255, 166, 38, 0.16), rgba(255, 166, 38, 0.04));
   transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 .rd-save:hover { border-color: var(--rota); box-shadow: 0 0 18px var(--rota-glow); }
@@ -310,7 +310,7 @@
 /* ---------------------------------------------------------------- the Tree of Life: transparent, so it sits on whichever plate is showing */
 .tree { text-align: center; overflow-x: clip; }   /* the figure's glow reaches past the picture; on a phone it must not widen the page */
 .tree-fig { position: relative; margin: 2rem auto 0; max-width: 26rem; }
-.tree-fig::before { content: ""; position: absolute; inset: -6% -30%; background: radial-gradient(closest-side, rgba(255, 141, 20, 0.14), rgba(255, 141, 20, 0) 100%); pointer-events: none; }
+.tree-fig::before { content: ""; position: absolute; inset: -6% -30%; background: radial-gradient(closest-side, rgba(255, 166, 38, 0.22), rgba(255, 166, 38, 0) 100%); pointer-events: none; }
 :root[data-theme="light"] .tree-fig::before { display: none; }
 @media (max-width: 34rem) { .tree-fig::before { inset: -4% -4%; } }
 .tree-fig img { position: relative; display: block; width: 100%; height: auto; }
@@ -355,7 +355,7 @@
 .bi-title { margin: 0.4rem 0 0; font: 400 clamp(1.6rem, 4.5vw, 2.4rem)/1.15 var(--display); }
 .bi-he-title { margin-inline-start: 0.5rem; font: 400 0.85em/1.2 "Noto Serif Hebrew", var(--display), serif; color: var(--paper-dim); }
 .bi-sub { margin: 0.55rem 0 0; color: var(--paper-dim); font-size: 0.98rem; }
-.bi-note { max-width: 40rem; margin: 0.8rem auto 0; padding: 0.5rem 0.9rem; border: 1px solid rgba(255, 141, 20, 0.5); border-radius: 0.7rem; color: var(--paper); font-size: 0.92rem; }
+.bi-note { max-width: 40rem; margin: 0.8rem auto 0; padding: 0.5rem 0.9rem; border: 1px solid rgba(255, 166, 38, 0.5); border-radius: 0.7rem; color: var(--paper); font-size: 0.92rem; }
 .bi-note[hidden] { display: none; }
 .bi-ctl { display: grid; grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); gap: 1rem; align-items: end; }
 .bi-seg { display: flex; flex-wrap: wrap; gap: 0.35rem; }
@@ -396,7 +396,7 @@
 .bi-he big { font-size: 1.15em; } .bi-he small { font-size: 0.82em; }
 .bi-he b { font-weight: 700; }
 /* the Vilna page numbers inside the Hebrew */
-.zpg { display: inline-block; margin: 0 0.3em; padding: 0 0.35em; border: 1px solid rgba(255, 141, 20, 0.55); border-radius: 0.3em; color: var(--rota-ink);
+.zpg { display: inline-block; margin: 0 0.3em; padding: 0 0.35em; border: 1px solid rgba(255, 166, 38, 0.55); border-radius: 0.3em; color: var(--rota-ink);
   font: 400 0.62em/1.5 var(--text); letter-spacing: 0.04em; vertical-align: 0.5em; direction: ltr; unicode-bidi: isolate; }
 .bi-credit { margin: 0.4rem 0 0; font-size: 0.8rem; line-height: 1.55; color: var(--paper-faint); }
 .bi-credit a { color: var(--paper-dim); }
@@ -423,7 +423,7 @@
 .time-icon { display: block; width: clamp(3.6rem, 17vw, 5.5rem); height: auto; aspect-ratio: 1; flex: 0 0 auto; }
 .ti-flower { filter: drop-shadow(0 0 14px rgba(255, 127, 42, 0.35)); animation: tc-spin 200s linear infinite; }
 .ti-ornament { filter: drop-shadow(0 0 14px rgba(255, 212, 42, 0.3)); }
-.ti-sun { filter: drop-shadow(0 0 14px rgba(255, 141, 20, 0.35)); animation: tc-spin 160s linear infinite reverse; }
+.ti-sun { filter: drop-shadow(0 0 16px rgba(255, 166, 38, 0.6)); animation: tc-spin 160s linear infinite reverse; }
 .gate-tree { width: min(23rem, 84vw); }
 .zohar.is-open .gate, .torah.is-open .gate { width: min(11rem, 52vw); }
 .zohar.is-open .gate-tree, .torah.is-open .gate-tree { width: min(11.5rem, 54vw); }
@@ -438,21 +438,21 @@
 .manifesto { text-align: center; }
 .mf-frame { position: relative; isolation: isolate; overflow: hidden; max-width: 56rem; margin: 0 auto;
   padding: clamp(2.4rem, 7vw, 4.4rem) clamp(1.1rem, 5vw, 3.2rem) clamp(2.2rem, 6vw, 3.4rem);
-  border: 1px solid rgba(255, 141, 20, 0.42); border-radius: 1.4rem;
-  background: radial-gradient(ellipse at 50% 0%, rgba(255, 141, 20, 0.14), rgba(255, 141, 20, 0) 62%), var(--wash-faint);
-  box-shadow: inset 0 0 0 8px var(--ground), inset 0 0 0 9px rgba(255, 141, 20, 0.24), 0 18px 60px rgba(255, 141, 20, 0.08); }
+  border: 1px solid rgba(255, 166, 38, 0.42); border-radius: 1.4rem;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 166, 38, 0.2), rgba(255, 166, 38, 0) 62%), var(--wash-faint);
+  box-shadow: inset 0 0 0 8px var(--ground), inset 0 0 0 9px rgba(255, 166, 38, 0.24), 0 18px 60px rgba(255, 166, 38, 0.16); }
 .mf-corner { position: absolute; width: 0.5rem; height: 0.5rem; background: var(--rota); transform: rotate(45deg); box-shadow: 0 0 10px var(--rota-glow); }
 .mf-c1 { top: 0.58rem; left: 0.58rem; } .mf-c2 { top: 0.58rem; right: 0.58rem; } .mf-c3 { bottom: 0.58rem; left: 0.58rem; } .mf-c4 { bottom: 0.58rem; right: 0.58rem; }
 .mf-halo { position: absolute; z-index: -1; left: 50%; top: 20%; width: min(34rem, 96%); height: auto; margin-left: calc(min(34rem, 96%) / -2); margin-top: calc(min(34rem, 96%) / -2);
   opacity: 0.12; pointer-events: none; animation: tc-spin 300s linear infinite; }
 .mf-orn { display: flex; align-items: center; justify-content: center; gap: 0.7rem; width: min(18rem, 72%); margin: 1.4rem auto; }
-.mf-orn i { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255, 141, 20, 0), rgba(255, 141, 20, 0.8)); }
+.mf-orn i { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255, 166, 38, 0), rgba(255, 166, 38, 0.8)); }
 .mf-orn i:last-child { transform: scaleX(-1); }
 .mf-orn b { width: 0.55rem; height: 0.55rem; background: var(--rota); transform: rotate(45deg); box-shadow: 0 0 12px var(--rota-glow); }
 /* the animals-on-a-globe picture (the original, web/img/animals-globe.jpg) in an arch: all things, the earth in the night sky */
 .mf-globe { display: block; width: clamp(9.5rem, 34vw, 12.5rem); height: auto; aspect-ratio: 4 / 5; object-fit: cover; margin: 0 auto; border-radius: 999px 999px 1rem 1rem;
-  box-shadow: 0 0 0 2px rgba(255, 141, 20, 0.75), 0 0 0 7px var(--ground), 0 0 0 8px rgba(255, 141, 20, 0.35), 0 12px 46px rgba(255, 141, 20, 0.22); }
-.daily-page .mf-main { margin: 1.5rem 0 0; font: italic 400 clamp(2.5rem, 8.4vw, 5rem)/1.12 var(--display); letter-spacing: 0.01em; text-shadow: 0 0 30px rgba(255, 141, 20, 0.34); text-wrap: balance; }
+  box-shadow: 0 0 0 2px rgba(255, 166, 38, 0.75), 0 0 0 7px var(--ground), 0 0 0 8px rgba(255, 166, 38, 0.35), 0 12px 46px rgba(255, 166, 38, 0.22); }
+.daily-page .mf-main { margin: 1.5rem 0 0; font: italic 400 clamp(2.5rem, 8.4vw, 5rem)/1.12 var(--display); letter-spacing: 0.01em; text-shadow: 0 0 30px rgba(255, 166, 38, 0.5); text-wrap: balance; }
 .mf-main span { display: block; }
 .mf-main em { font-style: normal; color: var(--rota-ink); }
 .mf-name { margin: 1.9rem 0 0; font: 400 clamp(1.5rem, 4.6vw, 2.3rem)/1.2 var(--display); letter-spacing: 0.06em; }

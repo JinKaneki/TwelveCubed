@@ -27,9 +27,9 @@
   --wash-faint: rgba(234, 241, 238, 0.045);
   --fire: #f2764d;
   --earth: #d9b65c;
-  --rota: #ff8d14;                  /* the glowing orange of the Rota logo, the accent of the RoTao page, the saying and the 3 of 12³ */
-  --rota-ink: #ff8d14;
-  --rota-glow: rgba(255, 141, 20, 0.55);
+  --rota: #ffa31a;                  /* the glowing orange of the Rota logo, the accent of the RoTao page, the saying and the 3 of 12³ */
+  --rota-ink: #ffa31a;
+  --rota-glow: rgba(255, 170, 40, 0.8);
   --air: #94cdf0;
   --water: #62c8a8;
   --shadow: 0 1px 2px rgba(0, 0, 8, 0.4), 0 14px 34px rgba(0, 0, 12, 0.34);
@@ -54,8 +54,8 @@
   --wash-faint: rgba(8, 16, 74, 0.035);
   --fire: #c2502c;
   --earth: #8a6a12;
-  --rota-ink: #c25a00;
-  --rota-glow: rgba(255, 141, 20, 0.45);
+  --rota-ink: #ad6100;
+  --rota-glow: rgba(255, 166, 38, 0.6);
   --air: #1f6f9f;
   --water: #1f7d61;
   --shadow: 0 1px 2px rgba(8, 16, 74, 0.06), 0 14px 34px rgba(8, 16, 74, 0.1);
@@ -562,7 +562,7 @@ input::placeholder { color: var(--paper-faint); }
          align-items: center; }
 .cubed-eq { font: 300 clamp(5rem, 14vw, 10rem)/0.9 var(--text); font-variant-numeric: lining-nums; letter-spacing: -0.04em;
             margin: 0 0 1rem; color: var(--paper); }
-.cubed-eq sup { font-size: 0.46em; line-height: 0; vertical-align: 1.05em; letter-spacing: 0; margin-left: 0.04em; color: var(--rota-ink); text-shadow: 0 0 18px var(--rota-glow); }
+.cubed-eq sup { font-size: 0.46em; line-height: 0; vertical-align: 1.05em; letter-spacing: 0; margin-left: 0.04em; color: var(--rota-ink); text-shadow: 0 0 10px var(--rota-glow), 0 0 26px var(--rota-glow); }
 .cubed-sum { font: 400 clamp(1.4rem, 3vw, 2.1rem)/1.3 var(--text); margin-bottom: 0.9rem; }
 .cubed-note { color: var(--paper-dim); max-width: 32rem; }
 
@@ -656,7 +656,7 @@ html { scroll-padding-top: 5rem; }
    under a dark blue overlay. The band keeps the night plate's colours on both themes so the text stays readable on the picture. */
 .peace { position: relative; margin-top: 3.5rem; border-block: 1px solid var(--rule);
   --paper: #eaf1ee; --paper-dim: #c4d3e4; --paper-faint: #aab8d4; --rule: rgba(234, 241, 238, 0.26);
-  --rota-ink: #ff8d14; --rota-glow: rgba(255, 141, 20, 0.55); color: var(--paper);
+  --rota-ink: #ffa31a; --rota-glow: rgba(255, 170, 40, 0.8); color: var(--paper);
   background: radial-gradient(ellipse 46% 34% at 50% 78%, rgba(5, 9, 52, 0.62), rgba(5, 9, 52, 0) 100%), linear-gradient(90deg, rgba(5, 9, 52, 0.58), rgba(5, 9, 52, 0.5) 55%, rgba(5, 9, 52, 0.46)), url("../img/peaceful-desktop.jpg") 50% 50% / cover no-repeat, #08104a;
   text-shadow: 0 1px 10px rgba(0, 4, 40, 0.7); }
 .peace .cubed { margin-top: 0; border-top: 0; padding-top: 3.2rem; }
@@ -665,10 +665,18 @@ html { scroll-padding-top: 5rem; }
   .peace { background: linear-gradient(rgba(5, 9, 52, 0.55), rgba(5, 9, 52, 0.48)), url("../img/peaceful-mobile.jpg") 72% 30% / cover no-repeat, #08104a; }
 }
 
+/* Sol and Luna (the original picture, web/img/sol-luna.jpg) in the gap under the band. The picture has a white ground: multiply makes the white take the colour
+   of whatever is behind it, and the warm glow behind it lights the woodcut on the dark blue; on the light plate the same glow is a soft cream. */
+.solluna { width: min(66rem, 100%); margin: 2.4rem auto 1rem; padding: clamp(1.6rem, 6vw, 4.6rem) 0;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255, 233, 178, 0.97) 0%, rgba(255, 222, 152, 0.94) 62%, rgba(255, 204, 108, 0.58) 80%, rgba(255, 190, 80, 0) 100%); }
+.solluna img { display: block; width: 82%; height: auto; margin: 0 auto; mix-blend-mode: multiply; }
+:root[data-theme="light"] .solluna { background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255, 236, 190, 0.92) 0%, rgba(255, 226, 165, 0.84) 62%, rgba(255, 210, 120, 0.44) 80%, rgba(255, 200, 90, 0) 100%); }
+@media (max-width: 40rem) { .solluna { margin-top: 1.2rem; padding: 1rem 0; } .solluna img { width: 96%; } }
+
 /* the saying above "The sky, now" on the home page */
 .saying { max-width: 44rem; margin: 3.5rem auto 0; padding: 2.5rem var(--gutter) 0; }
 .saying figure { margin: 0; text-align: center; }
-.saying figure::before { content: ""; display: block; width: 4.5rem; height: 2px; margin: 0 auto 1.6rem; background: var(--rota); box-shadow: 0 0 14px var(--rota-glow); border-radius: 2px; }
+.saying figure::before { content: ""; display: block; width: 4.5rem; height: 2px; margin: 0 auto 1.6rem; background: var(--rota); box-shadow: 0 0 8px var(--rota-glow), 0 0 22px var(--rota-glow); border-radius: 2px; }
 .saying blockquote { margin: 0; }
 .saying blockquote p { margin: 0; font: italic 400 clamp(1.6rem, 5vw, 2.5rem)/1.35 var(--display); color: var(--paper); text-wrap: balance; }
 .saying blockquote p span { display: inline-block; }

@@ -133,7 +133,7 @@
   function drawCard(d, cs) {
     function tok(n, dflt) { var v = cs.getPropertyValue(n); return (v && v.trim()) || dflt; }
     var C = { ground: tok("--ground", "#08104a"), deep: tok("--ground-deep", "#050b33"), paper: tok("--paper", "#eaf1ee"), dim: tok("--paper-dim", "#a9bdc4"),
-              faint: tok("--paper-faint", "#7e97a4"), rule: tok("--rule-strong", "rgba(234,241,238,.42)"), rota: tok("--rota", "#ff8d14"), ink: tok("--rota-ink", "#ff8d14") };
+              faint: tok("--paper-faint", "#7e97a4"), rule: tok("--rule-strong", "rgba(234,241,238,.42)"), rota: tok("--rota", "#ffa31a"), ink: tok("--rota-ink", "#ffa31a") };
     var W = 1080, PAD = 104, TW = W - 2 * PAD, MAXH = 3200;
     var HEF = function (s) { return "400 " + s + 'px "Noto Serif Hebrew", "SBL Hebrew", "Ezra SIL", "Times New Roman", serif'; };
     var ENF = function (s) { return "400 " + s + 'px Literata, Georgia, "Times New Roman", serif'; };
@@ -160,11 +160,11 @@
     // plate
     var g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, C.ground); g.addColorStop(1, C.deep);
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    var rg = ctx.createRadialGradient(W / 2, 0, 0, W / 2, 0, W * 0.75); rg.addColorStop(0, "rgba(255,141,20,0.22)"); rg.addColorStop(1, "rgba(255,141,20,0)");
+    var rg = ctx.createRadialGradient(W / 2, 0, 0, W / 2, 0, W * 0.75); rg.addColorStop(0, "rgba(255,166,38,0.22)"); rg.addColorStop(1, "rgba(255,166,38,0)");
     ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
     ctx.strokeStyle = C.rule; ctx.lineWidth = 2; roundRect(ctx, 34, 34, W - 68, H - 68, 30); ctx.stroke();
     // the short orange bar and the kicker
-    ctx.save(); ctx.shadowColor = "rgba(255,141,20,0.7)"; ctx.shadowBlur = 22; ctx.fillStyle = C.rota; roundRect(ctx, W / 2 - 60, 112, 120, 5, 2.5); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.shadowColor = "rgba(255,170,40,0.95)"; ctx.shadowBlur = 28; ctx.fillStyle = C.rota; roundRect(ctx, W / 2 - 60, 112, 120, 5, 2.5); ctx.fill(); ctx.restore();
     ctx.textAlign = "center"; ctx.direction = "ltr"; ctx.fillStyle = C.ink; ctx.font = "600 25px Literata, Georgia, serif"; spaced(ctx, 8);
     ctx.fillText(d.kicker.toUpperCase(), W / 2 + 4, 168); spaced(ctx, 0);
     // the Hebrew, then the English
