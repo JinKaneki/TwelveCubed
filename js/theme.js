@@ -9,7 +9,7 @@
   var btn = document.querySelector(".theme-toggle");
   var label = btn ? btn.querySelector(".tt-label") : null;
   var meta = document.querySelector('meta[name="theme-color"]');
-  var COLOR = { dark: "#0b2a47", light: "#eef3f3" };
+  var COLOR = { dark: "#08104a", light: "#eef1f8" };
   var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: light)") : null;
 
   function stored() {

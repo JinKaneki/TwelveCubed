@@ -132,7 +132,7 @@
 
   function drawCard(d, cs) {
     function tok(n, dflt) { var v = cs.getPropertyValue(n); return (v && v.trim()) || dflt; }
-    var C = { ground: tok("--ground", "#0b2a47"), deep: tok("--ground-deep", "#061a2e"), paper: tok("--paper", "#eaf1ee"), dim: tok("--paper-dim", "#a9bdc4"),
+    var C = { ground: tok("--ground", "#08104a"), deep: tok("--ground-deep", "#050b33"), paper: tok("--paper", "#eaf1ee"), dim: tok("--paper-dim", "#a9bdc4"),
               faint: tok("--paper-faint", "#7e97a4"), rule: tok("--rule-strong", "rgba(234,241,238,.42)"), rota: tok("--rota", "#ff8d14"), ink: tok("--rota-ink", "#ff8d14") };
     var W = 1080, PAD = 104, TW = W - 2 * PAD, MAXH = 3200;
     var HEF = function (s) { return "400 " + s + 'px "Noto Serif Hebrew", "SBL Hebrew", "Ezra SIL", "Times New Roman", serif'; };
@@ -429,7 +429,7 @@
       $("[data-z-sec]", root).addEventListener("change", function (e) { var v = e.target.value.split(":"); showAt(posOf(parseInt(v[0], 10), parseInt(v[1], 10))); });
       var cr = IDX.credit || {}, enList = cr.en || [];
       var enTxt = enList.length === 1
-        ? "English: <em>" + esc(enList[0]) + "</em>" + (cr.en_license ? " (" + esc(String(cr.en_license).toLowerCase()) + ", as marked on Sefaria)" : "") + ". "
+        ? "English: <em>" + esc(enList[0]) + "</em>" + ((cr.en_mix || []).length ? " and the other translators named in Sefaria’s merged Zohar" : "") + ((cr.en_fill || []).length ? ", completed with <em>" + esc(cr.en_fill[0]) + "</em>" + (cr.en_fill_license ? " (" + esc(String(cr.en_fill_license).toLowerCase()) + ")" : "") + " wherever they have no English; those paragraphs carry a small “Soncino” tag" : "") + ". "
         : "English: from Sefaria, paragraph by paragraph the best available of " + esc(enList.join("; ")) + ". ";
       $("[data-z-credit]", root).innerHTML = "Hebrew and Aramaic: <em>" + esc((cr.he || []).join("; ") || "Vocalized Zohar") + "</em>, vowelled; the small boxed marks are the page numbers of the Vilna edition. " +
         enTxt + "The English does not reach every passage, and a passage may show only some paragraphs in English. Texts from <a href=\"https://www.sefaria.org\" rel=\"noopener\">sefaria.org</a>.";
@@ -472,8 +472,8 @@
         S.c.forEach(function (c, j) {
           var ref = "Zohar, " + p.en + ", section " + (cur[1] + 1) + ", paragraph " + (j + 1) + (S.p ? ". Vilna edition " + S.p : "");
           cards.push({ he: plain(c[0]), en: c[1] ? plain(c[1]) : "", ref: ref, kicker: "The Zohar", file: "twelvecubed-zohar-" + slug(p.en) + "-s" + (cur[1] + 1) + "-p" + (j + 1),
-                       credit: "Aramaic: Vocalized Zohar, Israel 2013. English: Soncino Press, 1933. Both from Sefaria." });
-          html += '<div class="bi-row bi-zrow" data-ci="' + j + '"><span class="bi-num">' + saveBtn("passage") + '</span><p class="bi-en' + (c[1] ? "" : " bi-miss") + '" lang="en">' + (c[1] ? c[1] : "Not translated into English in the supplied files.") + "</p>" +
+                       credit: "Aramaic: Vocalized Zohar, Israel 2013. English: " + (c[2] ? "Soncino Press, 1933" : "Sefaria Community Translation and others") + ". Both from Sefaria." });
+          html += '<div class="bi-row bi-zrow" data-ci="' + j + '"><span class="bi-num">' + saveBtn("passage") + '</span><p class="bi-en' + (c[1] ? "" : " bi-miss") + '" lang="en">' + (c[1] ? c[1] + (c[2] ? ' <span class="bi-src">Soncino 1933</span>' : "") : "Not translated into English in the supplied files.") + "</p>" +
             '<p class="bi-he" lang="he" dir="rtl">' + c[0] + "</p></div>";
         });
         if (!have) html = '<p class="bi-solo-note">There is no English translation of this passage in the supplied files, so the Aramaic stands alone.</p>' + html;

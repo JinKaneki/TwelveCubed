@@ -214,7 +214,7 @@
     /* ----- markup ----- */
     /* more places for the pin: cities that share a time zone with a bigger one (the zone list holds one city per zone), [name, country, lat, lon, zone] */
     var EXTRA = { "x:Cape Town": ["Cape Town", "ZA", -33.93, 18.42, "Africa/Johannesburg"] };
-    var tzList = Object.keys(TZP).map(function (k) { return { k: k, n: TZP[k][0], c: TZP[k][1] }; }).concat(Object.keys(EXTRA).map(function (k) { return { k: k, n: EXTRA[k][0], c: EXTRA[k][1] }; })).sort(function (a, b) { return a.n < b.n ? -1 : a.n > b.n ? 1 : 0; });
+    var tzList = Object.keys(TZP).map(function (k) { return { k: k, n: TZP[k][0], c: TZP[k][1] }; }).concat(Object.keys(EXTRA).map(function (k) { return { k: k, n: EXTRA[k][0], c: EXTRA[k][1] }; })).sort(function (a, b) { return a.n.localeCompare(b.n, "en"); });
     var placeOpts = '<option value="__pin">Dropped pin</option>' + tzList.map(function (t) { return '<option value="' + esc(t.k) + '">' + esc(t.n + ", " + t.c) + "</option>"; }).join("");
     host.innerHTML =
       '<div class="astro-grid">' +

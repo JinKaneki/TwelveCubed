@@ -15,12 +15,12 @@
    ------------------------------------------------------------ */
 :root {
   color-scheme: dark;
-  --ground: #0b2a47;
-  --ground-deep: #061a2e;
-  --ground-lift: #123a5f;
+  --ground: #08104a;                /* the deep indigo-blue of the home band: the main colour of the site (since 2026-10-22) */
+  --ground-deep: #050b33;
+  --ground-lift: #111b68;
   --paper: #eaf1ee;
-  --paper-dim: #a9bdc4;
-  --paper-faint: #7e97a4;
+  --paper-dim: #b1bcd9;
+  --paper-faint: #8e9bc4;
   --rule: rgba(234, 241, 238, 0.2);
   --rule-strong: rgba(234, 241, 238, 0.42);
   --wash: rgba(234, 241, 238, 0.12);
@@ -32,7 +32,7 @@
   --rota-glow: rgba(255, 141, 20, 0.55);
   --air: #94cdf0;
   --water: #62c8a8;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 34px rgba(0, 0, 0, 0.28);
+  --shadow: 0 1px 2px rgba(0, 0, 8, 0.4), 0 14px 34px rgba(0, 0, 12, 0.34);
   --display: "IM Fell English", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --text: "Literata", Georgia, "Times New Roman", serif;
   --measure: 36rem;
@@ -42,23 +42,23 @@
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --ground: #eef3f3;
-  --ground-deep: #e2ebec;
+  --ground: #eef1f8;
+  --ground-deep: #e1e6f2;
   --ground-lift: #ffffff;
-  --paper: #0b2a47;
-  --paper-dim: #4d6679;
-  --paper-faint: #7b91a0;
-  --rule: rgba(11, 42, 71, 0.18);
-  --rule-strong: rgba(11, 42, 71, 0.42);
-  --wash: rgba(11, 42, 71, 0.07);
-  --wash-faint: rgba(11, 42, 71, 0.035);
+  --paper: #08104a;
+  --paper-dim: #474f84;
+  --paper-faint: #6c7599;
+  --rule: rgba(8, 16, 74, 0.18);
+  --rule-strong: rgba(8, 16, 74, 0.42);
+  --wash: rgba(8, 16, 74, 0.07);
+  --wash-faint: rgba(8, 16, 74, 0.035);
   --fire: #c2502c;
   --earth: #8a6a12;
   --rota-ink: #c25a00;
   --rota-glow: rgba(255, 141, 20, 0.45);
   --air: #1f6f9f;
   --water: #1f7d61;
-  --shadow: 0 1px 2px rgba(11, 42, 71, 0.06), 0 14px 34px rgba(11, 42, 71, 0.1);
+  --shadow: 0 1px 2px rgba(8, 16, 74, 0.06), 0 14px 34px rgba(8, 16, 74, 0.1);
 }
 
 /* Hebrew for the home page saying and the RoTao readers (loads only when Hebrew is on the page) */
@@ -623,7 +623,7 @@ input::placeholder { color: var(--paper-faint); }
    ============================================================ */
 html { scroll-padding-top: 5rem; }
 .masthead.is-pinned { box-shadow: 0 6px 22px rgba(0, 0, 0, 0.22); }
-:root[data-theme="light"] .masthead.is-pinned { box-shadow: 0 6px 22px rgba(11, 42, 71, 0.12); }
+:root[data-theme="light"] .masthead.is-pinned { box-shadow: 0 6px 22px rgba(8, 16, 74, 0.12); }
 .masthead.is-hidden { transform: translateY(-101%); box-shadow: none; }
 
 /* ---------- catalogue jump controls: faint until you reach for them ---------- */
@@ -652,19 +652,17 @@ html { scroll-padding-top: 5rem; }
    THE SKY: chart wheel, positions table, Moon phase
    The card keeps its own plate (white like a printed chart, or black); it does not follow the site theme.
    ============================================================ */
-/* the peaceful band: the blossom picture behind the logo section and the saying. CSS backgrounds (not <img>): no 'Save image' menu. The files are darkened,
-   smaller copies (tools/make_peaceful.py). The band keeps the night plate's colours on both themes so the text stays readable on the picture. */
-.peace { position: relative; isolation: isolate; margin-top: 3.5rem; border-block: 1px solid var(--rule);
-  --paper: #eaf1ee; --paper-dim: #c4d3da; --paper-faint: #aabdc9; --rule: rgba(234, 241, 238, 0.26);
+/* the peaceful band: your blossom picture (the originals, web/img/peaceful-desktop.jpg and peaceful-mobile.jpg) behind the logo section and the saying,
+   under a dark blue overlay. The band keeps the night plate's colours on both themes so the text stays readable on the picture. */
+.peace { position: relative; margin-top: 3.5rem; border-block: 1px solid var(--rule);
+  --paper: #eaf1ee; --paper-dim: #c4d3e4; --paper-faint: #aab8d4; --rule: rgba(234, 241, 238, 0.26);
   --rota-ink: #ff8d14; --rota-glow: rgba(255, 141, 20, 0.55); color: var(--paper);
-  background: #0a1250; text-shadow: 0 1px 10px rgba(0, 6, 40, 0.6); -webkit-touch-callout: none; }
-/* the picture is on a pseudo-element that ignores the pointer: nothing to right-click, long-press or "view background image" */
-.peace::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: linear-gradient(90deg, rgba(3, 8, 44, 0.5), rgba(3, 8, 44, 0.22) 55%, rgba(3, 8, 44, 0.12)), url("../img/peaceful-wide.jpg") 50% 50% / cover no-repeat; }
+  background: radial-gradient(ellipse 46% 34% at 50% 78%, rgba(5, 9, 52, 0.62), rgba(5, 9, 52, 0) 100%), linear-gradient(90deg, rgba(5, 9, 52, 0.58), rgba(5, 9, 52, 0.5) 55%, rgba(5, 9, 52, 0.46)), url("../img/peaceful-desktop.jpg") 50% 50% / cover no-repeat, #08104a;
+  text-shadow: 0 1px 10px rgba(0, 4, 40, 0.7); }
 .peace .cubed { margin-top: 0; border-top: 0; padding-top: 3.2rem; }
 .peace .saying { margin-top: 0; padding: 3.2rem var(--gutter) 3.6rem; }
 @media (max-width: 52rem) {
-  .peace::before { background: linear-gradient(rgba(3, 8, 44, 0.42), rgba(3, 8, 44, 0.3)), url("../img/peaceful-narrow.jpg") 72% 30% / cover no-repeat; }
+  .peace { background: linear-gradient(rgba(5, 9, 52, 0.55), rgba(5, 9, 52, 0.48)), url("../img/peaceful-mobile.jpg") 72% 30% / cover no-repeat, #08104a; }
 }
 
 /* the saying above "The sky, now" on the home page */
