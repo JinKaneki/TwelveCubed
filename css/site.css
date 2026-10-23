@@ -673,6 +673,16 @@ html { scroll-padding-top: 5rem; }
 :root[data-theme="light"] .solluna { background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255, 236, 190, 0.92) 0%, rgba(255, 226, 165, 0.84) 62%, rgba(255, 210, 120, 0.44) 80%, rgba(255, 200, 90, 0) 100%); }
 @media (max-width: 40rem) { .solluna { margin-top: 1.2rem; padding: 1rem 0; } .solluna img { width: 96%; } }
 
+/* About page: the "who are you" portrait in a circled outline, and the walking mystic shown in full */
+.johan-bio { display: flow-root; }
+.johan-portrait { float: left; width: 9.5rem; height: 9.5rem; margin: 0.4rem 1.6rem 0.6rem 0.4rem; shape-outside: circle(50%); }
+.johan-portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 38%; border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--rota), 0 0 0 7px var(--ground), 0 0 0 8px rgba(255, 166, 38, 0.45), 0 0 26px var(--rota-glow); }
+.johan-walk { margin: 1.6rem 0 1rem; }
+.johan-walk img { display: block; width: 100%; height: auto; border-radius: 0.8rem; box-shadow: 0 0 0 1px var(--rule-strong), var(--shadow); }
+.johan-walk figcaption { margin-top: 0.7rem; text-align: center; font: italic 400 1rem/1.4 var(--display); letter-spacing: 0.06em; color: var(--paper-dim); }
+@media (max-width: 34rem) { .johan-portrait { float: none; margin: 0.6rem auto 1.4rem; shape-outside: none; } }
+
 /* the saying above "The sky, now" on the home page */
 .saying { max-width: 44rem; margin: 3.5rem auto 0; padding: 2.5rem var(--gutter) 0; }
 .saying figure { margin: 0; text-align: center; }
