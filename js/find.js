@@ -17,6 +17,11 @@
     dial: document.getElementById("dial"), byName: document.getElementById("by-name"), result: document.getElementById("result")
   });
   el.found.setAttribute("tabindex", "-1");
+  var pendingChosen = null;      // the signs a saved person had chosen, applied when their chart has been worked out
+  var nameField = "";            // the name typed (or loaded) for saving and printing
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  var peopleBody = document.querySelector("[data-people-body]");
+  if (peopleBody && window.TCPeople) window.TCPeople.mount(peopleBody, { open: function (p) { openPerson(p); } });
 
   /* ---------- cities, loaded on demand ---------- */
   var cities = null, cityPromise = null, norm = null, regionNames = null;
@@ -256,6 +261,11 @@
     c.notes.concat(r.notes).forEach(function (n) { h += '<p class="f-warn">' + TC.esc(n) + "</p>"; });
     ["sun", "moon", "rising"].forEach(function (k) { h += lightBlock(k, r[k]); });
     h += '<div class="f-line"><h3>Your reading</h3><div class="result found-result" aria-live="polite"></div></div>';
+    h += '<div class="f-line f-actions"><h3>Keep this chart</h3><div class="act-row">' +
+      '<label class="act-name">Name <input type="text" id="f-name" maxlength="60" autocomplete="off" placeholder="e.g. Me, or Mum" value="' + TC.esc(nameField) + '"></label>' +
+      '<button type="button" class="act-btn" data-act="save">Save to my people</button>' +
+      '<button type="button" class="act-btn" data-act="print">Print or save as PDF</button></div>' +
+      '<p class="hint act-status" role="status" data-act-status></p></div>';
     el.found.innerHTML = h;
     paintResult();
   }
@@ -267,12 +277,54 @@
     });
   }
 
+  function actStatus(t) { var s = el.found.querySelector("[data-act-status]"); if (s) s.textContent = t; }
+  function personFromCalc(name) {
+    var c = calc.inp;
+    return {
+      name: name, date: c.y + "-" + pad2(c.mo) + "-" + pad2(c.d), time: c.time ? pad2(c.time.h) + ":" + pad2(c.time.mi) : "", tz: c.tz,
+      place: c.place && c.label ? { name: c.label, lat: c.place.lat, lon: c.place.lon } : null,
+      chosen: { sun: chosen.sun, moon: chosen.moon, rising: chosen.rising }
+    };
+  }
+  function openPerson(p) {
+    el.date.value = p.date; el.time.value = p.time || "";
+    el.lat.value = ""; el.lon.value = ""; el.tz.value = "";
+    if (p.place) { picked = { name: p.place.name, lat: p.place.lat, lon: p.place.lon, tz: p.tz }; el.place.value = p.place.name; }
+    else { picked = null; el.place.value = ""; try { el.tz.value = p.tz; } catch (e) { /* zone not in this browser's menu */ } }
+    pendingChosen = p.chosen; nameField = p.name;
+    run();
+  }
+
   el.found.addEventListener("click", function (ev) {
     var b = ev.target.closest(".chips button");
-    if (!b) return;
-    var k = b.getAttribute("data-light"), s = b.getAttribute("data-sign");
-    chosen[k] = chosen[k] === s ? "" : s;
-    paintResult();
+    if (b) {
+      var k = b.getAttribute("data-light"), s = b.getAttribute("data-sign");
+      chosen[k] = chosen[k] === s ? "" : s;
+      paintResult();
+      return;
+    }
+    var a = ev.target.closest("[data-act]");
+    if (!a || !calc) return;
+    var input = el.found.querySelector("#f-name"), nm = input ? input.value.trim() : "";
+    nameField = nm;
+    if (a.getAttribute("data-act") === "save") {
+      if (!nm) { actStatus("Give the chart a name first."); if (input) input.focus(); return; }
+      if (!window.TCPeople) return;
+      var r = window.TCPeople.add(personFromCalc(nm));
+      actStatus(r.ok ? (r.updated ? "Updated “" + nm + "”." : "Saved “" + nm + "”.") + " It stays in this browser; the backup under Saved people keeps a copy elsewhere."
+        : r.blocked ? "This browser would not keep it (a private window?). Print the reading instead, or try a normal window." : "Could not save this chart.");
+      return;
+    }
+    /* print or save as PDF */
+    var known = ["sun", "moon", "rising"].filter(function (x) { return chosen[x]; }).length;
+    if (known < 2) { actStatus("Choose at least two of your lights above first, for example the Sun and the Moon."); return; }
+    if (!window.TCReading) return;
+    actStatus("Getting your reading ready…");
+    window.TCReading.print({
+      name: nm, inp: calc.inp, chosen: chosen, birth: assumptionLine(calc.inp),
+      sheet: function () { return skyApi && skyApi.printSheet ? skyApi.printSheet() : ""; }
+    }).then(function () { actStatus("Choose “Save as PDF” as the printer to keep it as a file."); })
+      .catch(function () { actStatus("The reading could not be prepared. Reload the page and try again."); });
   });
 
   function run() {
@@ -289,6 +341,7 @@
       }
       calc = { inp: inp, out: out };
       ["sun", "moon", "rising"].forEach(function (k) { chosen[k] = defaultChoice(k, out[k]); });
+      if (pendingChosen) { ["sun", "moon", "rising"].forEach(function (k) { if (pendingChosen[k]) chosen[k] = pendingChosen[k]; }); pendingChosen = null; }
       paintFound();
       showSky(inp);
       var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;

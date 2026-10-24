@@ -40,7 +40,11 @@
 </header>
 <main id="main" class="find-page">
 <h1>Find your chart</h1>
-<p class="lede">Every field is optional. A birth date gives your Sun, and your Moon on most days. Add the time and place and you also get your Rising. The calculation runs in this browser and nothing is uploaded.</p>
+<p class="lede">Every field is optional. A birth date gives your Sun, and your Moon on most days. Add the time and place and you also get your Rising. The calculation runs in this browser and nothing is uploaded. <a href="about.html#how-calculated">How the sky is calculated</a>.</p>
+<details class="people" id="people" data-people>
+<summary><span>Saved people</span> <span class="p-count" data-people-count></span></summary>
+<div class="people-body" data-people-body></div>
+</details>
 <form id="birth" class="birth" novalidate>
 <div class="fields-row">
 <label>Birth date<input type="date" id="b-date" autocomplete="bday"></label>
@@ -92,6 +96,6 @@
 <p class="colophon-links"><a href="about.html">About, sources and credits</a> <span aria-hidden="true">&middot;</span> <span class="num">12 &times; 12 &times; 12 = 1,728</span></p>
 <p class="copy">&copy; <span data-years>2026</span> TwelveCubed - Jin Kaneki</p>
 </footer>
-<script src="data/index.js"></script><script src="js/glyphs.js"></script><script src="js/tc.js"></script><script src="vendor/astronomy.browser.min.js"></script><script src="js/astro.js"></script><script src="js/dial.js"></script><script src="js/find.js"></script><script src="js/theme.js"></script><script src="js/chrome.js"></script>
+<script src="data/index.js"></script><script src="js/glyphs.js"></script><script src="js/tc.js"></script><script src="vendor/astronomy.browser.min.js"></script><script src="js/astro.js"></script><script src="js/dial.js"></script><script src="js/people.js"></script><script src="js/reading.js"></script><script src="js/find.js"></script><script src="js/theme.js"></script><script src="js/chrome.js"></script>
 </body>
 </html>

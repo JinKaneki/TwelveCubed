@@ -594,6 +594,12 @@
     if (st.input) render();
     return {
       update: function (input) { st.input = input; render(); },
+      /* the whole sheet on the white (paper) plate whatever plate is showing, for the printed reading */
+      printSheet: function () {
+        if (!st.chart) return "";
+        var keep = plate; plate = "paper";
+        try { return sheetSvg(); } finally { plate = keep; }
+      },
       destroy: function () { clearInterval(timer); if (modal) modal.remove(); }
     };
   }

@@ -227,23 +227,32 @@
   }
 
   /* ================================================================ 3. the celestial clock (lazy) ====== */
+  /* the sky libraries (astronomy-engine, our chart maths, glyphs) are shared by the celestial clock and the Moon calendar; loaded once, in order */
+  var libsPromise = null;
+  function loadLibs() {
+    if (libsPromise) return libsPromise;
+    var seq = [];
+    if (!window.Astronomy) seq.push("vendor/astronomy.browser.min.js");
+    if (!window.TCAstro) seq.push("js/astro.js");
+    if (!window.TC_CHIRON) seq.push("js/chiron.js");
+    if (!window.TCEphem) seq.push("js/ephem.js");
+    if (!window.TC_GLYPHS) seq.push("js/glyphs.js");
+    if (!window.TCWheel) seq.push("js/chartwheel.js");
+    if (!window.TC_TZPLACE) seq.push("data/tzplace.js");
+    libsPromise = seq.reduce(function (p, s) { return p.then(function () { return loadScript(s); }); }, Promise.resolve());
+    libsPromise.catch(function () { libsPromise = null; });
+    return libsPromise;
+  }
+
   function mountCosmos() {
     var sec = $("[data-cosmos]");
     if (!sec || sec.hasAttribute("data-soon")) return;
     var started = false;
     function go() {
       if (started) return; started = true;
-      var seq = [];
-      if (!window.Astronomy) seq.push("vendor/astronomy.browser.min.js");
-      if (!window.TCAstro) seq.push("js/astro.js");
-      if (!window.TC_CHIRON) seq.push("js/chiron.js");
-      if (!window.TCEphem) seq.push("js/ephem.js");
-      if (!window.TC_GLYPHS) seq.push("js/glyphs.js");
-      if (!window.TCWheel) seq.push("js/chartwheel.js");
-      if (!window.TC_TZPLACE) seq.push("data/tzplace.js");
-      if (!window.TC_LAND) seq.push("data/land.js");
-      if (!window.TCAstrolabe) seq.push("js/astrolabe.js");
-      seq.reduce(function (p, s) { return p.then(function () { return loadScript(s); }); }, Promise.resolve())
+      loadLibs()
+        .then(function () { return window.TC_LAND ? null : loadScript("data/land.js"); })
+        .then(function () { return window.TCAstrolabe ? null : loadScript("js/astrolabe.js"); })
         .then(function () { window.TCAstrolabe.mount($("[data-astro]", sec), clock); })
         .catch(function (e) {
           started = false;
@@ -257,8 +266,31 @@
     } else go();
   }
 
+  /* ================================================================ 4. the Moon calendar (lazy) ======= */
+  function mountMoonCal() {
+    var sec = $("[data-mooncal]");
+    if (!sec) return;
+    var started = false;
+    function go() {
+      if (started) return; started = true;
+      loadLibs()
+        .then(function () { return window.TCMoonCal ? null : loadScript("js/mooncal.js"); })
+        .then(function () { window.TCMoonCal.mount($("[data-mc]", sec)); })
+        .catch(function (e) {
+          started = false;
+          var m = $("[data-mc]", sec); if (m) m.innerHTML = '<p class="notice">The Moon calendar could not load. Reload the page to try again.</p>';
+          if (window.console) console.error(e);
+        });
+    }
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { io.disconnect(); go(); } }); }, { rootMargin: "700px 0px" });
+      io.observe(sec);
+    } else go();
+  }
+
   window.TCDaily = { clock: clock, chapterOfDay: chapterOfDay, roman: roman };
   mountScroll();
   mountCistercian();
   mountCosmos();
+  mountMoonCal();
 })();

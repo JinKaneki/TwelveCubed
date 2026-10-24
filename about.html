@@ -50,7 +50,7 @@
 
 <h2>How the chart finder works</h2>
 <p>It computes the positions of the Sun and Moon from astronomical formulas inside your browser, using the open-source astronomy-engine library. A date alone gives your Sun. The Moon changes sign about every two and a half days, so a date alone gives your Moon unless it changed sign that day, and then you will see both signs. Your Rising sign changes about every two hours, so it needs the time and the place of birth.</p>
-<p>Your birth details are never sent anywhere. There is no server and no account. Close the page and they are gone.</p>
+<p>Your birth details are never sent anywhere. There is no server and no account. Close the page and they are gone, unless you choose to press &ldquo;Save to my people&rdquo; on the finder: that keeps the name and birth details in this browser&rsquo;s own storage, on this device only, until you remove them. A backup file you download is yours to keep or delete.</p>
 <p>Signs are the tropical zodiac, the one used by most Western astrology: the signs begin at the March equinox.</p>
 
 <h2>How to read the portraits</h2>
@@ -64,17 +64,31 @@
 <h2>Who are you, may I ask?</h2>
 <div class="johan-bio">
 <figure class="johan-portrait"><img src="img/johan-awakening.jpg" width="193" height="215" alt="Johan, in a soft portrait" loading="lazy" decoding="async"></figure>
-<p>Johan of Timeless Twelve is a seeker of questions and of answers, and of the mystery that lives between the two, much like you, if you have read this far. He reads astrology by intuition first and by the numbers after, and he practises mechatronics, where mechanics, electronics and computer systems are made to move as one.</p>
-<p>Both crafts begin from the same quiet suspicion: that behind everything that moves there is a pattern, and that a pattern can be read. A gear train and a birth chart are not so far apart. He built this atlas, and the machinery behind it, hoping it leaves you with a better question and, now and then, a useful answer.</p>
+<p>Mysteries unto mysteries, Johan of Timeless Twelve is a seeker of questions and of answers, and of the mystery that lives in between, much like you, if you have read this far. He reads astrology by intuition first and by the numbers after, and he practises mechatronics, where mechanics, electronics and software development are made to move as one.</p>
+<p>Both crafts begin from the same quiet suspicion, that be behind everything that moves there is always a pattern, and that a pattern can be read. A gear train and a birth chart are not so far apart. He built this atlas, and the machinery behind it, hoping it leaves you with a better question and, now and then, a useful answer.</p>
 </div>
 
 <h2>Also known as Johan D. walking mystic</h2>
-<p>Johan also goes by <em>the walking mystic</em>, or simply <em>Mysticus Vagus</em>, Latin for the wandering mystic. A walker travels light, watches where the road bends and learns by going. The name is a promise to keep walking, and to hold every answer loosely enough to be corrected on the next hill.</p>
+<p>Johan also goes by <em>the walking mystic</em>, or simply <em>Mysticus Vagus</em>, Latin for the wandering mystic. A walker travels light, watches where the road bends and learns by going. The name is a promise to keep walking, and to hold every knowledge loosely enough to be corrected on the next hill.</p>
 <p>His motto is &ldquo;That we are, for all things serve.&rdquo; You can read it in six languages on <a href="daily/index.html#mf-h">the RoTao page</a>.</p>
 <figure class="johan-walk">
 <img src="img/walking-mystic.png" width="527" height="413" alt="The walking mystic: a cloaked traveller with a backpack walking a night hillside, a blossoming branch scattering petals beside him" loading="lazy" decoding="async">
 <figcaption>Mysticus Vagus</figcaption>
 </figure>
+
+<h2 id="how-calculated">How the sky is calculated</h2>
+<p>One engine, running in your browser, serves the chart finder, the wheel on the home page, the celestial clock and the Moon calendar. Nothing is looked up online and nothing is estimated from tables of &ldquo;typical&rdquo; dates.</p>
+<ul>
+<li><strong>Sun, Moon and planets.</strong> Mercury to Pluto, the Sun and the Moon come from the open-source astronomy-engine library (Don Cross, MIT licence). Positions are apparent and geocentric, as seen from the centre of the Earth, with light-time and aberration applied, and they are given in the tropical zodiac, whose signs begin at the March equinox of the date. In our tests against the Swiss Ephemeris the planets agree to within 0.006&deg; and the Moon to within 0.02&deg;.</li>
+<li><strong>Chiron.</strong> The library has no Chiron, so the site carries its own orbit for it, fitted to reference positions for the years 1900 to 2100 (nothing from the Swiss Ephemeris is shipped). It agrees with the reference to about 0.001&deg;. Outside those years Chiron is simply left out.</li>
+<li><strong>True Node and True Lilith.</strong> Both are worked out from the Moon&rsquo;s orbit at that instant (the &ldquo;osculating&rdquo; node and apogee), not from an average. Lilith is the touchy one: it can differ from other programs by up to about 0.16&deg;.</li>
+<li><strong>The Rising sign and the houses.</strong> The Ascendant and Midheaven come from sidereal time, your latitude and longitude, and the obliquity of the ecliptic. The wheel shows Placidus houses, which you can switch to Equal or Whole sign. Inside the polar circles, where Placidus cannot be drawn, Porphyry houses are used instead and the wheel says so. House cusps agree with the Swiss Ephemeris to about 0.01&deg;.</li>
+<li><strong>Clock time and time zones.</strong> A birth time is turned into universal time with your browser&rsquo;s own time-zone database, which remembers daylight-saving changes. Before standard time zones existed, each town kept its own solar time, and this database holds a single value for a whole zone, so for an old birth the clock can be a few minutes off. That matters mostly for the Rising sign, which moves about one degree every four minutes; the finder tells you when it suspects this. With no birth time the chart is drawn for 12:00 local time, without houses, and a Moon that changes sign that day is shown with both signs.</li>
+<li><strong>Aspects.</strong> The chart lists conjunctions, oppositions, trines, squares and sextiles, with quincunxes and semi-sextiles inside narrower limits. The orbs are 8&deg; for conjunction, opposition and trine, 7&deg; for squares, 5&deg; for sextiles, 3&deg; for quincunxes and 2&deg; for semi-sextiles, and the Sun and Moon get 2&deg; more on the first four.</li>
+<li><strong>The Moon calendar.</strong> The four quarters come from the library. Each change of sign and each aspect of the Moon to the Sun and the planets is found by narrowing in on the exact moment, to the second, and shown to the nearest minute in your own time zone or in UTC. Only the five major aspects are listed, and her conjunction, square and opposition to the Sun are the four quarters themselves. In our check of three years of calendars every listed moment fell within about 0.01&deg; of exact.</li>
+<li><strong>Range.</strong> The chart finder covers the years 1800 to 2100. Sidereal zodiacs, other house systems, minor asteroids and heliocentric charts are not included.</li>
+</ul>
+<p>These are astronomical calculations. What an astrologer makes of them is interpretation, and the portraits on this site are offered for reflection, not prediction.</p>
 
 <h2>Sources and credits</h2>
 <ul>
