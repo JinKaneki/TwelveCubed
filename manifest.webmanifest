@@ -1,0 +1,79 @@
+{
+  "name": "TwelveCubed",
+  "short_name": "TwelveCubed",
+  "description": "A portrait for every Sun, Moon and Rising sign: 1,728 of them, a free chart finder, a Moon calendar and the daily RoTao.",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#08104a",
+  "theme_color": "#08104a",
+  "lang": "en",
+  "categories": [
+    "lifestyle",
+    "education",
+    "books"
+  ],
+  "icons": [
+    {
+      "src": "pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "pwa/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find your chart",
+      "short_name": "Chart",
+      "url": "./find.html",
+      "icons": [
+        {
+          "src": "pwa/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    },
+    {
+      "name": "RoTao: the day",
+      "short_name": "RoTao",
+      "url": "./daily/index.html",
+      "icons": [
+        {
+          "src": "pwa/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    },
+    {
+      "name": "The Moon calendar",
+      "short_name": "Moon",
+      "url": "./daily/index.html#moon-calendar",
+      "icons": [
+        {
+          "src": "pwa/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    }
+  ]
+}

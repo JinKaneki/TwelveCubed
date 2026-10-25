@@ -976,3 +976,45 @@ html { scroll-padding-top: 5rem; }
 }
 @media (prefers-reduced-motion: reduce) { .yoh-big { animation: none; } }
 @media print { .yoh-big { animation: none; } }
+
+/* ---------- About: the sources and credits, in small type after the turning mark ---------- */
+.about-credits { max-width: calc(var(--measure) + 2 * var(--gutter)); margin: 0 auto; padding: 2.4rem var(--gutter) 0; font-size: 0.8rem; line-height: 1.62; color: var(--paper-faint); }
+.about-credits h2 { margin: 0 0 0.9rem; font: 600 0.72rem/1.2 var(--text); letter-spacing: 0.22em; text-transform: uppercase; color: var(--paper-dim); }
+.about-credits ul { margin: 0 0 1rem; padding: 0 0 0 1.05rem; }
+.about-credits li { margin: 0 0 0.55rem; }
+.about-credits p { margin: 0; }
+.about-credits a { color: inherit; }
+
+/* ---------- Offline mode and installing (js/offline.js) ---------- */
+.offline-panel { margin: 1.2rem 0 0; padding: 1.1rem 1.2rem 1.2rem; border: 1px solid var(--rule); border-radius: 0.9rem; background: var(--wash-faint); font-size: 0.97rem; }
+.offline-panel p { margin: 0 0 0.8rem; }
+.offline-panel h3 { margin: 1.4rem 0 0.4rem; font: 600 1.02rem/1.3 var(--text); }
+.offline-panel .off-lede { color: var(--paper-dim); font-size: 0.92rem; }
+.off-groups { list-style: none; margin: 0.6rem 0 1rem; padding: 0; }
+.off-groups li { margin: 0; border-top: 1px solid var(--rule); }
+.off-groups li:last-child { border-bottom: 1px solid var(--rule); }
+.off-groups label { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.7rem 0.1rem; cursor: pointer; }
+.off-groups input { flex: none; width: 1.15rem; height: 1.15rem; margin-top: 0.2rem; accent-color: var(--rota); }
+.off-gl { flex: 1 1 auto; min-width: 0; }
+.off-gl b { display: block; font-weight: 600; }
+.off-gl span { display: block; font-size: 0.86rem; color: var(--paper-dim); }
+.off-gs { flex: none; max-width: 40%; text-align: right; font-size: 0.86rem; color: var(--paper-faint); }
+.off-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.off-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 2.5rem; padding: 0.55rem 1.1rem; font: 400 0.92rem/1 var(--text); color: var(--paper); background: none; cursor: pointer; border: 1px solid var(--rule-strong); border-radius: 999px; }
+.off-btn:hover:not(:disabled) { background: var(--wash); }
+.off-btn:disabled { opacity: 0.5; cursor: default; }
+.off-btn:focus-visible { outline: 2px solid var(--rota); outline-offset: 2px; }
+.off-primary { border-color: var(--rota); color: var(--rota-ink); font-weight: 600; }
+.off-bar { display: block; width: 100%; height: 0.6rem; margin: 0.9rem 0 0; accent-color: var(--rota); }
+.off-msg { margin: 0.7rem 0 0; min-height: 1.3em; color: var(--paper); }
+.off-store { margin: 0.3rem 0 0; font-size: 0.84rem; color: var(--paper-faint); }
+.off-install { margin-top: 0.4rem; }
+.sw-toast { position: fixed; left: 50%; bottom: 1rem; z-index: 60; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem 0.9rem; width: max-content; max-width: calc(100vw - 2rem);
+  transform: translateX(-50%); padding: 0.8rem 1.1rem; background: var(--ground); color: var(--paper); border: 1px solid var(--rota); border-radius: 0.8rem; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45); font-size: 0.95rem; }
+.sw-toast button { min-height: 2.2rem; padding: 0.4rem 0.9rem; font: 600 0.88rem/1 var(--text); color: var(--rota-ink); background: none; cursor: pointer; border: 1px solid var(--rota); border-radius: 999px; }
+.sw-toast button[data-later] { color: var(--paper-dim); border-color: var(--rule-strong); font-weight: 400; }
+@media (max-width: 40rem) {
+  .off-groups label { flex-wrap: wrap; }
+  .off-gs { max-width: none; width: 100%; text-align: left; padding-left: 1.85rem; }
+  .off-actions .off-btn { flex: 1 1 100%; }
+}

@@ -1,11 +1,13 @@
 /* The Moon calendar: one month at a time, with the Moon's phase for every day, the sign she stands in, the exact time of
-   each New, First Quarter, Full and Last Quarter Moon, of each change of sign, and of each major aspect she makes to the
-   Sun and the planets. It can be saved as a picture (PNG).
+   each New, First Quarter, Full and Last Quarter Moon, of each change of sign, of each major aspect she makes to the
+   Sun and the planets, and of every solar and lunar eclipse (a small symbol shows which kind). It can be saved as a picture
+   (PNG), and as a Moon wheel: the month's Moon drawn round the zodiac, with the Earth, a picture or a logo in the middle.
 
    window.TCMoonCal.mount(box)               draws the calendar into box
    window.TCMoonCal.compute(y, m, tz)        the month as data: { days[], events[], ... }   (m = 0..11, tz = an IANA zone or "UTC")
 
-   Maths: astronomy-engine (MIT) through js/ephem.js (the Moon and the planets, apparent positions, tropical zodiac).
+   Maths: astronomy-engine (MIT) through js/ephem.js (the Moon and the planets, apparent positions, tropical zodiac;
+   the eclipses from its eclipse search: the instant of greatest eclipse, anywhere on Earth for a solar one).
    Every time is found by bisection to the second and shown to the nearest minute. No data files, nothing is sent anywhere.
    Needs Astronomy, TCAstro, TCEphem, TCWheel and TC_GLYPHS (loaded by js/daily.js before this file). */
 (function () {
@@ -13,6 +15,19 @@
   var Astro = window.Astronomy, A = window.TCAstro, E = window.TCEphem, W = window.TCWheel, GL = window.TC_GLYPHS || {};
   var RAD = Math.PI / 180, MIN = 60000, HOUR = 3600000, DAY = 86400000, STEP = 2 * HOUR;
   var KEY = "tc_mooncal";
+  var BASE = (function () { var c = document.currentScript && document.currentScript.src; return c ? c.replace(/js\/mooncal\.js(\?.*)?$/, "") : ""; })();   // the site's root, to find the files that load on demand
+  var loaded = {};
+  function loadScript(rel, test) {
+    if (test && test()) return Promise.resolve(true);
+    if (loaded[rel]) return loaded[rel];
+    return (loaded[rel] = new Promise(function (resolve, reject) {
+      var el = document.createElement("script");
+      el.src = BASE + rel; el.onload = function () { resolve(true); };
+      el.onerror = function () { delete loaded[rel]; reject(new Error("Could not load " + rel)); };
+      document.head.appendChild(el);
+    }));
+  }
+  var CENTRES = [["earth-full", "The Earth at the Full Moon"], ["earth-new", "The Earth at the New Moon"], ["sol", "Sol and Luna"], ["rota", "The Rota"], ["cubed", "The TwelveCubed mark"], ["month", "The month, written"]];
   var SIGNS = E.SIGNS;
   var QUARTERS = ["New Moon", "First Quarter", "Full Moon", "Last Quarter"];
   var WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -100,6 +115,27 @@
       q = Astro.NextMoonQuarter(q);
     }
 
+    /* the eclipses: the Sun's are found for the whole Earth (the greatest eclipse), the Moon's are seen from the whole night side */
+    function addEclipse(body, info) {
+      var ems = minute(info.peak.date.getTime());
+      if (ems < first || ems >= last) return;
+      var es = E.split(E.lonOf("moon", ems)), kind = info.kind, ob = info.obscuration || 0, note;
+      if (body === "lunar") {
+        note = kind === "total" ? "The Moon is wholly inside the Earth’s shadow and turns copper-red. Seen from everywhere the Moon is above the horizon."
+          : kind === "partial" ? Math.round(ob * 100) + "% of the Moon’s disc is inside the Earth’s dark shadow."
+          : "Only the Earth’s faint outer shadow touches her: a subtle dimming, often hard to notice.";
+      } else {
+        note = kind === "total" ? "The Moon covers the Sun completely along a narrow path; a partial eclipse is seen over a much wider area."
+          : kind === "annular" ? "The Moon is too far to cover the Sun and leaves a ring of light, along a narrow path."
+          : "The Moon covers up to " + Math.round(ob * 100) + "% of the Sun at the best place on Earth.";
+      }
+      events.push({ type: "eclipse", body: body, kind: kind, ms: ems, sign: es.idx, deg: es.deg, obs: ob, note: note });
+    }
+    var le = Astro.SearchLunarEclipse(new Date(first - 3 * DAY));
+    while (le && le.peak.date.getTime() < last + DAY) { addEclipse("lunar", le); le = Astro.NextLunarEclipse(le.peak); }
+    var se = Astro.SearchGlobalSolarEclipse(new Date(first - 3 * DAY));
+    while (se && se.peak.date.getTime() < last + DAY) { addEclipse("solar", se); se = Astro.NextGlobalSolarEclipse(se.peak); }
+
     /* a change of sign, and the aspects to the Sun and the planets */
     for (k = 0; k < n - 1; k++) {
       var sa = Math.floor(moon[k] / 30), sb = Math.floor(moon[k + 1] / 30);
@@ -119,18 +155,18 @@
         });
       });
     }
-    events.sort(function (a, b) { return a.ms - b.ms || (a.type === "phase" ? -1 : 1); });
+    events.sort(function (a, b) { return a.ms - b.ms || RANK[a.type] - RANK[b.type]; });
 
     /* the days */
     var days = [], ei = 0;
     for (i = 0; i < nDays; i++) {
       var s0 = starts[i], s1 = starts[i + 1], list = [];
       while (ei < events.length && events[ei].ms < s1) { if (events[ei].ms >= s0) list.push(events[ei]); ei++; }
-      var quarter = null;
-      list.forEach(function (e) { if (e.type === "phase") quarter = e; });
+      var quarter = null, eclipse = null;
+      list.forEach(function (e) { if (e.type === "phase") quarter = e; else if (e.type === "eclipse" && !eclipse) eclipse = e; });
       var mo = moonAt(quarter ? quarter.ms : Math.round((s0 + s1) / 2));   // on a quarter day the picture shows the exact moment
       var noon = quarter ? moonAt(Math.round((s0 + s1) / 2)) : mo;
-      days.push({ d: i + 1, start: s0, end: s1, moon: mo, sign: noon.sign, deg: noon.deg, name: quarter ? quarter.name : phaseName(noon.angle), quarter: !!quarter, events: list });
+      days.push({ d: i + 1, start: s0, end: s1, moon: mo, sign: noon.sign, deg: noon.deg, name: quarter ? quarter.name : phaseName(noon.angle), quarter: !!quarter, eclipse: eclipse, events: list });
     }
     return { y: y, m: m, tz: tz, nDays: nDays, days: days, events: events, first: first, last: last,
       zone: tz === "UTC" ? "UTC" : tz.replace(/_/g, " ") + ", " + offsetText(Math.round((first + last) / 2), tz) };
@@ -159,9 +195,45 @@
   function asymSvg(type) {
     return '<svg class="mc-as ' + type + '" viewBox="0 0 100 100" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">' + ASYM[type] + "</svg>";
   }
+  var RANK = { phase: 0, eclipse: 1, ingress: 2, aspect: 3 };
+  /* ---------- the eclipse symbols: a drawing of what happens in the sky (100 x 100 box, centre 0,0) ---------- */
+  var ecN = 0, GOLD = "#f29a00", SHADOW = "#05072a", COPPER = "#a63b25", LIT = "#f6edc4";
+  function ecKind(e) { return e.kind.charAt(0).toUpperCase() + e.kind.slice(1); }
+  function ecLabel(e) { return ecKind(e) + " " + e.body + " eclipse"; }
+  function ecShort(e) { return ecKind(e) + " " + e.body; }
+  function eclipseInner(body, kind, edge, gold) {
+    var s = "", id = "tcec" + (++ecN), k;
+    gold = gold || GOLD; edge = edge || "currentColor";
+    if (body === "solar") {
+      if (kind === "total") {                                  // a black disc with the corona round it
+        for (k = 0; k < 8; k++) {
+          var a = k * Math.PI / 4, c = Math.cos(a), sn = Math.sin(a);
+          s += '<path d="M' + (c * 37).toFixed(1) + " " + (sn * 37).toFixed(1) + "L" + (c * 48).toFixed(1) + " " + (sn * 48).toFixed(1) + '" stroke="' + gold + '" stroke-width="6" stroke-linecap="round"/>';
+        }
+        s += '<circle r="32" fill="' + SHADOW + '" stroke="' + gold + '" stroke-width="6"/>';
+      } else if (kind === "annular") {                         // the ring of light
+        s += '<circle r="43" fill="' + gold + '"/><circle r="27" fill="' + SHADOW + '"/>';
+      } else {                                                 // the Sun with a bite out of it
+        s += '<clipPath id="' + id + '"><circle r="43"/></clipPath><circle r="43" fill="' + gold + '"/><circle cx="26" cy="-19" r="35" fill="' + SHADOW + '" clip-path="url(#' + id + ')"/>' +
+          '<circle r="43" fill="none" stroke="' + gold + '" stroke-width="3"/>';
+      }
+    } else if (kind === "total") {                             // the blood Moon
+      s += '<circle r="43" fill="' + COPPER + '" stroke="' + edge + '" stroke-opacity="0.7" stroke-width="3"/><circle cx="-12" cy="-12" r="17" fill="#d4694a" opacity="0.55"/>';
+    } else if (kind === "partial") {                           // the Moon with the Earth's shadow across her
+      s += '<clipPath id="' + id + '"><circle r="43"/></clipPath><circle r="43" fill="' + LIT + '"/><circle cx="-24" cy="17" r="33" fill="#7d2b1d" clip-path="url(#' + id + ')"/>' +
+        '<circle r="43" fill="none" stroke="' + edge + '" stroke-opacity="0.7" stroke-width="3"/>';
+    } else {                                                   // penumbral: a faint shading and a dotted edge
+      s += '<circle r="43" fill="' + LIT + '"/><circle r="43" fill="#39407f" opacity="0.38"/><circle r="43" fill="none" stroke="' + edge + '" stroke-opacity="0.75" stroke-width="3" stroke-dasharray="3 6"/>';
+    }
+    return s;
+  }
+  function eclipseSvg(body, kind, cls, label) {
+    return '<svg class="mc-ec ' + (cls || "") + '" viewBox="-50 -50 100 100" ' + (label ? 'role="img" aria-label="' + esc(label) + '"' : 'aria-hidden="true"') + ' focusable="false">' + eclipseInner(body, kind) + "</svg>";
+  }
   var PNAME = { sun: "the Sun", mercury: "Mercury", venus: "Venus", mars: "Mars", jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto" };
   function eventText(e) {
     if (e.type === "phase") return e.name + " at " + e.deg + "° " + SIGNS[e.sign];
+    if (e.type === "eclipse") return ecLabel(e) + " at " + e.deg + "° " + SIGNS[e.sign];
     if (e.type === "ingress") return "Moon enters " + SIGNS[e.sign];
     return "Moon " + e.verb + " " + PNAME[e.planet];
   }
@@ -172,8 +244,9 @@
     var saved = {};
     try { saved = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { saved = {}; }
     var southDefault = !!(window.TC_TZPLACE && window.TC_TZPLACE[tzDev] && window.TC_TZPLACE[tzDev][3] < 0);
-    var st = { zone: saved.zone === "utc" ? "utc" : "my", south: typeof saved.south === "boolean" ? saved.south : southDefault, y: 0, m: 0, model: null };
-    function remember() { try { localStorage.setItem(KEY, JSON.stringify({ zone: st.zone, south: st.south })); } catch (e) { /* private mode */ } }
+    var centreOk = function (c) { return CENTRES.some(function (x) { return x[0] === c; }); };
+    var st = { zone: saved.zone === "utc" ? "utc" : "my", south: typeof saved.south === "boolean" ? saved.south : southDefault, centre: centreOk(saved.centre) ? saved.centre : "earth-full", y: 0, m: 0, model: null };
+    function remember() { try { localStorage.setItem(KEY, JSON.stringify({ zone: st.zone, south: st.south, centre: st.centre })); } catch (e) { /* private mode */ } }
     function tz() { return st.zone === "utc" ? "UTC" : tzDev; }
     var now = ymdIn(Date.now(), tz());
     st.y = now.y; st.m = now.m;
@@ -202,15 +275,24 @@
       '<ul class="mc-key" aria-label="Key">' +
         '<li><span class="mc-keymoon">' + moonSvg({ illum: 0.5, waxing: true, angle: 90 }, false, "") + '</span>the phase of the Moon</li>' +
         '<li><span class="mc-keysign">' + signSvg(5) + "</span>her sign and degree at noon</li>" +
+        '<li class="mc-keyec"><span class="mc-ecset">' + eclipseSvg("solar", "total") + eclipseSvg("solar", "annular") + eclipseSvg("solar", "partial") + "</span>solar eclipse: total, annular, partial</li>" +
+        '<li class="mc-keyec"><span class="mc-ecset">' + eclipseSvg("lunar", "total") + eclipseSvg("lunar", "partial") + eclipseSvg("lunar", "penumbral") + "</span>lunar eclipse: total, partial, penumbral</li>" +
         ASP.map(function (a) { return '<li>' + asymSvg(a.k) + a.k + "</li>"; }).join("") +
       "</ul>" +
+      '<div class="mc-wheelbox">' +
+        '<div class="mc-wheeltxt"><h4>The Moon wheel</h4><p>The same month as one round picture: a disc for every day, spiralling inward round the zodiac at the Moon&rsquo;s true place, with the planets of mid-month, the four phases and the eclipses marked, and a picture of your choice in the middle. Big enough to print.</p></div>' +
+        '<div class="mc-wheelctl"><label>In the middle <select data-mc="centre" aria-label="What is drawn in the middle of the Moon wheel">' + CENTRES.map(function (c) { return '<option value="' + c[0] + '">' + c[1] + "</option>"; }).join("") + "</select></label>" +
+        '<button type="button" class="mc-btn" data-mc="wheel-show">Show it here</button>' +
+        '<button type="button" class="mc-save" data-mc="wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Save the Moon wheel</button></div>' +
+        '<figure class="mc-wheelfig" data-mc-wheelfig hidden></figure>' +
+      "</div>" +
       '<details class="mc-list" data-mc-list><summary data-mc-sum></summary><div data-mc-events></div></details>' +
       '<p class="mc-fine" data-mc-fine></p>' +
       '<p class="mc-status" role="status" data-mc-status></p>';
 
     var $ = function (s) { return box.querySelector(s); };
     var el = { month: $('[data-mc="month"]'), year: $('[data-mc="year"]'), title: $("[data-mc-title]"), zone: $("[data-mc-zone]"), cap: $("[data-mc-cap]"),
-      body: $("[data-mc-body]"), list: $("[data-mc-list]"), sum: $("[data-mc-sum]"), events: $("[data-mc-events]"), fine: $("[data-mc-fine]"), status: $("[data-mc-status]") };
+      centre: $('[data-mc="centre"]'), wheelfig: $("[data-mc-wheelfig]"), body: $("[data-mc-body]"), list: $("[data-mc-list]"), sum: $("[data-mc-sum]"), events: $("[data-mc-events]"), fine: $("[data-mc-fine]"), status: $("[data-mc-status]") };
 
     function monthTitle() { return months[st.m] + " " + st.y; }
     function dayLabel(day) {
@@ -221,6 +303,7 @@
     function eventHtml(e) {
       var t = '<time>' + hhmm(e.ms, st.model.tz) + "</time>";
       if (e.type === "phase") return '<p class="mc-e mc-ph"><b>' + e.name + "</b>" + t + "</p>";
+      if (e.type === "eclipse") return '<p class="mc-e mc-ecl" title="' + esc(eventText(e)) + '"><span>' + eclipseSvg(e.body, e.kind) + "<em>" + ecShort(e) + "</em></span>" + t + "</p>";
       if (e.type === "ingress") return '<p class="mc-e mc-in"><span><i aria-hidden="true">&rarr;</i>' + signSvg(e.sign) + SIGNS[e.sign] + "</span>" + t + "</p>";
       return '<p class="mc-e mc-ap" title="' + esc(eventText(e)) + '"><span>' + planetSvg("moon", 14) + asymSvg(e.aspect) + planetSvg(e.planet, 14) +
         '<span class="mc-sr">' + esc(eventText(e)) + "</span></span>" + t + "</p>";
@@ -228,7 +311,8 @@
 
     function paint() {
       var model = st.model = compute(st.y, st.m, tz()), today = ymdIn(Date.now(), model.tz);
-      el.month.value = String(st.m); el.year.value = String(st.y);
+      el.month.value = String(st.m); el.year.value = String(st.y); el.centre.value = st.centre;
+      if (!el.wheelfig.hidden) { el.wheelfig.hidden = true; el.wheelfig.innerHTML = ""; }       // a picture of another month or setting is not shown any longer
       el.title.textContent = monthTitle();
       el.cap.textContent = "Moon calendar for " + monthTitle();
       el.zone.textContent = "Times in " + model.zone + ". Moon drawn for the " + (st.south ? "southern" : "northern") + " sky.";
@@ -240,8 +324,11 @@
       model.days.forEach(function (day) {
         var isToday = today.y === st.y && today.m === st.m && today.d === day.d;
         var tip = dayLabel(day) + ": " + day.name + ", " + Math.round(day.moon.illum * 100) + "% lit, Moon in " + SIGNS[day.sign] + " " + day.deg + "°";
-        cells.push('<td class="mc-c' + (day.quarter ? " is-quarter" : "") + (isToday ? " is-today" : "") + '" title="' + esc(tip) + '">' +
-          '<div class="mc-d"><span class="mc-n">' + day.d + "</span>" + moonSvg(day.moon, st.south, day.name + ", " + Math.round(day.moon.illum * 100) + "% lit") +
+        var ecs = day.events.filter(function (e) { return e.type === "eclipse"; });
+        ecs.forEach(function (e) { tip += ". " + eventText(e) + " at " + hhmm(e.ms, model.tz); });
+        cells.push('<td class="mc-c' + (day.quarter ? " is-quarter" : "") + (ecs.length ? " has-eclipse" : "") + (isToday ? " is-today" : "") + '" title="' + esc(tip) + '">' +
+          '<div class="mc-d"><span class="mc-n">' + day.d + '</span><span class="mc-mw">' + moonSvg(day.moon, st.south, day.name + ", " + Math.round(day.moon.illum * 100) + "% lit") +
+          ecs.map(function (e) { return eclipseSvg(e.body, e.kind, "mc-ecb", ecLabel(e)); }).join("") + "</span>" +
           '<span class="mc-s" title="Moon in ' + SIGNS[day.sign] + '">' + signSvg(day.sign) + "<i>" + day.deg + "°</i></span></div>" +
           '<div class="mc-evs">' + day.events.map(eventHtml).join("") + "</div></td>");
       });
@@ -255,6 +342,7 @@
       model.days.forEach(function (day) {
         if (!day.events.length) return;
         html += '<h4>' + dayLabel(day) + "</h4><ul>" + day.events.map(function (e) {
+          if (e.type === "eclipse") return '<li class="is-eclipse"><time>' + hhmm(e.ms, model.tz) + "</time><span>" + eclipseSvg(e.body, e.kind) + "<span><b>" + esc(eventText(e)) + "</b><small>" + esc(e.note) + "</small></span></span></li>";
           return '<li class="' + (e.type === "phase" ? "is-phase" : "") + '"><time>' + hhmm(e.ms, model.tz) + "</time> " + esc(eventText(e)) + "</li>";
         }).join("") + "</ul>";
         cur += day.events.length;
@@ -262,7 +350,7 @@
       el.events.innerHTML = html;
       el.sum.textContent = "Every event this month, in order (" + cur + ")";
       if (window.matchMedia && window.matchMedia("(max-width: 48rem)").matches) el.list.setAttribute("open", ""); else el.list.removeAttribute("open");
-      el.fine.innerHTML = "Tropical zodiac; apparent geocentric positions from astronomy-engine. Times are exact to the minute. The Moon is drawn at noon of each day, and at the exact moment on the day of a New, First Quarter, Full or Last Quarter Moon. Conjunction, square and opposition to the Sun are the four phases, so only her sextile and trine to the Sun are listed. <a href=\"../about.html#how-calculated\">How the sky is calculated</a>.";
+      el.fine.innerHTML = "Tropical zodiac; apparent geocentric positions from astronomy-engine. Times are exact to the minute. The Moon is drawn at noon of each day, and at the exact moment on the day of a New, First Quarter, Full or Last Quarter Moon. Conjunction, square and opposition to the Sun are the four phases, so only her sextile and trine to the Sun are listed. An eclipse is shown on the day of its greatest eclipse; a solar eclipse is found for the whole Earth, so whether you can see it from where you live depends on the path of the shadow, and a total or annular one is seen only along a narrow track. <a href=\"../about.html#how-calculated\">How the sky is calculated</a>.";
     }
 
     function go(dm) { var t = st.y * 12 + st.m + dm; st.y = Math.floor(t / 12); st.m = t - st.y * 12; clampYear(); paint(); }
@@ -273,10 +361,13 @@
       if (a === "prev") go(-1); else if (a === "next") go(1);
       else if (a === "today") { var n = ymdIn(Date.now(), tz()); st.y = n.y; st.m = n.m; paint(); }
       else if (a === "png") savePng();
+      else if (a === "wheel") saveWheel();
+      else if (a === "wheel-show") showWheel();
       else if (z) { if (st.zone !== z) { st.zone = z; remember(); paint(); } }
       else if (s) { var south = s === "south"; if (st.south !== south) { st.south = south; remember(); paint(); } }
     });
     el.month.addEventListener("change", function () { st.m = +el.month.value; paint(); });
+    el.centre.addEventListener("change", function () { st.centre = el.centre.value; remember(); if (!el.wheelfig.hidden) showWheel(); });
     el.year.addEventListener("change", function () { var v = parseInt(el.year.value, 10); if (isFinite(v)) { st.y = v; clampYear(); } paint(); });
 
     /* ---------- the saved picture ---------- */
@@ -286,7 +377,7 @@
                     : { bg: "#08104a", ink: "#eaf1ee", dim: "#aeb9da", rule: "#2a3480", accent: "#ffa31a", cell: "#0c1660", today: "#ffa31a" };
       var AC = POSTER_ASP[light ? "light" : "dark"];
       var lead = (new Date(Date.UTC(st.y, st.m, 1)).getUTCDay() + 6) % 7, rows = Math.ceil((lead + model.nDays) / 7);
-      var PW = 1800, M = 40, GW = PW - 2 * M, CW = GW / 7, CH = 292, HEAD = 250, WK = 54, FOOT = 120;
+      var PW = 1800, M = 40, GW = PW - 2 * M, CW = GW / 7, CH = 292, HEAD = 250, WK = 54, FOOT = 176;
       var PH = Math.round(HEAD + WK + rows * CH + FOOT + M);
       var o = [], SERIF = "Georgia, 'Times New Roman', 'Liberation Serif', serif";
       function txt(x, y, s, size, fill, weight, anchor, extra) {
@@ -297,6 +388,8 @@
       function planet(key, x, y, size, col) { return g(x, y, size, W.GLYPH[key](col)); }
       function sign(idx, x, y, size, col) { return g(x, y, size, '<path d="' + (GL[SIGNS[idx]] || "") + '" fill="' + col + '"/>'); }
       function asym(type, x, y, size) { return g(x, y, size, '<g fill="none" stroke="' + AC[type] + '" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">' + ASYM[type] + "</g>"); }
+      var EDGE = light ? "#08104a" : "#aeb9da", GOLDP = light ? "#e08a00" : "#ffb21c";
+      function ecg(body, kind, x, y, size) { return g(x, y, size, '<g transform="translate(50 50)">' + eclipseInner(body, kind, EDGE, GOLDP) + "</g>"); }   // drawn round 0,0; g() wants a 0..100 box
       function moon(info, cx, cy, r) {
         var d = moonPath(info), flip = flipFor(info, st.south) ? "scale(-1 1)" : "";
         return '<g transform="translate(' + cx + " " + cy + ") scale(" + (r / 40).toFixed(3) + ')"><circle r="40" fill="' + MOON_DARK + '" stroke="' + (light ? "#08104a" : MOON_EDGE) + '" stroke-width="2"/>' +
@@ -320,12 +413,18 @@
         if (isToday) o.push('<rect x="' + (x0 + 4) + '" y="' + (y0 + 4) + '" width="' + (CW - 8) + '" height="' + (CH - 8) + '" fill="none" stroke="' + P.today + '" stroke-width="3"/>');
         o.push(txt(x0 + 16, y0 + 40, String(day.d), 32, P.ink, 600));
         o.push(moon(day.moon, x0 + CW - 46, y0 + 48, 30));
+        day.events.forEach(function (e) { if (e.type === "eclipse") o.push(ecg(e.body, e.kind, x0 + CW - 74, y0 + 72, 36)); });
         o.push(sign(day.sign, x0 + 28, y0 + 72, 26, P.ink));
         o.push(txt(x0 + 46, y0 + 80, day.deg + "°", 21, P.dim, 400));
-        var ly = y0 + 120, shown = day.events.slice(0, 6);
+        var ly = y0 + 120, shown = day.events.map(function (e, i) { return { e: e, i: i }; }).sort(function (a, b) {
+          return (RANK[a.e.type] < 2 ? 0 : 1) - (RANK[b.e.type] < 2 ? 0 : 1) || a.i - b.i;      // the phase and the eclipse first, then the rest in time
+        }).slice(0, 6).map(function (x) { return x.e; });
         shown.forEach(function (e, n) {
           var y = ly + n * 28, tm = hhmm(e.ms, model.tz);
-          if (e.type === "phase") {
+          if (e.type === "eclipse") {
+            var lab = ecShort(e), tl = lab.length * 9.6 > 128 ? ' textLength="128" lengthAdjust="spacingAndGlyphs"' : "";
+            o.push(ecg(e.body, e.kind, x0 + 26, y - 7, 26), txt(x0 + 46, y, lab, 19, P.ink, 700, null, tl), txt(x0 + CW - 12, y, tm, 20, P.dim, 400, "end"));
+          } else if (e.type === "phase") {
             o.push(txt(x0 + 14, y, e.name, 21, P.accent, 700), txt(x0 + CW - 12, y, tm, 21, P.accent, 700, "end"));
           } else if (e.type === "ingress") {
             o.push(txt(x0 + 14, y, "→", 22, P.dim, 400), sign(e.sign, x0 + 52, y - 7, 22, P.ink), txt(x0 + 70, y, SIGNS[e.sign], 20, P.ink, 400), txt(x0 + CW - 12, y, tm, 20, P.dim, 400, "end"));
@@ -338,7 +437,11 @@
       var fy = gy + rows * CH + 48, kx = M + 6;
       ASP.forEach(function (a) { o.push(asym(a.k, kx + 12, fy - 7, 24), txt(kx + 32, fy, a.k, 22, P.dim, 400)); kx += 48 + a.k.length * 11.5 + 28; });
       o.push(txt(PW - M - 6, fy, "Moon " + (st.south ? "as seen from the southern sky" : "as seen from the northern sky"), 22, P.dim, 400, "end", ' font-style="italic"'));
-      o.push(txt(PW / 2, fy + 52, "© TwelveCubed · tropical zodiac, geocentric apparent positions · for reflection, not prediction", 20, P.dim, 400, "middle"));
+      var ex = PW / 2 - 470;
+      o.push(ecg("solar", "total", ex, fy + 44, 34), ecg("solar", "annular", ex + 44, fy + 44, 34), ecg("solar", "partial", ex + 88, fy + 44, 34), txt(ex + 118, fy + 51, "solar eclipse: total, annular, partial", 21, P.dim, 400));
+      ex += 560;
+      o.push(ecg("lunar", "total", ex, fy + 44, 34), ecg("lunar", "partial", ex + 44, fy + 44, 34), ecg("lunar", "penumbral", ex + 88, fy + 44, 34), txt(ex + 118, fy + 51, "lunar eclipse: total, partial, penumbral", 21, P.dim, 400));
+      o.push(txt(PW / 2, fy + 112, "© TwelveCubed · tropical zodiac, geocentric apparent positions · for reflection, not prediction", 20, P.dim, 400, "middle"));
       return { w: PW, h: PH, bg: P.bg, svg: '<svg xmlns="http://www.w3.org/2000/svg" width="' + PW + '" height="' + PH + '" viewBox="0 0 ' + PW + " " + PH + '" style="font-family:' + SERIF.replace(/"/g, "'") + '"><title>' + esc("Moon calendar, " + monthTitle()) + "</title>" + o.join("") + "</svg>" };
     }
 
@@ -348,29 +451,65 @@
       document.body.appendChild(a); a.click();
       setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 4000);
     }
+    function drawPng(p) {                     // { w, h, bg, svg } -> a PNG blob, at most 12 megapixels so that phones can do it too
+      return new Promise(function (resolve, reject) {
+        var k = Math.min(2, Math.sqrt(12e6 / (p.w * p.h))), w = Math.round(p.w * k), h = Math.round(p.h * k);
+        var svg = p.svg.replace('width="' + p.w + '" height="' + p.h + '"', 'width="' + w + '" height="' + h + '"');
+        var img = new Image(), url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
+        img.onload = function () {
+          var cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+          var cx = cv.getContext("2d"); cx.fillStyle = p.bg; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(url);
+          cv.toBlob(function (b) { if (b) resolve(b); else reject(new Error("This browser could not make the picture.")); }, "image/png");
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("This browser could not draw the picture.")); };
+        img.src = url;
+      });
+    }
     function savePng() {
       var p;
       try { p = poster(); } catch (e) { el.status.textContent = "The picture could not be made."; if (window.console) console.error(e); return; }
-      var k = Math.min(2, Math.sqrt(12e6 / (p.w * p.h))), w = Math.round(p.w * k), h = Math.round(p.h * k);   // at most 12 megapixels, so phones can do it too
-      var svg = p.svg.replace('width="' + p.w + '" height="' + p.h + '"', 'width="' + w + '" height="' + h + '"');
-      var img = new Image(), url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
-      img.onload = function () {
-        var cv = document.createElement("canvas"); cv.width = w; cv.height = h;
-        var cx = cv.getContext("2d"); cx.fillStyle = p.bg; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
-        URL.revokeObjectURL(url);
-        cv.toBlob(function (b) {
-          if (!b) { el.status.textContent = "This browser could not make the picture."; return; }
-          download(b, "twelve-cubed-moon-" + st.y + "-" + two(st.m + 1) + (st.zone === "utc" ? "-utc" : "") + ".png");
-          el.status.textContent = "Saved " + monthTitle() + " as a picture.";
-        }, "image/png");
-      };
-      img.onerror = function () { URL.revokeObjectURL(url); el.status.textContent = "This browser could not draw the picture."; };
-      img.src = url;
+      drawPng(p).then(function (b) {
+        download(b, "twelve-cubed-moon-" + st.y + "-" + two(st.m + 1) + (st.zone === "utc" ? "-utc" : "") + ".png");
+        el.status.textContent = "Saved " + monthTitle() + " as a picture.";
+      }, function (e) { el.status.textContent = e.message; });
+    }
+
+    /* ---------- the Moon wheel (js/moonwheel.js and data/art.js load when first asked for) ---------- */
+    var wheelBusy = false;
+    function wheelPoster() {
+      el.status.textContent = "Drawing the Moon wheel…";
+      var needArt = st.centre === "sol" || st.centre === "rota";
+      return loadScript("js/moonwheel.js", function () { return window.TCMoonWheel; })
+        .then(function () { return needArt ? loadScript("data/art.js", function () { return window.TC_ART; }) : true; })
+        .then(function () { return window.TCMoonWheel.build(st.model, { south: st.south, light: document.documentElement.getAttribute("data-theme") === "light", centre: st.centre, zone: st.zone }); });
+    }
+    function showWheel() {
+      if (wheelBusy) return; wheelBusy = true;
+      wheelPoster().then(function (p) {
+        var url = URL.createObjectURL(new Blob([p.svg], { type: "image/svg+xml;charset=utf-8" }));
+        el.wheelfig.innerHTML = '<img alt="The Moon wheel for ' + esc(monthTitle()) + ': the Moon of each day spiralling round the zodiac, with the planets, the four phases and the eclipses" width="' + p.w + '" height="' + p.h + '">' +
+          "<figcaption>" + esc(monthTitle()) + ". Save the Moon wheel to keep it as a PNG.</figcaption>";
+        var im = el.wheelfig.querySelector("img"); im.onload = function () { URL.revokeObjectURL(url); }; im.src = url;
+        el.wheelfig.hidden = false; el.status.textContent = "";
+      }).catch(function (e) { el.status.textContent = e && e.message ? e.message : "The Moon wheel could not be made."; if (window.console) console.error(e); })
+        .then(function () { wheelBusy = false; });
+    }
+    function saveWheel() {
+      if (wheelBusy) return; wheelBusy = true;
+      wheelPoster().then(drawPng).then(function (b) {
+        download(b, "twelve-cubed-moon-wheel-" + st.y + "-" + two(st.m + 1) + "-" + st.centre + ".png");
+        el.status.textContent = "Saved the Moon wheel for " + monthTitle() + ".";
+      }).catch(function (e) { el.status.textContent = e && e.message ? e.message : "The Moon wheel could not be made."; if (window.console) console.error(e); })
+        .then(function () { wheelBusy = false; });
     }
 
     paint();
     return { go: go, state: st, poster: poster };
   }
 
-  window.TCMoonCal = { mount: mount, compute: compute };
+  window.TCMoonCal = { mount: mount, compute: compute, kit: {
+    moonPath: moonPath, flipFor: flipFor, eclipseInner: eclipseInner, ecShort: ecShort, ecLabel: ecLabel, hhmm: hhmm, esc: esc, two: two,
+    SIGNS: SIGNS, QUARTERS: QUARTERS, MOON_DARK: MOON_DARK, MOON_LIT: MOON_LIT, MOON_EDGE: MOON_EDGE, PLANETS: PLANETS
+  } };
 })();

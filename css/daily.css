@@ -561,3 +561,46 @@
   .mc-evs { display: none; }
   .mc-c.is-quarter::after { content: ""; display: block; width: 0.4rem; height: 0.4rem; margin: 0.25rem auto 0; border-radius: 50%; background: var(--rota); box-shadow: 0 0 8px var(--rota-glow); }
 }
+
+/* ---------- the eclipse symbols on the Moon calendar ---------- */
+.mc-mw { order: 3; position: relative; display: inline-flex; margin-left: auto; flex: none; }
+.mc-mw .mc-moon { margin: 0; }
+.mc-ec { width: 1rem; height: 1rem; flex: none; color: var(--paper-dim); overflow: visible; }
+.mc-ecb { position: absolute; left: -0.55rem; bottom: -0.3rem; width: 1.2rem; height: 1.2rem; filter: drop-shadow(0 0 3px rgba(5, 7, 42, 0.8)); }
+.mc-c.has-eclipse { background: rgba(255, 166, 38, 0.06); }
+.mc-e.mc-ecl { color: var(--paper); font-weight: 600; }
+.mc-e.mc-ecl > span { align-items: flex-start; }
+.mc-e.mc-ecl em { font-style: normal; line-height: 1.15; }
+.mc-e.mc-ecl .mc-ec { width: 1.05rem; height: 1.05rem; margin-top: 0.02rem; }
+.mc-ecset { display: inline-flex; gap: 0.2rem; align-items: center; }
+.mc-key .mc-ec { width: 1.15rem; height: 1.15rem; }
+.mc-list li.is-eclipse { align-items: flex-start; }
+.mc-list li.is-eclipse > span { display: flex; gap: 0.5rem; align-items: flex-start; min-width: 0; }
+.mc-list li.is-eclipse .mc-ec { width: 1.5rem; height: 1.5rem; margin-top: 0.12rem; }
+.mc-list li.is-eclipse b { display: block; font-weight: 600; color: var(--rota-ink); }
+.mc-list li.is-eclipse small { display: block; margin-top: 0.1rem; font-size: 0.84rem; line-height: 1.45; color: var(--paper-dim); }
+@media (max-width: 48rem) {
+  .mc-mw { order: 2; margin: 0; }
+  .mc-ecb { left: -0.5rem; bottom: -0.25rem; width: 1.05rem; height: 1.05rem; }
+}
+:root[data-theme="light"] .mc-ecb { filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.9)); }
+
+/* ---------- the Moon wheel ---------- */
+.mc-wheelbox { margin: 2rem auto 0; padding: 1.3rem 1.4rem 1.4rem; max-width: 56rem; border: 1px solid var(--rule); border-radius: 0.9rem; background: var(--wash-faint); }
+.mc-wheeltxt h4 { margin: 0 0 0.35rem; font: 600 1.05rem/1.3 var(--text); color: var(--rota-ink); }
+.mc-wheeltxt p { margin: 0; font-size: 0.95rem; line-height: 1.6; color: var(--paper-dim); }
+.mc-wheelctl { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 0.9rem; margin-top: 1rem; }
+.mc-wheelctl label { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.92rem; color: var(--paper-dim); }
+.mc-wheelctl select { font: 400 0.95rem/1.2 var(--text); color: var(--paper); background-color: var(--ground); border: 1px solid var(--rule-strong); border-radius: 0.5rem; padding: 0.5rem 0.7rem; min-width: 0; max-width: 100%; }
+.mc-wheelctl select option { background-color: var(--ground); color: var(--paper); }
+.mc-wheelctl select:focus-visible { outline: 2px solid var(--rota); outline-offset: 2px; }
+.mc-wheelfig { margin: 1.3rem 0 0; text-align: center; }
+.mc-wheelfig[hidden] { display: none; }
+.mc-wheelfig img { display: block; width: 100%; max-width: 46rem; height: auto; margin: 0 auto; border-radius: 0.6rem; border: 1px solid var(--rule); }
+.mc-wheelfig figcaption { margin-top: 0.6rem; font-size: 0.85rem; color: var(--paper-faint); }
+@media (max-width: 48rem) {
+  .mc-wheelbox { padding: 1.1rem 1rem 1.2rem; }
+  .mc-wheelctl { flex-direction: column; align-items: stretch; }
+  .mc-wheelctl label { flex-direction: column; align-items: stretch; }
+  .mc-wheelctl .mc-btn, .mc-wheelctl .mc-save { justify-content: center; }
+}

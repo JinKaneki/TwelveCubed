@@ -686,5 +686,20 @@
     clock.kick();
   }
 
-  window.TCAstrolabe = { mount: mount };
+  /* The Earth as the clock draws it, for another picture to use (the Moon wheel): the map with its night side, as a PNG data address,
+     and the places where the Sun and the Moon stand at the zenith at that instant. size: pixels across. */
+  function earth(size, ms) {
+    var cv = document.createElement("canvas"); cv.width = cv.height = size;
+    drawMap(cv, { grid: true });
+    var s = sky(ms), sh = document.createElement("canvas"); sh.width = sh.height = NB;
+    drawShade(sh, s.sun.lat, s.sun.lon);
+    var ctx = cv.getContext("2d");
+    ctx.save(); ctx.beginPath(); ctx.arc(size / 2, size / 2, size / 2 - 1, 0, 6.2832); ctx.clip();
+    ctx.imageSmoothingEnabled = true; if ("imageSmoothingQuality" in ctx) ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(sh, 0, 0, size, size);
+    ctx.restore();
+    return { url: cv.toDataURL("image/png"), sun: s.sun, moon: s.moon };
+  }
+
+  window.TCAstrolabe = { mount: mount, earth: earth };
 })();

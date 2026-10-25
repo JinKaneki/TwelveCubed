@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jinkaneki.github.io/TwelveCubed/sitemap.xml
