@@ -1,4 +1,4 @@
-# Netlify headers (GitHub Pages ignores this file). Netlify already sends "max-age=0, must-revalidate" for everything,
+# Netlify headers. Netlify already sends "max-age=0, must-revalidate" for everything,
 # so a new version shows as soon as it is published; the fonts never change under the same name.
 /*
   X-Content-Type-Options: nosniff

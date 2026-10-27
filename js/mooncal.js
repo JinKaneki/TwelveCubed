@@ -27,7 +27,7 @@
       document.head.appendChild(el);
     }));
   }
-  var CENTRES = [["earth-full", "The Earth at the Full Moon"], ["earth-new", "The Earth at the New Moon"], ["sol", "Sol and Luna"], ["rota", "The Rota"], ["cubed", "The TwelveCubed mark"], ["month", "The month, written"]];
+  var CENTRES = [["earth-full", "The Earth at the Full Moon"], ["earth-new", "The Earth at the New Moon"], ["sol", "Sol and Luna"], ["rota", "The Rota"], ["cubed", "The TwelveCubed mark"], ["month", "The month, written"], ["all", "All four together"]];
   var SIGNS = E.SIGNS;
   var QUARTERS = ["New Moon", "First Quarter", "Full Moon", "Last Quarter"];
   var WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -479,7 +479,7 @@
     var wheelBusy = false;
     function wheelPoster() {
       el.status.textContent = "Drawing the Moon wheel…";
-      var needArt = st.centre === "sol" || st.centre === "rota";
+      var needArt = st.centre === "sol" || st.centre === "rota" || st.centre === "all";
       return loadScript("js/moonwheel.js", function () { return window.TCMoonWheel; })
         .then(function () { return needArt ? loadScript("data/art.js", function () { return window.TC_ART; }) : true; })
         .then(function () { return window.TCMoonWheel.build(st.model, { south: st.south, light: document.documentElement.getAttribute("data-theme") === "light", centre: st.centre, zone: st.zone }); });

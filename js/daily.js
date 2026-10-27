@@ -115,6 +115,92 @@
     next.addEventListener("click", function () { show(shown === 81 ? 1 : shown + 1); });
     today.addEventListener("click", function () { todayCh = chapterOfDay(Date.now()); show(todayCh); });
 
+    /* ---- save the chapter that is shown: as a picture (PNG, drawn on a canvas, no network) or as plain text ---- */
+    function saveFile(blob, name) {
+      var url = URL.createObjectURL(blob), a = document.createElement("a");
+      a.href = url; a.download = name; a.style.display = "none"; document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1500);
+    }
+    function chName(ext) { return "tao-te-ching-" + two(shown) + "-" + ver + "." + ext; }
+    function chapterNow() { return (DATA[ver] || [])[shown - 1]; }
+    function saveText() {
+      var ch = chapterNow(); if (!ch) return;
+      var out = "Tao Te Ching, chapter " + shown + " of 81 (" + roman(shown) + ")\n" + (shown === todayCh ? dateLine() + "\n" : "") + "\n";
+      ch.b.forEach(function (b) { out += (b[0] === "p" ? b[1] : b[1].join("\n")) + "\n\n"; });
+      out += CREDIT[ver] + "\nTwelveCubed, the RoTao page.\n";
+      saveFile(new Blob([out], { type: "text/plain;charset=utf-8" }), chName("txt"));
+    }
+    function savePicture(btn) {
+      var ch = chapterNow(); if (!ch) return;
+      var DISP = "'IM Fell English', 'Iowan Old Style', Palatino, Georgia, serif", TEXT = "'Literata', Georgia, 'Times New Roman', serif";
+      var INK = "#2a2017", SEAL = "#9c2f1f", DIM = "rgba(42,32,23,0.68)";
+      var W = 1200, M = 124, TW = W - 2 * M, S = 1.5, LH = 62, GAP = 30;
+      var wait = document.fonts && document.fonts.load ? Promise.all(["400 36px Literata", "italic 400 36px Literata", "400 120px 'IM Fell English'", "italic 400 38px 'IM Fell English'"].map(function (f) { return document.fonts.load(f); })).catch(function () { return 0; }) : Promise.resolve(0);
+      btn.disabled = true;
+      return wait.then(function () {
+        var mc = document.createElement("canvas").getContext("2d");
+        function wrap(text, font, maxW, firstIndent, restIndent) {
+          mc.font = font;
+          var words = String(text).split(/\s+/), out = [], cur = "", first = true;
+          words.forEach(function (w) {
+            var t = cur ? cur + " " + w : w, lim = maxW - (first ? firstIndent : restIndent);
+            if (cur && mc.measureText(t).width > lim) { out.push({ s: cur, ind: first ? firstIndent : restIndent }); first = false; cur = w; } else cur = t;
+          });
+          if (cur) out.push({ s: cur, ind: first ? firstIndent : restIndent });
+          return out;
+        }
+        var F_BODY = "400 36px " + TEXT, F_VERSE = "italic 400 39px " + DISP;
+        var rows = [];                                    // {s, x, font, gapAfter, bar}
+        ch.b.forEach(function (b) {
+          var lines = b[0] === "p" ? [b[1]] : b[1], verse = b[0] === "v", startRow = rows.length;
+          lines.forEach(function (ln) {
+            wrap(ln, verse ? F_VERSE : F_BODY, TW - (verse ? 44 : 0), 0, b[0] === "s" ? 50 : 0).forEach(function (w) {
+              rows.push({ s: w.s, x: M + (verse ? 44 : 0) + w.ind, font: verse ? F_VERSE : F_BODY, lh: verse ? 58 : LH, bar: verse });
+            });
+          });
+          if (rows.length > startRow) rows[rows.length - 1].gap = GAP;
+        });
+        var top = 560, bodyH = rows.reduce(function (n, r) { return n + r.lh + (r.gap || 0); }, 0), H = Math.max(1500, top + bodyH + 250);
+        var cv = document.createElement("canvas"); cv.width = W * S; cv.height = H * S;
+        var c = cv.getContext("2d"); c.scale(S, S);
+        var g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#f2e9cf"); g.addColorStop(0.55, "#e9dcb8"); g.addColorStop(1, "#dccb9f");
+        c.fillStyle = g; c.fillRect(0, 0, W, H);
+        var rg = c.createRadialGradient(W / 2, 0, 20, W / 2, 0, H * 0.7); rg.addColorStop(0, "rgba(255,250,232,0.85)"); rg.addColorStop(1, "rgba(255,250,232,0)");
+        c.fillStyle = rg; c.fillRect(0, 0, W, H);
+        c.strokeStyle = "rgba(120,85,30,0.55)"; c.lineWidth = 3; c.strokeRect(40, 40, W - 80, H - 80);
+        c.strokeStyle = "rgba(120,85,30,0.3)"; c.lineWidth = 1.5; c.strokeRect(52, 52, W - 104, H - 104);
+        // the yin-yang
+        var cx = W / 2, cy = 150, r = 48;
+        c.fillStyle = "#f6edd2"; c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fill();
+        c.fillStyle = INK; c.beginPath(); c.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false); c.arc(cx, cy + r / 2, r / 2, Math.PI / 2, Math.PI * 1.5, false); c.arc(cx, cy - r / 2, r / 2, Math.PI / 2, -Math.PI / 2, true); c.fill();
+        c.beginPath(); c.arc(cx, cy - r / 2, r / 6, 0, Math.PI * 2); c.fill();
+        c.fillStyle = "#f6edd2"; c.beginPath(); c.arc(cx, cy + r / 2, r / 6, 0, Math.PI * 2); c.fill();
+        c.strokeStyle = INK; c.lineWidth = 3; c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.stroke();
+        c.textAlign = "center";
+        c.fillStyle = DIM; c.font = "400 25px " + TEXT; if ("letterSpacing" in c) c.letterSpacing = "7px";
+        c.fillText(("Tao Te Ching · Chapter " + shown + " of 81").toUpperCase(), W / 2 + 3, 266);
+        if ("letterSpacing" in c) c.letterSpacing = "0px";
+        c.fillStyle = SEAL; c.font = "400 150px " + DISP; c.fillText(roman(shown), W / 2, 420);
+        if (shown === todayCh) { c.fillStyle = DIM; c.font = "italic 400 31px " + DISP; c.fillText(dateLine(), W / 2, 478); }
+        c.strokeStyle = "rgba(42,32,23,0.22)"; c.lineWidth = 2; c.beginPath(); c.moveTo(W / 2 - 90, 520); c.lineTo(W / 2 + 90, 520); c.stroke();
+        c.textAlign = "left"; var y = top + 40, barFrom = null;
+        rows.forEach(function (rw, i) {
+          c.font = rw.font; c.fillStyle = INK; c.fillText(rw.s, rw.x, y);
+          if (rw.bar && barFrom === null) barFrom = y - rw.lh * 0.7;
+          var last = !rows[i + 1] || !rows[i + 1].bar || rw.gap;
+          if (rw.bar && last) { c.fillStyle = "rgba(156,47,31,0.4)"; c.fillRect(M + 8, barFrom, 3, y + 14 - barFrom); barFrom = null; }
+          y += rw.lh + (rw.gap || 0);
+        });
+        c.textAlign = "center"; c.strokeStyle = "rgba(42,32,23,0.2)"; c.lineWidth = 1.5; c.beginPath(); c.moveTo(M + 80, H - 190); c.lineTo(W - M - 80, H - 190); c.stroke();
+        c.fillStyle = DIM; c.font = "400 25px " + TEXT; c.fillText(CREDIT[ver], W / 2, H - 140);
+        c.font = "italic 400 28px " + DISP; c.fillText("TwelveCubed · RoTao", W / 2, H - 98);
+        return new Promise(function (res) { cv.toBlob(res, "image/png"); });
+      }).then(function (blob) { btn.disabled = false; if (blob) saveFile(blob, chName("png")); }, function () { btn.disabled = false; });
+    }
+    $$("[data-dl]").forEach(function (b) {
+      b.addEventListener("click", function (ev) { if (ev.shiftKey) saveText(); else savePicture(b); });
+    });
+
     function setOpen(open) {
       scroll.classList.toggle("is-open", open);
       btn.setAttribute("aria-expanded", open ? "true" : "false");
@@ -288,7 +374,185 @@
     } else go();
   }
 
+  /* ================================================================ 5. the motto card as a picture ======= */
+  /* The card under "the manifesto" (the motto, the name and the six tongues) drawn on a canvas and saved as a large PNG, always in the
+     dark blue and orange of the site whatever theme is on. The words are read from the card itself, so manifesto.json stays the one source.
+     The globe and the sun halo come from data/art.js (data addresses, so the canvas can be exported from file:// pages too). Nothing is sent anywhere. */
+  function mountManifesto() {
+    var sec = $(".manifesto"), btn = $("[data-mf-save]");
+    if (!sec || !btn) return;
+    var label = $("span", btn), idle = label ? label.textContent : "", busy = false;
+    var DISP = "'IM Fell English', 'Iowan Old Style', Palatino, Georgia, serif", TEXT = "'Literata', Georgia, 'Times New Roman', serif";
+    var ORANGE = "#ffa31a", GROUND = "#08104a", PAPER = "#eaf1ee", DIM = "#c4d3da";
+    var FONT = {
+      la: TEXT, he: "'Noto Serif Hebrew', 'SBL Hebrew', serif", syr: "'TC Syriac', 'Noto Sans Syriac', 'Estrangelo Edessa', serif",
+      ar: "'TC Arabic', 'Noto Naskh Arabic', 'Amiri', serif", el: "'TC Greek', 'Literata', Georgia, serif",
+      ja: "'TC Japanese', 'Hiragino Mincho ProN', 'Yu Mincho', serif"
+    };
+    var SIZE = { la: 47, he: 56, syr: 48, ar: 58, el: 46, ja: 45 }, LHM = { la: 1.45, he: 1.42, syr: 1.55, ar: 1.5, el: 1.45, ja: 1.5 };
+
+    function readCard() {
+      return {
+        lines: $$(".mf-main > span", sec).map(function (sp) {
+          return Array.prototype.map.call(sp.childNodes, function (n) { return { t: n.textContent, em: n.nodeType === 1 }; });
+        }),
+        name: $(".mf-name", sec).textContent, title: $(".mf-title", sec).textContent,
+        tongues: $$(".mf-t", sec).map(function (t) {
+          var s = $(".mf-script", t), tr = $(".mf-tr", t);
+          return { name: $(".mf-lang", t).textContent, text: s.textContent, lang: s.getAttribute("lang") || "la", rtl: s.getAttribute("dir") === "rtl", tr: tr ? tr.textContent : "" };
+        })
+      };
+    }
+    function loadImage(src) {
+      return new Promise(function (res) { var i = new Image(); i.onload = function () { res(i); }; i.onerror = function () { res(null); }; i.src = src; });
+    }
+    function prepare(card) {
+      var fonts = ["italic 400 100px 'IM Fell English'", "400 100px 'IM Fell English'", "400 40px Literata", "italic 400 28px Literata", "600 20px Literata"]
+        .map(function (f) { return document.fonts.load(f, "That we are, for all things serve. Johan D. halevikohen Mysticus Vagus"); });
+      card.tongues.forEach(function (t) {
+        fonts.push(document.fonts.load("400 48px " + FONT[t.lang], t.text));
+        if (t.tr) fonts.push(document.fonts.load("italic 400 28px Literata", t.tr));
+      });
+      var fontsReady = document.fonts && document.fonts.load ? Promise.all(fonts).catch(function () { return 0; }) : Promise.resolve(0);
+      var lib = window.TC_ART && window.TC_ART.globe ? Promise.resolve() : loadScript("data/art.js");
+      return Promise.all([fontsReady, lib]).then(function () {
+        return Promise.all([loadImage(window.TC_ART.globe), loadImage(window.TC_ART.sun)]);
+      });
+    }
+
+    function draw(card, globe, sun) {
+      var W = 1400, PAD = 96, COLW = 600, mc = document.createElement("canvas").getContext("2d");
+      function wrap(text, font, maxW, joiner) {
+        mc.font = font;
+        var toks = String(text).replace(/([、，])/g, "$1 ").split(/\s+/).filter(Boolean), out = [], cur = "";
+        toks.forEach(function (w) {
+          var t = cur ? cur + joiner + w : w;
+          if (cur && mc.measureText(t).width > maxW) { out.push(cur); cur = w; } else cur = t;
+        });
+        if (cur) out.push(cur);
+        var fin = [];
+        out.forEach(function (ln) {        // a line still too wide (a long unbroken run) is cut by letters
+          if (mc.measureText(ln).width <= maxW) { fin.push(ln); return; }
+          var part = "";
+          Array.prototype.forEach.call(ln, function (ch) { if (part && mc.measureText(part + ch).width > maxW) { fin.push(part); part = ch; } else part += ch; });
+          if (part) fin.push(part);
+        });
+        return fin;
+      }
+      // ---- layout
+      var GW = 380, GH = 475, GY = 150, GX = (W - GW) / 2;
+      var mainSize = 116, mainLines = card.lines;
+      function mainWidth(ln, size) {
+        return ln.reduce(function (n, s) { mc.font = (s.em ? "400 " : "italic 400 ") + size + "px " + DISP; return n + mc.measureText(s.t).width; }, 0);
+      }
+      while (mainSize > 60 && Math.max.apply(null, mainLines.map(function (l) { return mainWidth(l, mainSize); })) > W - 2 * PAD - 40) mainSize -= 4;
+      var yMain = GY + GH + 40 + mainSize * 0.95, mainLH = mainSize * 1.14;
+      var yName = yMain + mainLH * (mainLines.length - 1) + 118, yTitle = yName + 56, yOrn = yTitle + 56, yTong = yOrn + 70;
+      var blocks = card.tongues.map(function (t) {
+        var f = "400 " + SIZE[t.lang] + "px " + FONT[t.lang], lh = SIZE[t.lang] * LHM[t.lang];
+        var sl = wrap(t.text, f, COLW - 20, t.lang === "ja" ? "" : " "), tl = t.tr ? wrap(t.tr, "italic 400 29px " + TEXT, COLW - 20, " ") : [];
+        return { t: t, f: f, lh: lh, sl: sl, tl: tl, h: 34 + 12 + sl.length * lh + (tl.length ? 10 + tl.length * 40 : 0) };
+      });
+      var colX = [PAD + COLW / 2, W - PAD - COLW / 2], lastBottom = [yTong, yTong], prevY = yTong, prevH = 0, bottom = yTong;
+      blocks.forEach(function (b, i) {
+        var col = i % 2, y = i === 0 ? yTong : Math.max(prevY + prevH * 0.56 + 18, lastBottom[col] + 30);
+        b.x = colX[col]; b.y = y; lastBottom[col] = y + b.h; prevY = y; prevH = b.h; bottom = Math.max(bottom, y + b.h);
+      });
+      var yFoot = bottom + 110, H = Math.round(yFoot + 120);
+      var S = Math.min(2.5, Math.sqrt(15e6 / (W * H)));
+
+      // ---- paint
+      var cv = document.createElement("canvas"); cv.width = Math.round(W * S); cv.height = Math.round(H * S);
+      var c = cv.getContext("2d"); c.scale(S, S);
+      function ls(px) { if ("letterSpacing" in c) c.letterSpacing = px + "px"; }
+      function rr(x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+      function arch(x, y, w, h, r2) {
+        var r = w / 2; c.beginPath(); c.moveTo(x, y + r); c.arc(x + r, y + r, r, Math.PI, 0);
+        c.lineTo(x + w, y + h - r2); c.quadraticCurveTo(x + w, y + h, x + w - r2, y + h); c.lineTo(x + r2, y + h);
+        c.quadraticCurveTo(x, y + h, x, y + h - r2); c.closePath();
+      }
+      function archOut(e) { arch(GX - e, GY - e, GW + 2 * e, GH + 2 * e, 24 + e); }
+      function diamond(x, y, s) {
+        c.save(); c.translate(x, y); c.rotate(Math.PI / 4); c.fillStyle = ORANGE; c.shadowColor = "rgba(255,170,40,0.8)"; c.shadowBlur = 16; c.fillRect(-s / 2, -s / 2, s, s); c.restore();
+      }
+      c.fillStyle = GROUND; c.fillRect(0, 0, W, H);
+      var FX = 34, FY = 34, FW = W - 68, FH = H - 68;
+      rr(FX, FY, FW, FH, 34); c.save(); c.clip();
+      var rg = c.createRadialGradient(W / 2, FY, 0, W / 2, FY, W * 0.66); rg.addColorStop(0, "rgba(255,166,38,0.22)"); rg.addColorStop(1, "rgba(255,166,38,0)");
+      c.fillStyle = rg; c.fillRect(FX, FY, FW, FH);
+      c.fillStyle = "rgba(234,241,238,0.045)"; c.fillRect(FX, FY, FW, FH);
+      if (sun) { c.globalAlpha = 0.13; c.drawImage(sun, W / 2 - 480, GY + GH / 2 - 480, 960, 960); c.globalAlpha = 1; }
+      c.restore();
+      rr(FX, FY, FW, FH, 34); c.strokeStyle = "rgba(255,166,38,0.45)"; c.lineWidth = 2; c.stroke();
+      rr(FX + 14, FY + 14, FW - 28, FH - 28, 24); c.strokeStyle = "rgba(255,166,38,0.24)"; c.lineWidth = 1.5; c.stroke();
+      diamond(FX + 30, FY + 30, 15); diamond(FX + FW - 30, FY + 30, 15); diamond(FX + 30, FY + FH - 30, 15); diamond(FX + FW - 30, FY + FH - 30, 15);
+
+      // the globe in its arch
+      c.save(); c.shadowColor = "rgba(255,166,38,0.28)"; c.shadowBlur = 56; c.shadowOffsetY = 14; archOut(8); c.fillStyle = GROUND; c.fill(); c.restore();
+      archOut(7); c.fillStyle = GROUND; c.fill(); archOut(7.5); c.strokeStyle = "rgba(255,166,38,0.38)"; c.lineWidth = 1.5; c.stroke();
+      if (globe) {
+        c.save(); arch(GX, GY, GW, GH, 24); c.clip();
+        var k = Math.max(GW / globe.width, GH / globe.height), dw = globe.width * k, dh = globe.height * k;
+        c.drawImage(globe, GX + (GW - dw) / 2, GY + (GH - dh) / 2, dw, dh); c.restore();
+      }
+      archOut(1); c.strokeStyle = "rgba(255,166,38,0.78)"; c.lineWidth = 2.5; c.stroke();
+
+      // the motto
+      c.textBaseline = "alphabetic"; c.textAlign = "left";
+      mainLines.forEach(function (ln, i) {
+        var x = (W - mainWidth(ln, mainSize)) / 2, y = yMain + i * mainLH;
+        ln.forEach(function (s) {
+          c.font = (s.em ? "400 " : "italic 400 ") + mainSize + "px " + DISP; c.fillStyle = s.em ? ORANGE : PAPER;
+          c.shadowColor = "rgba(255,166,38,0.5)"; c.shadowBlur = 30; c.fillText(s.t, x, y); c.shadowBlur = 0; c.shadowColor = "transparent";
+          x += c.measureText(s.t).width;
+        });
+      });
+      c.textAlign = "center";
+      c.font = "400 58px " + DISP; c.fillStyle = PAPER; ls(3.5); c.fillText(card.name, W / 2 + 2, yName); ls(0);
+      c.font = "italic 400 31px " + TEXT; c.fillStyle = ORANGE; ls(7.5); c.fillText(card.title, W / 2 + 4, yTitle); ls(0);
+      // the ornament: two fading lines and a diamond
+      var lg = c.createLinearGradient(W / 2 - 250, 0, W / 2 - 22, 0); lg.addColorStop(0, "rgba(255,166,38,0)"); lg.addColorStop(1, "rgba(255,166,38,0.85)");
+      c.fillStyle = lg; c.fillRect(W / 2 - 250, yOrn, 228, 1.8);
+      var rg2 = c.createLinearGradient(W / 2 + 22, 0, W / 2 + 250, 0); rg2.addColorStop(0, "rgba(255,166,38,0.85)"); rg2.addColorStop(1, "rgba(255,166,38,0)");
+      c.fillStyle = rg2; c.fillRect(W / 2 + 22, yOrn, 228, 1.8);
+      diamond(W / 2, yOrn + 1, 13);
+
+      // the six tongues, in a zig-zag
+      blocks.forEach(function (b) {
+        var y = b.y + 22;
+        c.direction = "ltr"; c.textAlign = "center"; c.font = "600 21px " + TEXT; c.fillStyle = ORANGE; ls(5.6);
+        c.fillText(b.t.name.toUpperCase(), b.x + 3, y); ls(0);
+        y += 12; c.fillStyle = PAPER; c.font = b.f; c.direction = b.t.rtl ? "rtl" : "ltr";
+        b.sl.forEach(function (ln) { y += b.lh; c.fillText(ln, b.x, y - b.lh * 0.22); });
+        c.direction = "ltr";
+        if (b.tl.length) {
+          y += 10 - 4; c.font = "italic 400 29px " + TEXT; c.fillStyle = DIM;
+          b.tl.forEach(function (ln) { y += 40; c.fillText(ln, b.x, y - 10); });
+        }
+      });
+      c.textAlign = "center"; c.direction = "ltr";
+      c.strokeStyle = "rgba(255,166,38,0.28)"; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W / 2 - 160, yFoot - 44); c.lineTo(W / 2 + 160, yFoot - 44); c.stroke();
+      c.fillStyle = "rgba(196,211,218,0.85)"; c.font = "italic 400 29px " + DISP; c.fillText("TwelveCubed · RoTao", W / 2, yFoot);
+      return new Promise(function (res) { cv.toBlob(res, "image/png"); });
+    }
+
+    function saveBlob(blob) {
+      var url = URL.createObjectURL(blob), a = document.createElement("a");
+      a.href = url; a.download = "that-we-are-for-all-things-serve-motto-card.png"; a.style.display = "none"; document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1500);
+    }
+    btn.addEventListener("click", function () {
+      if (busy) return; busy = true; btn.disabled = true; if (label) label.textContent = "Drawing the card…";
+      var card = readCard();
+      prepare(card).then(function (im) { return draw(card, im[0], im[1]); })
+        .then(function (blob) { if (blob) saveBlob(blob); else if (label) label.textContent = "Your browser could not save it"; })
+        .catch(function (e) { if (label) label.textContent = "Could not draw the card"; if (window.console) console.error(e); })
+        .then(function () { setTimeout(function () { busy = false; btn.disabled = false; if (label) label.textContent = idle; }, 900); });
+    });
+  }
+
   window.TCDaily = { clock: clock, chapterOfDay: chapterOfDay, roman: roman };
+  mountManifesto();
   mountScroll();
   mountCistercian();
   mountCosmos();

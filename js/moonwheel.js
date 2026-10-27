@@ -6,7 +6,7 @@
      inward as the month goes on (she circles the sky in about 27 days, so the last days of a long month lie just inside the first).
      The four main phases are ringed in gold at their exact moment, and an eclipse carries its own small symbol.
    In the middle: the Earth as the celestial clock draws it (at the Full Moon or the New Moon, with the night side and the places where
-   the Sun and the Moon stand overhead), or Sol and Luna, the Rota, the TwelveCubed mark, or the month written out.
+   the Sun and the Moon stand overhead), or Sol and Luna, the Rota, the TwelveCubed mark, the month written out, or all four together in one quartered medallion.
    Under the wheel: the phases and the eclipses of the month, with their date, time and degree.
 
    window.TCMoonWheel.build(model, { south, light, centre, zone }) -> Promise of { w, h, bg, svg }
@@ -169,6 +169,30 @@
       } else if (kind === "cubed") {
         m += circ(R_MED, 'fill="#08104a"') + '<g transform="translate(' + CX + " " + CY + ") scale(" + (1040 / 570).toFixed(4) + ')">' + LOGO + "</g>";
         capEarth = "Middle: the TwelveCubed mark, 12 × 12 × 12 = 1,728.";
+      } else if (kind === "all") {
+        /* the four together, in reading order: Sol and Luna, the Rota / the TwelveCubed mark, the month written last. Four coins in a quartered plate. */
+        var RC = 236, DD = 250, QINFO = [{ illum: 0, waxing: true, angle: 0 }, { illum: 0.5, waxing: true, angle: 90 }, { illum: 1, waxing: true, angle: 180 }, { illum: 0.5, waxing: false, angle: 270 }];
+        var cc = [[CX - DD, CY - DD], [CX + DD, CY - DD], [CX - DD, CY + DD], [CX + DD, CY + DD]];
+        function coinClip(n) { return '<clipPath id="mwc' + n + '"><circle cx="' + cc[n][0] + '" cy="' + cc[n][1] + '" r="' + RC + '"/></clipPath>'; }
+        m += circ(R_MED, 'fill="' + P.plate + '"');
+        m += '<path d="M' + (CX - R_MED) + " " + CY + "H" + (CX + R_MED) + "M" + CX + " " + (CY - R_MED) + "V" + (CY + R_MED) + '" stroke="' + P.gold + '" stroke-width="3" stroke-opacity="0.5"/>';
+        m += coinClip(0) + coinClip(1);
+        m += '<circle cx="' + cc[0][0] + '" cy="' + cc[0][1] + '" r="' + RC + '" fill="#ffffff"/>' +                                                           // Sol and Luna
+          '<image href="' + window.TC_ART.sol + '" x="' + (cc[0][0] - 245) + '" y="' + (cc[0][1] - 187) + '" width="490" height="374" preserveAspectRatio="xMidYMid meet" clip-path="url(#mwc0)"/>';
+        m += '<circle cx="' + cc[1][0] + '" cy="' + cc[1][1] + '" r="' + RC + '" fill="' + P.plate + '"/>' +                                                   // the Rota
+          '<image href="' + window.TC_ART.rota + '" x="' + (cc[1][0] - 212) + '" y="' + (cc[1][1] - 212) + '" width="424" height="424" clip-path="url(#mwc1)"/>';
+        m += '<circle cx="' + cc[2][0] + '" cy="' + cc[2][1] + '" r="' + RC + '" fill="#08104a"/>' +                                                          // the TwelveCubed mark
+          '<g transform="translate(' + cc[2][0] + " " + cc[2][1] + ") scale(" + (0.73).toFixed(4) + ')">' + LOGO + "</g>";
+        m += '<circle cx="' + cc[3][0] + '" cy="' + cc[3][1] + '" r="' + RC + '" fill="' + P.plate + '"/>';                                                      // the month
+        m += txt(cc[3][0], cc[3][1] - 40, months[model.m], 78, P.ink, 400, "middle");
+        m += txt(cc[3][0], cc[3][1] + 14, String(model.y), 50, P.accent, 400, "middle", ' letter-spacing="5"');
+        var qa = model.events.filter(function (e) { return e.type === "phase"; }).slice(0, 5), stp = qa.length > 4 ? 76 : 92, xa = cc[3][0] - (qa.length - 1) * stp / 2;
+        qa.forEach(function (e, n) {
+          m += moon(QINFO[e.quarter], xa + n * stp, cc[3][1] + 82, 21, true) + txt(xa + n * stp, cc[3][1] + 128, dateF.format(new Date(e.ms)).replace(/^\w+,? /, ""), 19, P.dim, 400, "middle");
+        });
+        for (var c4 = 0; c4 < 4; c4++) m += '<circle cx="' + cc[c4][0] + '" cy="' + cc[c4][1] + '" r="' + RC + '" fill="none" stroke="' + P.gold + '" stroke-width="5" stroke-opacity="0.9"/>';
+        m += '<path d="M' + CX + " " + (CY - 98) + "L" + (CX + 25) + " " + (CY - 25) + "L" + (CX + 98) + " " + CY + "L" + (CX + 25) + " " + (CY + 25) + "L" + CX + " " + (CY + 98) + "L" + (CX - 25) + " " + (CY + 25) + "L" + (CX - 98) + " " + CY + "L" + (CX - 25) + " " + (CY - 25) + 'Z" fill="' + P.gold + '"/>';
+        capEarth = "Middle, from the top left: Sol and Luna, the Rota, the TwelveCubed mark and the month.";
       } else {
         m += circ(R_MED, 'fill="' + P.plate + '"');
         m += txt(CX, CY - 40, months[model.m], 160, P.ink, 400, "middle");
@@ -177,7 +201,7 @@
         var step = 150, x0 = CX - (qs.length - 1) * step / 2;
         qs.forEach(function (e, n) {
           var info = [{ illum: 0, waxing: true, angle: 0 }, { illum: 0.5, waxing: true, angle: 90 }, { illum: 1, waxing: true, angle: 180 }, { illum: 0.5, waxing: false, angle: 270 }][e.quarter];
-          m += moon(info, x0 + n * step, CY + 230, 46, true) + txt(x0 + n * step, CY + 330, dateF.format(new Date(e.ms)).replace(/^\w+ /, ""), 26, P.dim, 400, "middle");
+          m += moon(info, x0 + n * step, CY + 230, 46, true) + txt(x0 + n * step, CY + 330, dateF.format(new Date(e.ms)).replace(/^\w+,? /, ""), 26, P.dim, 400, "middle");
         });
         capEarth = "";
       }
