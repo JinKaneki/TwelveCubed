@@ -414,13 +414,29 @@
         if (t.tr) fonts.push(document.fonts.load("italic 400 28px Literata", t.tr));
       });
       var fontsReady = document.fonts && document.fonts.load ? Promise.all(fonts).catch(function () { return 0; }) : Promise.resolve(0);
-      var lib = window.TC_ART && window.TC_ART.globe ? Promise.resolve() : loadScript("data/art.js");
-      return Promise.all([fontsReady, lib]).then(function () {
+      return Promise.all([fontsReady, loadArt()]).then(function () {
         return Promise.all([loadImage(window.TC_ART.globe), loadImage(window.TC_ART.sun)]);
+      }).then(function (im) {
+        if (!im[0] || !im[1]) throw new Error("The pictures for the card could not be decoded.");      // never save a card without its globe and sun
+        return im;
       });
     }
+    /* data/art.js holds the globe and the sun halo. An older copy of that file (from an earlier version of the site, kept by the browser or by the
+       offline copy) lacks them: then it is fetched again once, a moment later, because the offline worker refreshes it in the background. */
+    function loadArt() {
+      var ok = function () { return window.TC_ART && window.TC_ART.globe && window.TC_ART.sun; };
+      function pull(first) {
+        if (ok()) return Promise.resolve();
+        return loadScript(first ? "data/art.js" : "data/art.js?r=" + Date.now()).then(function () {
+          if (ok()) return;
+          if (!first) throw new Error("The pictures file is out of date. Reload the page and try again.");
+          return new Promise(function (r) { setTimeout(r, 2500); }).then(function () { return pull(false); });
+        });
+      }
+      return pull(true);
+    }
 
-    function draw(card, globe, sun) {
+    function draw(card, globe, sun, cap) {
       var W = 1400, PAD = 96, COLW = 600, mc = document.createElement("canvas").getContext("2d");
       function wrap(text, font, maxW, joiner) {
         mc.font = font;
@@ -459,7 +475,7 @@
         b.x = colX[col]; b.y = y; lastBottom[col] = y + b.h; prevY = y; prevH = b.h; bottom = Math.max(bottom, y + b.h);
       });
       var yFoot = bottom + 110, H = Math.round(yFoot + 120);
-      var S = Math.min(2.5, Math.sqrt(15e6 / (W * H)));
+      var S = Math.min(2.5, Math.sqrt(cap / (W * H)));
 
       // ---- paint
       var cv = document.createElement("canvas"); cv.width = Math.round(W * S); cv.height = Math.round(H * S);
@@ -533,7 +549,23 @@
       c.textAlign = "center"; c.direction = "ltr";
       c.strokeStyle = "rgba(255,166,38,0.28)"; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W / 2 - 160, yFoot - 44); c.lineTo(W / 2 + 160, yFoot - 44); c.stroke();
       c.fillStyle = "rgba(196,211,218,0.85)"; c.font = "italic 400 29px " + DISP; c.fillText("TwelveCubed · RoTao", W / 2, yFoot);
-      return new Promise(function (res) { cv.toBlob(res, "image/png"); });
+      // a phone that cannot hold a canvas this big sometimes gives back an empty picture without saying so: look at the middle of the globe
+      var gx = Math.round(W / 2 * S) - 4, gy = Math.round((GY + GH * 0.55) * S) - 4, drawn = false;
+      try {
+        var px = c.getImageData(gx, gy, 9, 9).data;
+        for (var q = 0; q < px.length; q += 4) if (px[q + 3] > 0 && (Math.abs(px[q] - 8) > 24 || Math.abs(px[q + 1] - 16) > 24 || Math.abs(px[q + 2] - 74) > 24)) { drawn = true; break; }
+      } catch (e) { drawn = true; }             // the browser will not let the pixels be read: trust the drawing
+      if (!drawn) return Promise.resolve(null);
+      return new Promise(function (res) { cv.toBlob(function (b) { res(b && b.size > 150000 ? b : null); }, "image/png"); });
+    }
+    /* the largest size the device can make: 15 million pixels on a computer, fewer on a phone, and smaller again if the first try fails */
+    function make(card, im) {
+      var phone = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (window.matchMedia && matchMedia("(pointer: coarse)").matches);
+      var caps = phone ? [9e6, 5e6, 2.5e6] : [15e6, 9e6, 4e6], i = 0;
+      function next() {
+        return draw(card, im[0], im[1], caps[i]).then(function (blob) { if (blob) return blob; return ++i < caps.length ? next() : null; });
+      }
+      return next();
     }
 
     function saveBlob(blob) {
@@ -543,11 +575,11 @@
     }
     btn.addEventListener("click", function () {
       if (busy) return; busy = true; btn.disabled = true; if (label) label.textContent = "Drawing the card…";
-      var card = readCard();
-      prepare(card).then(function (im) { return draw(card, im[0], im[1]); })
-        .then(function (blob) { if (blob) saveBlob(blob); else if (label) label.textContent = "Your browser could not save it"; })
-        .catch(function (e) { if (label) label.textContent = "Could not draw the card"; if (window.console) console.error(e); })
-        .then(function () { setTimeout(function () { busy = false; btn.disabled = false; if (label) label.textContent = idle; }, 900); });
+      var card = readCard(), wait = 900;
+      prepare(card).then(function (im) { return make(card, im); })
+        .then(function (blob) { if (blob) saveBlob(blob); else { wait = 5000; if (label) label.textContent = "Your browser could not save it"; } })
+        .catch(function (e) { wait = 6000; if (label) label.textContent = /pictures/.test(e && e.message || "") ? "Reload the page, then try again" : "Could not draw the card"; if (window.console) console.error(e); })
+        .then(function () { setTimeout(function () { busy = false; btn.disabled = false; if (label) label.textContent = idle; }, wait); });
     });
   }
 

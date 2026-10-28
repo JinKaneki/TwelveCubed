@@ -2,7 +2,11 @@
 
    1. Adds the manifest link (only when the site is opened from a web address; from a folder there is nothing to install).
    2. Registers the service worker (sw.js, made by tools/pwa.py), which keeps the app on the device and opens pages without a connection.
-   3. When a new version of the site has been fetched in the background, asks once whether to switch to it.
+   3. When a new version of the site has been fetched in the background, asks once whether to switch to it. Every time a page opens
+      while online (and again when the tab is looked at after a while, and when the connection comes back) the page reads version.json,
+      which is never cached, and compares its number with the version of the worker that is running. If they differ it asks the browser
+      to fetch the new version and shows "A new version of TwelveCubed is ready". If the new version cannot be installed in the
+      background, it offers a clean refresh instead (the saved copies of the app are cleared and the page is loaded again from the network).
    4. On the About page ([data-offline]): the install button, the state of offline mode, and "save the library": the portraits, the
       pair atlases, the Torah and Zohar and the Moon wheel pictures, saved on request, in the browser's own storage, and removable.
 
@@ -50,6 +54,61 @@
       d.firstChild.textContent = "Updating…";
     });
   }
+  /* ---- 3b. is a newer version out? ---- */
+  var lastCheck = 0, askedRefresh = false;
+  function askVersion() {                                             // the version of the worker that controls this page
+    return new Promise(function (resolve) {
+      var c = navigator.serviceWorker && navigator.serviceWorker.controller;
+      if (!c) { resolve(null); return; }
+      var done = false, finish = function (v) { if (!done) { done = true; resolve(v); } };
+      navigator.serviceWorker.addEventListener("message", function onMsg(ev) {
+        if (ev.data && ev.data.type === "VERSION") { navigator.serviceWorker.removeEventListener("message", onMsg); finish(ev.data.version); }
+      });
+      c.postMessage({ type: "VERSION" });
+      setTimeout(function () { finish(null); }, 2500);
+    });
+  }
+  function latestVersion() {
+    return fetch(ROOT + "version.json?_=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  }
+  function hardRefresh() {                                            // clear the saved copies of the app (not the library) and load everything again
+    var jobs = [];
+    if (window.caches) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.filter(function (k) { return k !== LIB; }).map(function (k) { return caches.delete(k); })); }));
+    if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); }));
+    return Promise.all(jobs).catch(function () { /* go on */ }).then(function () { location.reload(); });
+  }
+  function toastRefresh() {
+    if ($(".sw-toast") || askedRefresh) return;
+    askedRefresh = true;
+    var d = document.createElement("div");
+    d.className = "sw-toast"; d.setAttribute("role", "status");
+    d.innerHTML = "<span>A new version of TwelveCubed is out.</span><button type=\"button\" data-go>Refresh now</button><button type=\"button\" data-later>Later</button>";
+    document.body.appendChild(d);
+    $("[data-later]", d).addEventListener("click", function () { d.remove(); });
+    $("[data-go]", d).addEventListener("click", function () { d.firstChild.textContent = "Refreshing…"; hardRefresh(); });
+  }
+  /* -> Promise of { state: "current" | "update" | "offline" | "unknown" | "first" | "unsupported", running, latest } */
+  function checkNow() {
+    if (!CAN_SW) return Promise.resolve({ state: "unsupported" });
+    if (navigator.onLine === false) return Promise.resolve({ state: "offline" });
+    lastCheck = Date.now();
+    return Promise.all([latestVersion(), askVersion()]).then(function (v) {
+      var j = v[0], cur = v[1];
+      if (!j || !j.version) return { state: "unknown" };
+      if (!cur) return { state: "first", latest: j.version };         // a first visit: the worker has not taken control of this page yet
+      if (cur === j.version) return { state: "current", running: cur, latest: j.version, built: j.built };
+      whenReg(function (r) {                                          // a newer version is out: have the browser fetch it
+        if (r.waiting && navigator.serviceWorker.controller) { toast(r.waiting); return; }
+        r.update().catch(function () { /* offline */ }).then(function () {
+          if (r.waiting && navigator.serviceWorker.controller) toast(r.waiting);
+          else setTimeout(function () { if (!$(".sw-toast")) toastRefresh(); }, 20000);   // it did not come: offer the clean refresh
+        });
+      });
+      return { state: "update", running: cur, latest: j.version, built: j.built };
+    });
+  }
+  window.TCUpdate = { check: checkNow, refresh: hardRefresh };
+
   if (CAN_SW) {
     var start = function () {
       navigator.serviceWorker.register(ROOT + "sw.js", { scope: ROOT || "./", updateViaCache: "none" }).then(function (r) {
@@ -60,10 +119,12 @@
           if (!w) return;
           w.addEventListener("statechange", function () { if (w.state === "installed" && navigator.serviceWorker.controller) toast(w); });
         });
-        var last = Date.now();
-        document.addEventListener("visibilitychange", function () {              // a long-open tab looks for a new version when it is looked at again
-          if (document.visibilityState === "visible" && Date.now() - last > 30 * 60 * 1000) { last = Date.now(); r.update().catch(function () { /* offline */ }); }
+        setTimeout(checkNow, 1500);                                              // every time a page opens while online
+        document.addEventListener("visibilitychange", function () {              // a long-open tab looks again when it is looked at after a while
+          if (document.visibilityState === "visible" && Date.now() - lastCheck > 10 * 60 * 1000) checkNow();
         });
+        window.addEventListener("online", function () { if (Date.now() - lastCheck > 60 * 1000) checkNow(); });
+        setInterval(function () { if (document.visibilityState === "visible" && Date.now() - lastCheck > 20 * 60 * 1000) checkNow(); }, 5 * 60 * 1000);
       }).catch(function (e) { if (window.console) console.warn("Offline mode could not start:", e && e.message); });
     };
     if (document.readyState === "complete") start(); else window.addEventListener("load", start);
@@ -73,6 +134,7 @@
   function mountPanel(host) {
     host.innerHTML =
       '<p class="off-state" data-off-state></p>' +
+      '<p class="off-ver" data-off-ver></p>' +
       '<div class="off-install" data-off-install></div>' +
       '<div class="off-lib" data-off-lib hidden>' +
         "<h3>Keep the library on this device</h3>" +
@@ -87,6 +149,24 @@
       save: $('[data-act="save"]', host), cancel: $('[data-act="cancel"]', host), remove: $('[data-act="remove"]', host), bar: $("[data-off-bar]", host),
       msg: $("[data-off-msg]", host), store: $("[data-off-store]", host) };
     var pre = null, meta = {}, running = false, stop = false;
+    var ver = $("[data-off-ver]", host);
+
+    function paintVersion(res) {
+      if (!ver) return;
+      var btn = ' <button type="button" class="off-btn" data-act="check">Check for a new version</button>';
+      var t = {
+        current: "You have the latest version <code>" + esc(res.running || "") + "</code>.",
+        update: "A newer version (<code>" + esc(res.latest || "") + "</code>) is out. You are on <code>" + esc(res.running || "") + "</code>. It is being fetched, and you will be asked to update.",
+        first: "This is the first visit on this device, so you have the latest version (<code>" + esc(res.latest || "") + "</code>) once the page has loaded again.",
+        offline: "There is no connection right now, so the version cannot be checked.",
+        unknown: "The version could not be read. Try again when you are online.",
+        unsupported: ""
+      }[res.state] || "";
+      ver.innerHTML = t ? t + btn : "";
+      var b = $('[data-act="check"]', ver);
+      if (b) b.addEventListener("click", function () { b.disabled = true; ver.firstChild && (ver.firstChild.textContent = "Checking…"); checkNow().then(paintVersion); });
+    }
+    if (CAN_SW) setTimeout(function () { checkNow().then(paintVersion); }, 2200);
 
     function installHtml() {
       var standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone;
