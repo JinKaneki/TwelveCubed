@@ -1115,3 +1115,13 @@ html { scroll-padding-top: 5rem; }
 .off-ver:empty { display: none; }
 .off-ver code { font: 600 0.88rem/1 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; color: var(--rota-ink); }
 .off-ver .off-btn { margin-left: 0.4rem; min-height: 2rem; padding: 0.3rem 0.8rem; font-size: 0.85rem; }
+
+/* the winged sun (his own picture, unchanged, on its own white): shown on a warm paper plaque so the white of the picture melts into it;
+   home page between the rings and the three lights, and the RoTao page between the Moon calendar and the Tree of Life */
+.wings { width: min(66rem, 100%); margin: 2.4rem auto; padding: clamp(0.5rem, 2vw, 1.3rem) clamp(0.6rem, 3vw, 2rem); background: #fff4dc; border-radius: 1rem;
+  box-shadow: 0 0 0 1px rgba(255, 166, 38, 0.38), 0 0 46px rgba(255, 150, 40, 0.24); }
+.wings img { display: block; width: 100%; height: auto; mix-blend-mode: multiply; }
+/* Winged sun on the home page: keep the same side gutter as the RoTao page */
+.home > .wings { width: min(66rem, calc(100% - 2 * var(--gutter))); }
+:root[data-theme="light"] .wings { background: #fff7e6; box-shadow: 0 0 0 1px rgba(8, 16, 74, 0.16), 0 8px 26px rgba(8, 16, 74, 0.1); }
+@media (max-width: 40rem) { .wings { margin: 1.6rem auto; border-radius: 0.7rem; } }
