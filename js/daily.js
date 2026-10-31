@@ -396,7 +396,7 @@
         lines: $$(".mf-main > span", sec).map(function (sp) {
           return Array.prototype.map.call(sp.childNodes, function (n) { return { t: n.textContent, em: n.nodeType === 1 }; });
         }),
-        name: $(".mf-name", sec).textContent, title: $(".mf-title", sec).textContent,
+        subtitle: ($(".mf-hebrew", sec) ? $(".mf-hebrew", sec).textContent.trim() : ""), name: $(".mf-name", sec).textContent, title: $(".mf-title", sec).textContent,
         tongues: $$(".mf-t", sec).map(function (t) {
           var s = $(".mf-script", t), tr = $(".mf-tr", t);
           return { name: $(".mf-lang", t).textContent, text: s.textContent, lang: s.getAttribute("lang") || "la", rtl: s.getAttribute("dir") === "rtl", tr: tr ? tr.textContent : "" };
@@ -408,7 +408,8 @@
     }
     function prepare(card) {
       var fonts = ["italic 400 100px 'IM Fell English'", "400 100px 'IM Fell English'", "400 40px Literata", "italic 400 28px Literata", "600 20px Literata"]
-        .map(function (f) { return document.fonts.load(f, "That we are, for all things serve. Johan D. halevikohen Mysticus Vagus"); });
+        .map(function (f) { return document.fonts.load(f, "That we are, for all things serve. " + card.name + " " + card.title); });
+      if (card.subtitle) fonts.push(document.fonts.load("700 48px " + FONT.he, card.subtitle));      // the Hebrew line under the motto
       card.tongues.forEach(function (t) {
         fonts.push(document.fonts.load("400 48px " + FONT[t.lang], t.text));
         if (t.tr) fonts.push(document.fonts.load("italic 400 28px Literata", t.tr));
@@ -463,7 +464,8 @@
       }
       while (mainSize > 60 && Math.max.apply(null, mainLines.map(function (l) { return mainWidth(l, mainSize); })) > W - 2 * PAD - 40) mainSize -= 4;
       var yMain = GY + GH + 40 + mainSize * 0.95, mainLH = mainSize * 1.14;
-      var yName = yMain + mainLH * (mainLines.length - 1) + 118, yTitle = yName + 56, yOrn = yTitle + 56, yTong = yOrn + 70;
+      var HEB = 40, yHeb = yMain + mainLH * (mainLines.length - 1) + 92;              // the Hebrew line (.mf-hebrew) sits right under the motto
+      var yName = (card.subtitle ? yHeb + 92 : yMain + mainLH * (mainLines.length - 1) + 118), yTitle = yName + 50, yOrn = yTitle + 62, yTong = yOrn + 70;
       var blocks = card.tongues.map(function (t) {
         var f = "400 " + SIZE[t.lang] + "px " + FONT[t.lang], lh = SIZE[t.lang] * LHM[t.lang];
         var sl = wrap(t.text, f, COLW - 20, t.lang === "ja" ? "" : " "), tl = t.tr ? wrap(t.tr, "italic 400 29px " + TEXT, COLW - 20, " ") : [];
@@ -497,10 +499,10 @@
       var rg = c.createRadialGradient(W / 2, FY, 0, W / 2, FY, W * 0.66); rg.addColorStop(0, "rgba(255,166,38,0.22)"); rg.addColorStop(1, "rgba(255,166,38,0)");
       c.fillStyle = rg; c.fillRect(FX, FY, FW, FH);
       c.fillStyle = "rgba(234,241,238,0.045)"; c.fillRect(FX, FY, FW, FH);
-      if (sun) { c.globalAlpha = 0.13; c.drawImage(sun, W / 2 - 480, GY + GH / 2 - 480, 960, 960); c.globalAlpha = 1; }
+      if (sun) { c.globalAlpha = 0.13; c.drawImage(sun, W / 2 - 480, FY + 14, 960, 960); c.globalAlpha = 1; }      // the whole orange flower, its top petals just inside the frame
       c.restore();
-      rr(FX, FY, FW, FH, 34); c.strokeStyle = "rgba(255,166,38,0.45)"; c.lineWidth = 2; c.stroke();
-      rr(FX + 14, FY + 14, FW - 28, FH - 28, 24); c.strokeStyle = "rgba(255,166,38,0.24)"; c.lineWidth = 1.5; c.stroke();
+      rr(FX, FY, FW, FH, 34); c.strokeStyle = "rgba(255,166,38,0.9)"; c.lineWidth = 4.5; c.stroke();
+      rr(FX + 14, FY + 14, FW - 28, FH - 28, 24); c.strokeStyle = "rgba(255,166,38,0.55)"; c.lineWidth = 2.5; c.stroke();
       diamond(FX + 30, FY + 30, 15); diamond(FX + FW - 30, FY + 30, 15); diamond(FX + 30, FY + FH - 30, 15); diamond(FX + FW - 30, FY + FH - 30, 15);
 
       // the globe in its arch
@@ -511,7 +513,7 @@
         var k = Math.max(GW / globe.width, GH / globe.height), dw = globe.width * k, dh = globe.height * k;
         c.drawImage(globe, GX + (GW - dw) / 2, GY + (GH - dh) / 2, dw, dh); c.restore();
       }
-      archOut(1); c.strokeStyle = "rgba(255,166,38,0.78)"; c.lineWidth = 2.5; c.stroke();
+      archOut(1); c.strokeStyle = "rgba(255,166,38,0.95)"; c.lineWidth = 3.5; c.stroke();
 
       // the motto
       c.textBaseline = "alphabetic"; c.textAlign = "left";
@@ -524,8 +526,12 @@
         });
       });
       c.textAlign = "center";
+      if (card.subtitle) {                  // the Hebrew line: bold, cyan and letter-spaced, as .mf-hebrew is on the page
+        c.direction = "rtl"; c.font = "700 " + HEB + "px " + FONT.he; c.fillStyle = "cyan"; ls(HEB * 0.22);
+        c.fillText(card.subtitle, W / 2 + HEB * 0.135, yHeb); ls(0); c.direction = "ltr";
+      }
       c.font = "400 58px " + DISP; c.fillStyle = PAPER; ls(3.5); c.fillText(card.name, W / 2 + 2, yName); ls(0);
-      c.font = "italic 400 31px " + TEXT; c.fillStyle = ORANGE; ls(7.5); c.fillText(card.title, W / 2 + 4, yTitle); ls(0);
+      c.font = "400 23px " + TEXT; c.fillStyle = ORANGE; ls(5.1); c.fillText(card.title, W / 2 + 2.5, yTitle); ls(0);      // as .mf-title: upright, small, letter-spaced 0.22em
       // the ornament: two fading lines and a diamond
       var lg = c.createLinearGradient(W / 2 - 250, 0, W / 2 - 22, 0); lg.addColorStop(0, "rgba(255,166,38,0)"); lg.addColorStop(1, "rgba(255,166,38,0.85)");
       c.fillStyle = lg; c.fillRect(W / 2 - 250, yOrn, 228, 1.8);
