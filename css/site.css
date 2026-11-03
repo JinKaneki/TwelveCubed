@@ -1125,3 +1125,75 @@ html { scroll-padding-top: 5rem; }
 @media (max-width: 40rem) { .wings { margin: 1.6rem auto; border-radius: 0.7rem; } }
 /* Winged sun on the home page: keep the same side gutter as the RoTao page */
 .home > .wings { width: min(66rem, calc(100% - 2 * var(--gutter))); }
+
+/* ---- Hebrew letters and their numbers (home page, above Sol and Luna): the two tablets of the Ten Commandments (one double-arched slab with a crown at the seam)
+   held by two lions of Judah. Everything is sized in em, and --al-e scales it so the whole picture fits one screen, on desktop and on a phone. ---- */
+.aleph { --al-vh: 100vh; --al-e: 12px;
+  --al-line: rgba(255, 166, 38, 0.92); --al-line2: rgba(255, 166, 38, 0.46); --al-div: rgba(255, 166, 38, 0.2);
+  --al-s1: rgba(66, 88, 206, 0.36); --al-s2: rgba(14, 24, 104, 0.62); --al-g1: #ffc459; --al-g2: #ffa31a; --al-g3: #c9760a; --al-glow: rgba(255, 166, 38, 0.34);
+  position: relative; isolation: isolate; overflow: hidden; width: 100%; margin: 3rem 0 0; padding: 0 var(--gutter); text-align: center;
+  font-size: var(--al-e); line-height: 1.2; }
+@supports (height: 100svh) { .aleph { --al-vh: 100svh; } }
+.aleph { --al-e: clamp(5px, min(calc((100vw - 2 * var(--gutter)) / 87), calc((var(--al-vh) - 5.4rem) / 45.4)), 17px); }
+:root[data-theme="light"] .aleph { --al-line: rgba(150, 84, 0, 0.9); --al-line2: rgba(150, 84, 0, 0.42); --al-div: rgba(150, 84, 0, 0.22);
+  --al-s1: rgba(255, 244, 214, 0.96); --al-s2: rgba(255, 228, 176, 0.62); --al-g1: #f0b24c; --al-g2: #cf8a1a; --al-g3: #9a5a08; --al-glow: rgba(173, 97, 0, 0.26); }
+.al-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.al-defs .g1 { stop-color: var(--al-g1); } .al-defs .g2 { stop-color: var(--al-g2); } .al-defs .g3 { stop-color: var(--al-g3); }
+.al-defs .s1 { stop-color: var(--al-s1); } .al-defs .s2 { stop-color: var(--al-s2); }
+.al-halo { position: absolute; z-index: -1; left: 50%; top: 52%; width: 60em; height: auto; margin: -30em 0 0 -30em; opacity: 0.075; pointer-events: none; animation: tc-spin 420s linear infinite; }
+.al-frame { position: relative; width: 87em; max-width: 100%; margin: 0 auto; padding: 0 23.2em; }
+.al-top { position: relative; z-index: 1; padding: 0 0 2.2em; }
+.aleph-kicker { margin: 0; font: 500 1.7em/1.2 "Noto Serif Hebrew", "SBL Hebrew", serif; letter-spacing: 0.34em; padding-inline-start: 0.34em; color: var(--rota-ink); text-shadow: 0 0 1.2em var(--rota-glow); }
+.aleph h2 { margin: 0.12em 0 0; font: 400 2.6em/1.12 var(--display); color: var(--paper); text-wrap: balance; }
+.al-quote { margin: 0.35em 0 0; font: italic 400 1.5em/1.3 var(--display); letter-spacing: 0.04em; color: var(--rota-ink); text-shadow: 0 0 1em var(--rota-glow); }
+
+.al-tablets { position: relative; width: 41em; height: 35.2em; margin: 0 auto; padding: 5.8em 1.7em 1em; }
+.al-slab { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 1.1em var(--al-glow)); }
+.al-stone { fill: url(#al-stone); stroke: var(--al-line); stroke-width: 2.4; stroke-linejoin: round; }
+.al-ln2 { fill: none; stroke: var(--al-line2); stroke-width: 1.2; }
+.al-ln { stroke: var(--al-line); stroke-width: 1.3; stroke-linecap: round; }
+.al-fillg { fill: url(#al-gold); }
+.al-crown .al-fillg { fill: url(#al-crown); }
+.al-edge { stroke: var(--ground); stroke-width: 1.1; stroke-linejoin: round; }
+.al-gem { fill: var(--ground); }
+
+.al-tier { position: relative; }
+.al-head { display: flex; align-items: center; gap: 0.7em; direction: rtl; margin: 0 0.2em 0.35em; height: 1.55em; }
+.al-head-he { font: 500 1.28em/1 "Noto Serif Hebrew", "SBL Hebrew", serif; letter-spacing: 0.05em; color: var(--rota-ink); text-shadow: 0 0 0.9em var(--rota-glow); }
+.al-head i { flex: 1; height: 1px; background: linear-gradient(270deg, var(--al-line), rgba(255, 166, 38, 0)); }
+.al-head-en { direction: ltr; font: 600 0.68em/1.2 var(--text); letter-spacing: 0.26em; text-transform: uppercase; color: var(--paper-faint); white-space: nowrap; }
+.al-head-en b { margin-inline-start: 0.5em; font-weight: 600; color: var(--rota-ink); }
+
+.al-row { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; direction: rtl; }
+.al-cell { position: relative; display: flex; flex-direction: column; align-items: center; min-width: 0; height: 7.3em; padding: 0.15em 0 0; }
+.al-cell + .al-cell::before { content: ""; position: absolute; inset: 0.5em auto 0.4em 0; width: 1px; background: linear-gradient(180deg, rgba(255, 166, 38, 0), var(--al-div) 22%, var(--al-div) 78%, rgba(255, 166, 38, 0)); }
+.al-gl { font: 500 2.4em/1.12 "Noto Serif Hebrew", "SBL Hebrew", serif; color: var(--rota-ink); text-shadow: 0 0 0.9em var(--rota-glow), 0 0 0.3em var(--rota-glow); transition: text-shadow 0.28s ease; }
+.al-v { position: relative; z-index: 0; display: grid; place-items: center; width: 2.2em; height: 2.2em; margin: 0.1em 0 0.2em;
+  font: 700 0.98em/1 var(--text); font-variant-numeric: lining-nums tabular-nums; letter-spacing: 0; color: var(--paper); }
+.al-v::before { content: ""; position: absolute; z-index: -1; inset: 0.28em; transform: rotate(45deg); border: 1px solid var(--al-line); background: rgba(255, 166, 38, 0.18); box-shadow: 0 0 1.1em rgba(255, 166, 38, 0.55); }
+.al-nm { max-width: 100%; font: 600 0.66em/1.25 var(--text); letter-spacing: 0.12em; text-transform: uppercase; color: var(--paper-dim); white-space: nowrap; }
+.al-fin { margin-top: 0.1em; font: italic 400 0.82em/1 var(--display); letter-spacing: 0.04em; color: var(--rota-ink); }
+.al-cell.is-final .al-gl { color: var(--paper); text-shadow: 0 0 0.9em var(--rota-glow), 0 0 0.3em var(--rota-glow), 0 0 0.1em rgba(255, 166, 38, 0.7); }
+.al-cell.is-final .al-v::before { background: rgba(255, 255, 255, 0.1); }
+:root[data-theme="light"] .al-cell.is-final .al-gl { color: var(--paper); text-shadow: 0 0 0.8em var(--rota-glow), 0 0 0.25em var(--rota-glow); }
+:root[data-theme="light"] .al-v { color: var(--paper); }
+
+.al-maat { position: absolute; bottom: 1.2em; width: 23em; height: auto; filter: drop-shadow(0 0 0.9em var(--al-glow)); pointer-events: none; }
+.al-maat-l { left: 0.2em; transform: scaleX(-1); }
+.al-maat-r { right: 0.2em; }
+.al-base { position: relative; z-index: 0; display: flex; align-items: center; gap: 0.8em; margin: 0.15em 0 0; height: 1em; }
+.al-base i { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255, 166, 38, 0), var(--al-line)); }
+.al-base i:last-child { transform: scaleX(-1); }
+.al-base b { width: 0.6em; height: 0.6em; background: var(--rota); transform: rotate(45deg); box-shadow: 0 0 0.9em var(--rota-glow); }
+@media (hover: hover) { .al-cell:hover .al-gl { text-shadow: 0 0 1.3em var(--rota-glow), 0 0 0.5em var(--rota-glow), 0 0 0.15em rgba(255, 190, 90, 0.8); } }
+@media (max-width: 40rem) {
+  .aleph { margin-top: 2rem; --al-e: clamp(5px, min(calc((100vw - 2 * var(--gutter)) / 41.4), calc((var(--al-vh) - 4.4rem) / 50.4)), 17px); }
+  .al-frame { width: 41em; padding: 0; }
+  .al-top { min-height: 13.2em; padding: 0.4em 11.8em 1.5em; display: flex; flex-direction: column; justify-content: center; }
+  .aleph-kicker { font-size: 1.5em; }
+  .aleph h2 { font-size: 2em; }
+  .al-quote { font-size: 1.35em; }
+  .al-maat { top: 0.6em; bottom: auto; width: 11.6em; }
+  .al-maat-l { left: 0; } .al-maat-r { right: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .al-halo { animation: none; } .al-gl { transition: none; } }
