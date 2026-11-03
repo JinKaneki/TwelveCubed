@@ -101,3 +101,20 @@
     jumps.addEventListener("focusin", wake);
   }
 })();
+
+/* A link that points at a drop-down (or into one) opens it: for instance "About > How the sky is calculated" from the chart finder. */
+(function () {
+  "use strict";
+  function openTarget() {
+    var id = location.hash.length > 1 ? location.hash.slice(1) : "";
+    if (!id) return;
+    var el = null;
+    try { el = document.getElementById(decodeURIComponent(id)); } catch (e) { el = document.getElementById(id); }
+    if (!el) return;
+    if (el.tagName === "DETAILS") el.open = true;
+    var up = el.closest ? el.closest("details") : null;
+    if (up) { up.open = true; if (el !== up && el.scrollIntoView) el.scrollIntoView(); }
+  }
+  openTarget();
+  window.addEventListener("hashchange", openTarget);
+})();

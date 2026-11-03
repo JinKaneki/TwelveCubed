@@ -877,8 +877,8 @@ html { scroll-padding-top: 5rem; }
 /* ============================================================
    144,000 PETALS: the quieter room beside the atlas (yellow-on-black Yohachanan mark)
    ============================================================ */
-:root { --yoh: #ffe500; --yoh-ink: #ffe500; }
-:root[data-theme="light"] { --yoh-ink: #8a6a00; }
+:root { --yoh: #ffe500; --yoh-ink: #ffe500; --yoh-line: #ffe500; }
+:root[data-theme="light"] { --yoh-ink: #8a6a00; --yoh-line: #e0b000; }   /* strong yellow cannot be read as text on the light plate: lines use #e0b000, icons sit on navy discs, small labels on a yellow marker band */
 .petals-page { max-width: 76rem; margin: 0 auto; padding: 1.75rem var(--gutter) 1rem; }
 .crumbs { font-size: 0.95rem; color: var(--paper-dim); margin-bottom: 1.5rem; }
 .crumbs a { color: inherit; }
@@ -901,7 +901,7 @@ html { scroll-padding-top: 5rem; }
 .petal-card { display: grid; gap: 0.45rem; align-content: start; height: 100%; padding: 1.15rem 1.2rem 1.3rem; text-decoration: none;
               border: 1px solid var(--rule-strong); border-radius: 6px; background: var(--wash-faint);
               transition: border-color .18s ease, background-color .18s ease; }
-.petal-card:hover, .petal-card:focus-visible { border-color: var(--yoh-ink); background: var(--wash); }
+.petal-card:hover, .petal-card:focus-visible { border-color: var(--yoh-line); background: var(--wash); }
 .petal-ic { width: 1.8rem; height: 1.8rem; color: var(--yoh-ink); }
 .petal-card .gl { width: 1.8rem; height: 1.8rem; }
 .petal-t { font: 400 1.4rem/1.25 var(--display); }
@@ -917,7 +917,7 @@ html { scroll-padding-top: 5rem; }
 .petals-date { color: var(--paper-dim); font-size: 0.95rem; margin-top: 0.4rem; }
 .petals-page .prose { padding: 0; margin: 0 0 1.5rem; max-width: var(--measure); }
 .petals-page .prose h2 { margin-top: 2rem; }
-.petals-page .prose blockquote { border-left: 3px solid var(--yoh-ink); margin: 1.25rem 0; padding: 0.1rem 0 0.1rem 1rem; color: var(--paper-dim); }
+.petals-page .prose blockquote { border-left: 3px solid var(--yoh-line); margin: 1.25rem 0; padding: 0.1rem 0 0.1rem 1rem; color: var(--paper-dim); }
 .petals-page .md-fig, .geo-fig { margin: 1.5rem 0; }
 .petals-page .md-fig img, .geo-fig img { max-width: 100%; height: auto; border-radius: 6px; }
 .petals-page figcaption { color: var(--paper-dim); font-size: 0.95rem; margin-top: 0.5rem; }
@@ -1197,3 +1197,32 @@ html { scroll-padding-top: 5rem; }
   .al-maat-l { left: 0; } .al-maat-r { right: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .al-halo { animation: none; } .al-gl { transition: none; } }
+
+/* ------------------------------------------------------------
+   The 144,000 Petals entry of the menu wears the strong yellow of that room (the yellow of its seal); RoTao keeps its orange.
+   On the light plate yellow letters cannot be read, so the word stays navy and sits on a yellow marker band.
+   The Petals pages use the same yellow in light mode: icons on a navy disc, small labels on a yellow marker band, yellow rules.
+   ------------------------------------------------------------ */
+.masthead nav a[href$="petals/index.html"] { color: var(--yoh); }
+.masthead nav a[href$="petals/index.html"]:hover,
+.masthead nav a[href$="petals/index.html"][aria-current] { color: var(--yoh); border-bottom-color: currentColor; }
+@media (max-width: 48rem) { .masthead nav a[href$="petals/index.html"][aria-current] { box-shadow: inset 3px 0 0 var(--yoh); } }
+:root[data-theme="light"] .masthead nav a[href$="petals/index.html"] { color: var(--paper); }
+@media (min-width: 48.01rem) {
+  :root[data-theme="light"] .masthead nav a[href$="petals/index.html"] { padding: 0 0.22em; margin: 0 -0.22em;
+    background: linear-gradient(transparent 50%, var(--yoh) 50%, var(--yoh) 94%, transparent 94%); }
+}
+@media (max-width: 48rem) { :root[data-theme="light"] .masthead nav a[href$="petals/index.html"] { box-shadow: inset 0.4rem 0 0 var(--yoh); } }
+:root[data-theme="light"] .petal-ic, :root[data-theme="light"] .petals-head > svg { box-sizing: content-box; padding: 0.4rem; border-radius: 50%; background: #08104a; color: var(--yoh); }
+:root[data-theme="light"] .petal-meta, :root[data-theme="light"] .moon-facts dt { width: fit-content; padding: 0 0.3em; color: #08104a; font-weight: 600;
+  background: linear-gradient(transparent 12%, var(--yoh) 12%, var(--yoh) 94%, transparent 94%); }
+
+/* About: "How the sky is calculated" is a drop-down, the same as "How to read the celestial clock" on the RoTao page */
+.calc-how { margin: 1.6rem 0 0; border: 1px solid var(--rule); border-radius: 0.8rem; }
+.calc-how > summary { cursor: pointer; padding: 0.9rem 1.2rem; font: 400 1.25rem/1.3 var(--display); list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.calc-how > summary::-webkit-details-marker { display: none; }
+.calc-how > summary::after { content: "+"; font-size: 1.4rem; color: var(--paper-dim); }
+.calc-how[open] > summary::after { content: "\2212"; }
+.calc-how > summary:focus-visible { outline: 2px solid var(--rota); outline-offset: 2px; border-radius: 0.8rem; }
+.calc-how .how-body { padding: 0 1.2rem 1.2rem; }
+.calc-how .how-body > :first-child { margin-top: 0; }
