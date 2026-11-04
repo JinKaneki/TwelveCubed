@@ -544,8 +544,12 @@ var ORN = (function () {
       var S = Math.min(2.5, Math.sqrt(cap / (W * H)));
 
       // ---- paint
+      /* An opaque canvas kept in ordinary memory (willReadFrequently): a phone's graphics memory is what gives up first on a picture this big,
+         and when it does the canvas comes back with parts of the card missing and the rest see-through. */
       var cv = document.createElement("canvas"); cv.width = Math.round(W * S); cv.height = Math.round(H * S);
-      var c = cv.getContext("2d"); c.scale(S, S);
+      var c = cv.getContext("2d", { alpha: false, willReadFrequently: true }) || cv.getContext("2d");
+      c.fillStyle = GROUND; c.fillRect(0, 0, cv.width, cv.height);      // every pixel, the last row and column included (W * S is rarely a whole number)
+      c.scale(S, S);
       function ls(px) { if ("letterSpacing" in c) c.letterSpacing = px + "px"; }
       function rr(x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
       function arch(x, y, w, h, r2) {
@@ -618,21 +622,34 @@ var ORN = (function () {
       c.textAlign = "center"; c.direction = "ltr";
       c.strokeStyle = "rgba(255,166,38,0.28)"; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W / 2 - 160, yFoot - 44); c.lineTo(W / 2 + 160, yFoot - 44); c.stroke();
       c.fillStyle = "rgba(196,211,218,0.85)"; c.font = "italic 400 29px " + DISP; c.fillText("TwelveCubed · RoTao", W / 2, yFoot);
-      // a phone that cannot hold a canvas this big sometimes gives back an empty picture without saying so: look at the middle of the globe
-      var gx = Math.round(W / 2 * S) - 4, gy = Math.round((GY + GH * 0.55) * S) - 4, drawn = false;
+      // A phone that cannot hold a canvas this big sometimes gives back a card with parts missing, and says nothing. Four places that must hold
+      // something other than the dark ground are looked at: the globe, the motto, the Hebrew line and the footer. If one is empty, a smaller size is tried.
+      function lit(x0, y0, x1, y1, test) {
+        var x = Math.max(0, Math.round(x0 * S)), y = Math.max(0, Math.round(y0 * S)), w = Math.max(1, Math.round((x1 - x0) * S)), h = Math.max(1, Math.round((y1 - y0) * S));
+        var d = c.getImageData(x, y, w, h).data;
+        for (var q = 0; q < d.length; q += 4) if (test(d[q], d[q + 1], d[q + 2])) return true;
+        return false;
+      }
+      var off = function (r, g, bl) { return Math.abs(r - 8) > 24 || Math.abs(g - 16) > 24 || Math.abs(bl - 74) > 24; };
+      var drawn = true;
       try {
-        var px = c.getImageData(gx, gy, 9, 9).data;
-        for (var q = 0; q < px.length; q += 4) if (px[q + 3] > 0 && (Math.abs(px[q] - 8) > 24 || Math.abs(px[q + 1] - 16) > 24 || Math.abs(px[q + 2] - 74) > 24)) { drawn = true; break; }
+        drawn = lit(W / 2 - 40, GY + GH * 0.5, W / 2 + 40, GY + GH * 0.6, off)
+          && lit(W / 2 - 300, yMain - mainSize * 0.7, W / 2 + 300, yMain + 4, function (r, g, bl) { return r > 150; })
+          && (!card.subtitle || lit(W / 2 - 80, yHeb - HEB * 0.8, W / 2 + 80, yHeb, function (r, g, bl) { return g > 170 && bl > 170 && r < 90; }))
+          && lit(W / 2 - 120, yFoot - 24, W / 2 + 120, yFoot + 2, function (r, g, bl) { return r > 110 && g > 120; });
       } catch (e) { drawn = true; }             // the browser will not let the pixels be read: trust the drawing
-      if (!drawn) return Promise.resolve(null);
-      return new Promise(function (res) { cv.toBlob(function (b) { res(b && b.size > 150000 ? b : null); }, "image/png"); });
+      if (!drawn) { cv.width = cv.height = 0; return Promise.resolve(null); }
+      return new Promise(function (res) {
+        cv.toBlob(function (b) { cv.width = cv.height = 0; res(b && b.size > 150000 ? b : null); }, "image/png");
+      });
     }
     /* the largest size the device can make: 15 million pixels on a computer, fewer on a phone, and smaller again if the first try fails */
     function make(card, im) {
       var phone = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (window.matchMedia && matchMedia("(pointer: coarse)").matches);
       var caps = phone ? [9e6, 5e6, 2.5e6] : [15e6, 9e6, 4e6], i = 0;
       function next() {
-        return draw(card, im[0], im[1], caps[i]).then(function (blob) { if (blob) return blob; return ++i < caps.length ? next() : null; });
+        var go; try { go = draw(card, im[0], im[1], caps[i]); } catch (e) { if (window.console) console.error(e); go = Promise.resolve(null); }
+        return go.then(function (blob) { if (blob) return blob; return ++i < caps.length ? next() : null; });
       }
       return next();
     }

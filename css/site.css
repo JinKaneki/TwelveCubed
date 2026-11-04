@@ -1241,3 +1241,11 @@ html { scroll-padding-top: 5rem; }
 .destiny-chain.dc-wait.dc-go li { opacity: 1; transform: none; }
 @media (max-width: 40rem) { .destiny-chain li { padding-left: calc(0.45rem + var(--i) * 0.75rem); font-size: calc(1rem + var(--i) * 0.05rem); } }
 @media (prefers-reduced-motion: reduce) { .destiny-chain li { transition: none !important; } .destiny-chain.dc-wait li { opacity: 1; transform: none; } }
+
+/* R32: the two About pictures (originals, styled here only). The frog follows the
+   opening line; the chameleon stands before "The three lights". */
+.about-page .about-pic { margin: 1.6rem auto; }
+.about-page .about-pic img { display: block; width: 100%; height: auto; border-radius: 0.8rem; box-shadow: 0 0 0 1px var(--rule-strong), var(--shadow); }
+.about-page .about-frog { max-width: 36rem; }
+.about-page .about-cham { max-width: 19rem; margin-top: 2.2rem; margin-bottom: 2rem; }
+@media (max-width: 34rem) { .about-page .about-cham { max-width: min(17rem, 100%); } }
