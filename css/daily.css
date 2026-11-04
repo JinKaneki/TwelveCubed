@@ -636,3 +636,9 @@
   .rc-logo { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(15.5rem, 68vw); }
 }
 @media (prefers-reduced-motion: reduce) { .rc-logo { animation: none !important; } }
+
+/* R31: his wide picture of the kneeling winged figure, under the Rota and the two Ma'at, one row across the whole seal. */
+.rc-wide { grid-column: 1 / -1; grid-row: 2; justify-self: center; display: block; width: min(52rem, 100%); height: auto; margin-top: clamp(0.2rem, 1.6vw, 1.2rem); pointer-events: none;
+  filter: drop-shadow(0 0 1.1rem rgba(255, 166, 38, 0.3)); }
+:root[data-theme="light"] .rc-wide { filter: drop-shadow(0 0 0.9rem rgba(173, 97, 0, 0.28)); }
+@media (max-width: 40rem) { .rc-wide { grid-row: 3; width: 100%; margin-top: 0.4rem; } }

@@ -118,3 +118,15 @@
   openTarget();
   window.addEventListener("hashchange", openTarget);
 })();
+
+/* About: the chain of sayings (figure[data-chain]) unveils line by line when it scrolls into view. Without this script, or with reduced motion, the lines are simply shown. */
+(function () {
+  var fig = document.querySelector("[data-chain]");
+  if (!fig || !("IntersectionObserver" in window)) return;
+  try { if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return; } catch (e) {}
+  fig.classList.add("dc-wait");
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { fig.classList.add("dc-go"); io.disconnect(); } });
+  }, { threshold: 0.35 });
+  io.observe(fig);
+})();

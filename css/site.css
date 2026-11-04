@@ -1226,3 +1226,18 @@ html { scroll-padding-top: 5rem; }
 .calc-how > summary:focus-visible { outline: 2px solid var(--rota); outline-offset: 2px; border-radius: 0.8rem; }
 .calc-how .how-body { padding: 0 1.2rem 1.2rem; }
 .calc-how .how-body > :first-child { margin-top: 0; }
+
+/* ---------------------------------------------------------------- R31: About, "from a thought to a destiny": the chain of five sayings unveils line by line */
+.about-page .destiny > p { max-width: 38rem; margin-left: auto; margin-right: auto; }
+.destiny-chain { max-width: 34rem; margin: 1.8rem auto 1.9rem; padding: 0; }
+.destiny-chain blockquote { margin: 0; padding: 0; border: 0; background: none; }
+.destiny-chain ol { list-style: none; margin: 0; padding: 0; }
+.destiny-chain li { margin: 0; padding: 0.5rem 0 0.5rem calc(0.5rem + var(--i) * 1.15rem); border-left: 2px solid var(--wash-faint, rgba(255, 166, 38, 0.25)); color: var(--paper-dim);
+  font: italic 400 calc(1.08rem + var(--i) * 0.07rem)/1.35 var(--display); transition: opacity 1.4s ease, transform 1.4s ease, color 1.4s ease; transition-delay: calc(var(--i) * 0.95s); }
+.destiny-chain li:last-child { color: var(--rota-ink); border-left-color: var(--rota-ink); text-shadow: 0 0 18px var(--rota-glow); }
+.destiny-chain figcaption { margin-top: 0.7rem; padding-left: 0.5rem; font-size: 0.85rem; letter-spacing: 0.04em; color: var(--paper-faint); }
+/* with scripts on, the lines wait until the chain scrolls into view, then appear one after another (without scripts they are simply there) */
+.destiny-chain.dc-wait li { opacity: 0; transform: translateY(8px); }
+.destiny-chain.dc-wait.dc-go li { opacity: 1; transform: none; }
+@media (max-width: 40rem) { .destiny-chain li { padding-left: calc(0.45rem + var(--i) * 0.75rem); font-size: calc(1rem + var(--i) * 0.05rem); } }
+@media (prefers-reduced-motion: reduce) { .destiny-chain li { transition: none !important; } .destiny-chain.dc-wait li { opacity: 1; transform: none; } }
